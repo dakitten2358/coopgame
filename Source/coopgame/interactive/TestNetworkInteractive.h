@@ -15,8 +15,11 @@ public:
 	ATestNetworkInteractive();
 
 	UFUNCTION(Reliable, NetMulticast, BlueprintCallable)
-	void DoStuff();
-	void DoStuff_Implementation();
+	void DoStuff(UObject* obj);
+	void DoStuff_Implementation(UObject* obj);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnStuffDone();
 
 protected:
 	// Called when the game starts or when spawned

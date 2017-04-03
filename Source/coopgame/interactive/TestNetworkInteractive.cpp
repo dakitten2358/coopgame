@@ -24,10 +24,10 @@ void ATestNetworkInteractive::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void ATestNetworkInteractive::DoStuff_Implementation()
+void ATestNetworkInteractive::DoStuff_Implementation(UObject* obj)
 {
-	if (GEngine != nullptr)
+	if (obj)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 1.5, FColor::White, "omg hi");
-	}	
+		OnStuffDone();
+	}
 }

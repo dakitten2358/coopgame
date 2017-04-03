@@ -22,5 +22,13 @@
 			"Name": "OnlineSubsystemSteam",
 			"Enabled": true
 		}
+	],
+	"TargetPlatforms": [
+		"AllDesktop",
+		"MacNoEditor",
+		"PS4",
+		"WindowsNoEditor",
+		"XboxOne",
+		"LinuxNoEditor"
 	]
 }

@@ -39,19 +39,7 @@ CoopGameState UCoopGameInstance::TransitionToState(CoopGameState newState)
 
 void UCoopGameInstance::ShowMainMenu()
 {
-	// if we're playing, switch back to the menu
-	if (IsCurrentState(CoopGameState::Playing))
-		UGameplayStatics::OpenLevel(GetWorldContext(), "MainMenu");
 	
-	// keep track of the internal state
-	TransitionToState(CoopGameState::MainMenu);
-
-	// if we haven't created the main menu before, now is the time to create it
-	if (m_mainMenu == nullptr)
-	{
-		
-
-	}
 }
 
 void UCoopGameInstance::DebugError(const char* fmt, ...) const

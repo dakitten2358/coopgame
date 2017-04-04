@@ -30,7 +30,6 @@ class COOPGAME_API UCoopGameInstance : public UGameInstance
 	// ------------------------------------------
 protected:
 	CoopGameState m_currentGameState = CoopGameState::Startup;
-	UUserWidget* m_mainMenu = nullptr;
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Game State")
@@ -39,7 +38,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Game State")
 	CoopGameState TransitionToState(CoopGameState newState);
 
-	UFUNCTION(BlueprintCallable, Category = "Game State");
+	UFUNCTION(BlueprintCallable, Category = "Game State")
 	void ShowMainMenu();
 
 	// ------------------------------------------

@@ -28,7 +28,7 @@
 		"MacNoEditor",
 		"PS4",
 		"WindowsNoEditor",
-		"XboxOne",
-		"LinuxNoEditor"
+		"LinuxNoEditor",
+		"XboxOne"
 	]
 }

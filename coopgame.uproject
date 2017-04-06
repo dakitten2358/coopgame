@@ -24,11 +24,6 @@
 		}
 	],
 	"TargetPlatforms": [
-		"AllDesktop",
-		"MacNoEditor",
-		"PS4",
-		"WindowsNoEditor",
-		"LinuxNoEditor",
-		"XboxOne"
+		"AllDesktop"
 	]
 }

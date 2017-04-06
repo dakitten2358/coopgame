@@ -5,6 +5,8 @@
 #include "Engine/GameInstance.h"
 #include "CoopGameInstance.generated.h"
 
+class UUserWidget;
+
 UENUM(BlueprintType)
 enum class CoopGameState : uint8
 {
@@ -30,6 +32,10 @@ class COOPGAME_API UCoopGameInstance : public UGameInstance
 	// ------------------------------------------
 protected:
 	CoopGameState m_currentGameState = CoopGameState::Startup;
+	
+	UUserWidget* m_mainMenuWidget = nullptr;
+	TSubclassOf<UUserWidget> m_mainMenuTemplate;
+	FName m_mainMenuLevel;
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Game State")
@@ -38,8 +44,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Game State")
 	CoopGameState TransitionToState(CoopGameState newState);
 
-	UFUNCTION(BlueprintCallable, Category = "Game State")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Game State")
 	void ShowMainMenu();
+
+	UFUNCTION(BlueprintCallable, Category = "Init")
+	void SetDefaultsForMainMenu(TSubclassOf<UUserWidget> menuTemplate, FName menuLevel);
 
 	// ------------------------------------------
 	// Debug Helpers

@@ -7,6 +7,6 @@ public class coopgame : ModuleRules
 	public coopgame(TargetInfo Target)
 	{
 		Definitions.Add("_CRT_SECURE_NO_WARNINGS");
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HeadMountedDisplay" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HeadMountedDisplay", "UMG", "Slate", "SlateCore" });
 	}
 }

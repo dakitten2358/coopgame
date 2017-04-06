@@ -5,6 +5,7 @@
 #include <cstdarg>
 #include <cstdio>
 #include <Runtime/Engine/Classes/Engine/Engine.h>
+#include <Runtime/UMG/Public/UMG.h>
 
 bool UCoopGameInstance::IsCurrentState(CoopGameState inState) const
 {
@@ -37,9 +38,27 @@ CoopGameState UCoopGameInstance::TransitionToState(CoopGameState newState)
 	return m_currentGameState;
 }
 
-void UCoopGameInstance::ShowMainMenu()
+void UCoopGameInstance::SetDefaultsForMainMenu(TSubclassOf<UUserWidget> menuTemplate, FName menuLevel)
 {
-	
+	m_mainMenuTemplate = menuTemplate;
+	m_mainMenuLevel = menuLevel;
+}
+
+void UCoopGameInstance::ShowMainMenu_Implementation()
+{
+	if (IsCurrentState(CoopGameState::Playing))
+		UGameplayStatics::OpenLevel(GetWorld(), m_mainMenuLevel);
+
+	TransitionToState(CoopGameState::MainMenu);
+
+	if (!IsValid(m_mainMenuWidget))
+	{
+		m_mainMenuWidget = CreateWidget<UUserWidget>(UGameplayStatics::GetPlayerController(GetWorld(), 0), m_mainMenuTemplate);
+		m_mainMenuWidget->AddToViewport();
+
+		FInputModeUIOnly inputModeUIOnly;
+		UGameplayStatics::GetPlayerController(GetWorld(), 0)->SetInputMode(inputModeUIOnly);
+	}
 }
 
 void UCoopGameInstance::DebugError(const char* fmt, ...) const

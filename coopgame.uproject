@@ -24,6 +24,9 @@
 		}
 	],
 	"TargetPlatforms": [
-		"AllDesktop"
+		"AllDesktop",
+		"WindowsNoEditor",
+		"MacNoEditor",
+		"LinuxNoEditor"
 	]
 }

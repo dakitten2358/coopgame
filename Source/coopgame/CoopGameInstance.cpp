@@ -46,18 +46,25 @@ void UCoopGameInstance::SetDefaultsForMainMenu(TSubclassOf<UUserWidget> menuTemp
 
 void UCoopGameInstance::ShowMainMenu_Implementation()
 {
+	DebugError("in main menu impl");
 	if (IsCurrentState(CoopGameState::Playing))
 		UGameplayStatics::OpenLevel(GetWorld(), m_mainMenuLevel);
 
+	DebugError("transitioning to main menu");
 	TransitionToState(CoopGameState::MainMenu);
 
 	if (!IsValid(m_mainMenuWidget))
 	{
+		DebugError("creating main menu");
 		m_mainMenuWidget = CreateWidget<UUserWidget>(UGameplayStatics::GetPlayerController(GetWorld(), 0), m_mainMenuTemplate);
 		m_mainMenuWidget->AddToViewport();
 
 		FInputModeUIOnly inputModeUIOnly;
 		UGameplayStatics::GetPlayerController(GetWorld(), 0)->SetInputMode(inputModeUIOnly);
+	}
+	else
+	{
+		DebugError("main menu already created");
 	}
 }
 

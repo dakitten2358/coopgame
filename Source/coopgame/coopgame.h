@@ -3,6 +3,6 @@
 #ifndef __COOPGAME_H__
 #define __COOPGAME_H__
 
-#include "EngineMinimal.h"
+#include "Engine.h"
 
 #endif

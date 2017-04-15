@@ -12,8 +12,9 @@ UCLASS()
 class COOPGAME_API ANativeCoopPlayerController : public APlayerController
 {
 	GENERATED_BODY()
-	
-	
-	
+
+public:
+	ANativeCoopPlayerController(const FObjectInitializer& ObjectInitializer);
+
 	
 };

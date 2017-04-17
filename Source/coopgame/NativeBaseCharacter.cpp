@@ -58,7 +58,7 @@ bool ANativeBaseCharacter::IsSprinting() const
 		return false;
 
 	// have to want to be sprinting, not targeting, and moving
-	bool wantsToSprintAndMoving = bWantsToSprint /*&& !IsTargeting()*/ && !GetVelocity().IsZero();
+	bool wantsToSprintAndMoving = bWantsToSprint && !IsAimingDownSights() && !GetVelocity().IsZero();
 		
 	// Don't allow sprint while strafing sideways or standing still (1.0 is straight forward, -1.0 is backward 
 	// while near 0 is sideways or standing still)

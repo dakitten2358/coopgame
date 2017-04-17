@@ -146,13 +146,11 @@ void ANativeCoopCharacter::OnToggleCrouch()
 
 void ANativeCoopCharacter::OnStartSprinting()
 {
-	ncc_output("sprint start");
 	SetSprinting(true);
 }
 
 void ANativeCoopCharacter::OnStopSprinting()
 {
-	ncc_output("sprint end");
 	SetSprinting(false);
 }
 
@@ -182,14 +180,11 @@ void ANativeCoopCharacter::SetupMovementComponentDefaults(UCharacterMovementComp
 // -----------------------------------------------------------------------------
 void ANativeCoopCharacter::OnStartAimingDownSights()
 {
-	ncc_output("Aiming down sights");
-
 	SetAimingDownSights(true);
 }
 
 void ANativeCoopCharacter::OnStopAimingDownSights()
 {
-	ncc_output("done aiming down sights");
 	SetAimingDownSights(false);
 }
 

@@ -2,21 +2,22 @@
 
 #include "coopgame.h"
 #include "NativeCoopCharacter.h"
+#include "items/NativeWeaponBase.h"
 
 void ncc_output(const char* fmt, ...)
 {
 	static const auto displayDuration = 3.0f;
 	static const auto forceAlwaysDisplay = -1;
-
+	
 	if (GEngine != nullptr)
 	{
 		char buffer[256];
-
+		
 		va_list args;
 		va_start(args, fmt);
 		vsprintf(buffer, fmt, args);
 		va_end(args);
-
+		
 		GEngine->AddOnScreenDebugMessage(forceAlwaysDisplay, displayDuration, FColor::Yellow, buffer);
 	}
 }
@@ -204,4 +205,16 @@ void ANativeCoopCharacter::CreateAndSetupCamera(const FObjectInitializer& object
 	CameraComponent = objectInitializer.CreateDefaultSubobject<UCameraComponent>(this, TEXT("Camera"));
 	CameraComponent->SetupAttachment(SpringArmForCamera, USpringArmComponent::SocketName);
 	CameraComponent->bUsePawnControlRotation = false;
+}
+
+// WEAPONS
+// -----------------------------------------------------------------------------
+void ANativeCoopCharacter::AddWeapon(ANativeWeaponBase* weapon)
+{
+	// only the server can tell us to add a weapon
+	if (weapon != nullptr && Role == ROLE_Authority)
+	{
+		ncc_output("equipping weapon");
+		weapon->OnEnterInventory(this);
+	}
 }

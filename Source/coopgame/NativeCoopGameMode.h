@@ -5,6 +5,8 @@
 #include "GameFramework/GameMode.h"
 #include "NativeCoopGameMode.generated.h"
 
+class ANativeWeaponBase;
+
 /**
  * 
  */
@@ -13,4 +15,10 @@ class COOPGAME_API ANativeCoopGameMode : public AGameMode
 {
 	GENERATED_UCLASS_BODY()
 	
+protected:
+	virtual void SetPlayerDefaults(APawn* playerPawn) override;
+
+	// default weapon to spawn with
+	UPROPERTY(EditDefaultsOnly, Category = "Player")
+	TSubclassOf<ANativeWeaponBase> DefaultWeapon;
 };

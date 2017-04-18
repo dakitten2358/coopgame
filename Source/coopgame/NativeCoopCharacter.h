@@ -8,6 +8,7 @@
 // fwds
 class UCharacterMovementComponent;
 class UInputComponent;
+class ANativeWeaponBase;
 
 // native implementation of a player character
 UCLASS()
@@ -73,6 +74,11 @@ public:
 private:
 	// create and setup the camera and it's associated spring arm
 	void CreateAndSetupCamera(const FObjectInitializer& objectInitializer);
+
+	// WEAPONS
+	// -----------------------------------------------------------------------------
+public:
+	void AddWeapon(ANativeWeaponBase* weapon);
 
 	// APawn IMPLEMENTATION
 	// -----------------------------------------------------------------------------

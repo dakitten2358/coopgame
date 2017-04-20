@@ -43,6 +43,8 @@ ANativeWeaponBase::ANativeWeaponBase(const FObjectInitializer& objectInitializer
 
 	SetReplicates(true);
 	bNetUseOwnerRelevancy = true;
+
+	m_timeBetweenShots = 0.5f;
 }
 
 void ANativeWeaponBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -135,6 +137,7 @@ void ANativeWeaponBase::DetachMeshFromCharacter()
 
 void ANativeWeaponBase::StartFire()
 {
+	nbw_output("ANativeWeaponBase::StartFire()");
 	if (Role < ROLE_Authority)
 		ServerStartFire();
 
@@ -152,11 +155,13 @@ bool ANativeWeaponBase::ServerStartFire_Validate()
 
 void ANativeWeaponBase::ServerStartFire_Implementation()
 {
+	nbw_output("ANativeWeaponBase::ServerStartFire_Implementation()");
 	StartFire();
 }
 
 void ANativeWeaponBase::StopFire()
 {
+	nbw_output("ANativeWeaponBase::StopFire()");
 	if (Role < ROLE_Authority)
 		ServerStopFire();
 
@@ -174,6 +179,7 @@ bool ANativeWeaponBase::ServerStopFire_Validate()
 
 void ANativeWeaponBase::ServerStopFire_Implementation()
 {
+	nbw_output("ANativeWeaponBase::ServerStopFire_Implementation()");
 	StopFire();
 }
 
@@ -201,7 +207,7 @@ void ANativeWeaponBase::SetWeaponState(EWeaponState newState)
 	// just stopped firing?
 	if (previousState == EWeaponState::Firing && newState == EWeaponState::Firing)
 	{
-		//OnBurstFinished();
+		OnBurstFinished();
 	}
 
 	m_weaponState = newState;
@@ -209,6 +215,99 @@ void ANativeWeaponBase::SetWeaponState(EWeaponState newState)
 	// just started firing?
 	if (previousState != EWeaponState::Firing && m_weaponState == EWeaponState::Firing)
 	{
-		//OnBurstStarted();
+		OnBurstStarted();
 	}
+}
+
+void ANativeWeaponBase::OnBurstStarted()
+{
+	nbw_output("ANativeWeaponBase::OnBurstStarted()");
+	float currentTime = GetWorld()->GetTimeSeconds();
+
+	if (m_lastFireTime > 0 && m_timeBetweenShots > 0 && (m_lastFireTime + m_timeBetweenShots) > currentTime)
+	{
+		GetWorldTimerManager().SetTimer(m_firingTimerHandle, this, &ANativeWeaponBase::HandleFiring, m_lastFireTime + m_timeBetweenShots - currentTime, false);
+	}
+	else
+	{
+		HandleFiring();
+	}
+}
+
+void ANativeWeaponBase::OnBurstFinished()
+{
+	nbw_output("ANativeWeaponBase::OnBurstFinished()");
+	// reset the burst counter ??
+	// BurstCounter = 0; //??
+
+	// for everyone that's not the dedicated server, stop the firing
+	if (GetNetMode() != NM_DedicatedServer)
+	{
+		//StopSimulatingWeaponFire();
+	}
+
+	// clear our timer
+	GetWorldTimerManager().ClearTimer(m_firingTimerHandle);
+	m_isRefiring = false;
+}
+
+void ANativeWeaponBase::HandleFiring()
+{
+	nbw_output("ANativeWeaponBase::HandleFiring()");
+	// can we fire?
+	if (CanFire())
+	{
+		// for everyone that's not the dedicated server, start firing
+		//if (GetNetMode() != NM_DedicatedServer)
+		//	SimulatingWeaponFire();
+
+		// is it me?
+		if (OwningCharacter && OwningCharacter->IsLocallyControlled())
+		{
+			nbw_output("pew pew");
+			// actually fire the weapon
+			//FireWeapon(); // derived
+
+			// update the burst counter
+			//BurstCounter++;
+		}
+	}
+	else if (OwningCharacter && OwningCharacter->IsLocallyControlled())
+	{
+		// stop weapon fire fx, but stay in firing state
+		//if (BurstCounter > 0)
+			//BurstCounter = 0;
+	}
+
+	if (OwningCharacter && OwningCharacter->IsLocallyControlled())
+	{
+		// let the server know
+		if (Role < ROLE_Authority)
+			ServerHandleFiring();
+
+		// shooting another shot?
+		m_isRefiring = (m_weaponState == EWeaponState::Firing && m_timeBetweenShots > 0.0f);
+		if (m_isRefiring)
+			GetWorldTimerManager().SetTimer(m_firingTimerHandle, this, &ANativeWeaponBase::HandleFiring, m_timeBetweenShots, false);
+	}
+}
+
+void ANativeWeaponBase::ServerHandleFiring_Implementation()
+{
+	nbw_output("ANativeWeaponBase::ServerHandleFiring_Implementation()");
+	HandleFiring();
+
+	bool m_shouldUpdateAmmo = (/*CurrentAmmoInClip > 0 && */CanFire());
+	if (m_shouldUpdateAmmo)
+	{
+		// use ammo
+
+		// update fx for remote clients
+		//BurstCounter++;
+	}
+}
+
+bool ANativeWeaponBase::ServerHandleFiring_Validate()
+{
+	return true;
 }

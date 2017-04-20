@@ -227,6 +227,7 @@ void ANativeCoopCharacter::AddWeapon(ANativeWeaponBase* weapon)
 	{
 		ncc_output("equipping weapon");
 		weapon->OnEnterInventory(this);
+		EquipWeapon(weapon);
 	}
 }
 
@@ -241,7 +242,7 @@ void ANativeCoopCharacter::EquipWeapon(ANativeWeaponBase* weapon)
 		if (Role == ROLE_Authority)
 		{
 			CurrentWeapon = weapon;
-			//SetCurrentWeapon(Weapon, CurrentWeapon);
+			SetCurrentWeapon(weapon);
 		}
 		else
 		{
@@ -262,9 +263,18 @@ void ANativeCoopCharacter::ServerEquipWeapon_Implementation(ANativeWeaponBase* W
 
 void ANativeCoopCharacter::OnRep_CurrentWeapon(ANativeWeaponBase* oldWeapon)
 {
-	//SetCurrentWeapon(CurrentWeapon, LastWeapon);
+	SetCurrentWeapon(CurrentWeapon);
 }
 
+void ANativeCoopCharacter::SetCurrentWeapon(ANativeWeaponBase* weapon)
+{
+	CurrentWeapon = weapon;
+	if (CurrentWeapon)
+	{
+		CurrentWeapon->SetOwningCharacter(this);
+
+	}
+}
 
 // FIRING
 // -----------------------------------------------------------------------------
@@ -285,24 +295,34 @@ void ANativeCoopCharacter::OnStopFire()
 
 void ANativeCoopCharacter::StartWeaponFire()
 {
+	ncc_output("ANativeCoopCharacter::StartWeaponFire() -> bWantsToFire = %s", bWantsToFire ? "true" : "false");
 	if (!bWantsToFire)
 	{
 		bWantsToFire = true;
 		if (CurrentWeapon)
 		{
-			//CurrentWeapon->StartFire();
+			CurrentWeapon->StartFire();
+		}
+		else
+		{
+			ncc_output("no weapon to fire!");
 		}
 	}
 }
 
 void ANativeCoopCharacter::StopWeaponFire()
 {
+	ncc_output("ANativeCoopCharacter::StopWeaponFire() -> bWantsToFire = %s", bWantsToFire ? "true" : "false");
 	if (bWantsToFire)
 	{
 		bWantsToFire = false;
 		if (CurrentWeapon)
 		{
-			//CurrentWeapon->StopFire();
+			CurrentWeapon->StopFire();
+		}
+		else
+		{
+			ncc_output("no weapon to stop fire");
 		}
 	}
 }

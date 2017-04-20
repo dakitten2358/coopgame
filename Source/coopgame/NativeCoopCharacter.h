@@ -92,6 +92,8 @@ public:
 	/* OnRep functions can use a parameter to hold the previous value of the variable. Very useful when you need to handle UnEquip etc. */
 	UFUNCTION()
 	void OnRep_CurrentWeapon(ANativeWeaponBase* LastWeapon);
+	
+	void SetCurrentWeapon(ANativeWeaponBase* weapon);
 
 
 	// FIRING

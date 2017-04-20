@@ -53,8 +53,10 @@ protected:
 	UFUNCTION()
 	void OnRep_OwningCharacter();
 
+public:
+	void SetOwningCharacter(ANativeCoopCharacter* newOwner);
 private:
-	void SetOwningCharacter(ANativeCoopCharacter* newOwner);	
+	
 	void ResetOwningCharacter();
 
 	void AttachMeshToCharacter();
@@ -65,6 +67,10 @@ private:
 private:
 	bool bWantsToFire;
 	EWeaponState m_weaponState;
+	FTimerHandle m_firingTimerHandle;
+	float m_lastFireTime;
+	float m_timeBetweenShots;
+	bool m_isRefiring;
 
 public:
 	void StartFire();
@@ -79,8 +85,19 @@ public:
 	void ServerStopFire_Implementation();
 	bool ServerStopFire_Validate();
 
+	virtual void HandleFiring();
+	UFUNCTION(Reliable, Server, WithValidation)
+	void ServerHandleFiring();
+	void ServerHandleFiring_Implementation();
+	bool ServerHandleFiring_Validation();
+
 private:
 	bool CanFire() const;
 	void UpdateWeaponState();
 	void SetWeaponState(EWeaponState newState);
+
+	void OnBurstStarted();
+	void OnBurstFinished();
+
+	
 };

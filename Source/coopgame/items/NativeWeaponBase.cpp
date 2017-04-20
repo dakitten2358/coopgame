@@ -127,9 +127,88 @@ void ANativeWeaponBase::AttachMeshToCharacter()
 	}
 }
 
-
 void ANativeWeaponBase::DetachMeshFromCharacter()
 {
 	Mesh->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 	Mesh->SetHiddenInGame(true);
+}
+
+void ANativeWeaponBase::StartFire()
+{
+	if (Role < ROLE_Authority)
+		ServerStartFire();
+
+	if (!bWantsToFire)
+	{
+		bWantsToFire = true;
+		UpdateWeaponState();
+	}
+}
+
+bool ANativeWeaponBase::ServerStartFire_Validate()
+{
+	return true;
+}
+
+void ANativeWeaponBase::ServerStartFire_Implementation()
+{
+	StartFire();
+}
+
+void ANativeWeaponBase::StopFire()
+{
+	if (Role < ROLE_Authority)
+		ServerStopFire();
+
+	if (bWantsToFire)
+	{
+		bWantsToFire = false;
+		UpdateWeaponState();
+	}
+}
+
+bool ANativeWeaponBase::ServerStopFire_Validate()
+{
+	return true;
+}
+
+void ANativeWeaponBase::ServerStopFire_Implementation()
+{
+	StopFire();
+}
+
+void ANativeWeaponBase::UpdateWeaponState()
+{
+	EWeaponState newState = EWeaponState::Idle;
+
+	if (bWantsToFire && CanFire())
+		newState = EWeaponState::Firing;
+
+	SetWeaponState(newState);
+}
+
+bool ANativeWeaponBase::CanFire() const
+{
+	bool characterCanFire = true; // check the pawn to see if it's ok to fire
+	bool stateOk = m_weaponState== EWeaponState::Idle || m_weaponState == EWeaponState::Firing;
+	return characterCanFire && stateOk;
+}
+
+void ANativeWeaponBase::SetWeaponState(EWeaponState newState)
+{
+	const EWeaponState previousState = m_weaponState;
+
+	// just stopped firing?
+	if (previousState == EWeaponState::Firing && newState == EWeaponState::Firing)
+	{
+		//OnBurstFinished();
+	}
+
+	m_weaponState = newState;
+
+	// just started firing?
+	if (previousState != EWeaponState::Firing && m_weaponState == EWeaponState::Firing)
+	{
+		//OnBurstStarted();
+	}
 }

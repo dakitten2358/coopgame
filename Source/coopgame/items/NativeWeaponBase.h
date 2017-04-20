@@ -7,6 +7,15 @@
 
 class ANativeCoopCharacter;
 
+UENUM()
+enum class EWeaponState
+{
+	Idle,
+	Firing,
+	Reloading,
+};
+
+
 UCLASS()
 class COOPGAME_API ANativeWeaponBase : public AActor
 {
@@ -50,4 +59,28 @@ private:
 
 	void AttachMeshToCharacter();
 	void DetachMeshFromCharacter();	
+
+	// FIRING RELATED
+	// -----------------------------------------------------------------------------
+private:
+	bool bWantsToFire;
+	EWeaponState m_weaponState;
+
+public:
+	void StartFire();
+	UFUNCTION(Reliable, Server, WithValidation)
+	void ServerStartFire();
+	void ServerStartFire_Implementation();
+	bool ServerStartFire_Validate();
+
+	void StopFire();
+	UFUNCTION(Reliable, Server, WithValidation)
+	void ServerStopFire();
+	void ServerStopFire_Implementation();
+	bool ServerStopFire_Validate();
+
+private:
+	bool CanFire() const;
+	void UpdateWeaponState();
+	void SetWeaponState(EWeaponState newState);
 };

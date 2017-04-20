@@ -78,7 +78,34 @@ private:
 	// WEAPONS
 	// -----------------------------------------------------------------------------
 public:
+	UPROPERTY(Transient, ReplicatedUsing = OnRep_CurrentWeapon)
+	class ANativeWeaponBase* CurrentWeapon;
+
 	void AddWeapon(ANativeWeaponBase* weapon);
+	void EquipWeapon(ANativeWeaponBase* Weapon);
+
+	UFUNCTION(Reliable, Server, WithValidation)
+	void ServerEquipWeapon(ANativeWeaponBase* Weapon);
+	void ServerEquipWeapon_Implementation(ANativeWeaponBase* Weapon);
+	bool ServerEquipWeapon_Validate(ANativeWeaponBase* Weapon);
+
+	/* OnRep functions can use a parameter to hold the previous value of the variable. Very useful when you need to handle UnEquip etc. */
+	UFUNCTION()
+	void OnRep_CurrentWeapon(ANativeWeaponBase* LastWeapon);
+
+
+	// FIRING
+	// ---------------------------------------------------------------
+private:
+	bool bWantsToFire;
+
+public:
+	void OnStartFire();
+	void OnStopFire();
+
+	void StartWeaponFire();
+	void StopWeaponFire();
+
 
 	// APawn IMPLEMENTATION
 	// -----------------------------------------------------------------------------

@@ -54,6 +54,13 @@ void ANativeCoopCharacter::Tick(float deltaTime)
 		SetSprinting(true);
 }
 
+void ANativeCoopCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ANativeCoopCharacter, CurrentWeapon);
+}
+
 // APawn IMPLEMENTATION
 // -----------------------------------------------------------------------------
 void ANativeCoopCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -80,6 +87,10 @@ void ANativeCoopCharacter::SetupPlayerInputComponent(class UInputComponent* Play
 	// aiming
 	PlayerInputComponent->BindAction("AimingDownSights", IE_Pressed, this, &ANativeCoopCharacter::OnStartAimingDownSights);
 	PlayerInputComponent->BindAction("AimingDownSights", IE_Released, this, &ANativeCoopCharacter::OnStopAimingDownSights);
+
+	// firing
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ANativeCoopCharacter::OnStartFire);
+	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ANativeCoopCharacter::OnStopFire);
 }
 
 // MOVEMENT
@@ -216,5 +227,82 @@ void ANativeCoopCharacter::AddWeapon(ANativeWeaponBase* weapon)
 	{
 		ncc_output("equipping weapon");
 		weapon->OnEnterInventory(this);
+	}
+}
+
+void ANativeCoopCharacter::EquipWeapon(ANativeWeaponBase* weapon)
+{
+	if (weapon)
+	{
+		// Ignore if trying to equip already equipped weapon
+		if (weapon == CurrentWeapon)
+			return;
+
+		if (Role == ROLE_Authority)
+		{
+			CurrentWeapon = weapon;
+			//SetCurrentWeapon(Weapon, CurrentWeapon);
+		}
+		else
+		{
+			ServerEquipWeapon(weapon);
+		}
+	}
+}
+
+bool ANativeCoopCharacter::ServerEquipWeapon_Validate(ANativeWeaponBase* Weapon)
+{
+	return true;
+}
+
+void ANativeCoopCharacter::ServerEquipWeapon_Implementation(ANativeWeaponBase* Weapon)
+{
+	EquipWeapon(Weapon);
+}
+
+void ANativeCoopCharacter::OnRep_CurrentWeapon(ANativeWeaponBase* oldWeapon)
+{
+	//SetCurrentWeapon(CurrentWeapon, LastWeapon);
+}
+
+
+// FIRING
+// -----------------------------------------------------------------------------
+void ANativeCoopCharacter::OnStartFire()
+{
+	// stop sprinting if we are
+	if (IsSprinting())
+		SetSprinting(false);
+
+	// start firing the weapon
+	StartWeaponFire();
+}
+
+void ANativeCoopCharacter::OnStopFire()
+{
+	StopWeaponFire();
+}
+
+void ANativeCoopCharacter::StartWeaponFire()
+{
+	if (!bWantsToFire)
+	{
+		bWantsToFire = true;
+		if (CurrentWeapon)
+		{
+			//CurrentWeapon->StartFire();
+		}
+	}
+}
+
+void ANativeCoopCharacter::StopWeaponFire()
+{
+	if (bWantsToFire)
+	{
+		bWantsToFire = false;
+		if (CurrentWeapon)
+		{
+			//CurrentWeapon->StopFire();
+		}
 	}
 }

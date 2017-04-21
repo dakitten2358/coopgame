@@ -241,7 +241,6 @@ void ANativeCoopCharacter::EquipWeapon(ANativeWeaponBase* weapon)
 
 		if (Role == ROLE_Authority)
 		{
-			CurrentWeapon = weapon;
 			SetCurrentWeapon(weapon);
 		}
 		else
@@ -268,6 +267,7 @@ void ANativeCoopCharacter::OnRep_CurrentWeapon(ANativeWeaponBase* oldWeapon)
 
 void ANativeCoopCharacter::SetCurrentWeapon(ANativeWeaponBase* weapon)
 {
+	ncc_output("setting weapon!");
 	CurrentWeapon = weapon;
 	if (CurrentWeapon)
 	{

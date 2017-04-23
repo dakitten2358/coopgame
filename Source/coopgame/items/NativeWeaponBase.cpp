@@ -44,12 +44,16 @@ ANativeWeaponBase::ANativeWeaponBase(const FObjectInitializer& objectInitializer
 	SetReplicates(true);
 	bNetUseOwnerRelevancy = true;
 
-	m_timeBetweenShots = 0.5f;
+	MuzzleAttachPoint = TEXT("Muzzle");
+
+	m_timeBetweenShots = 1.5f;
 }
 
 void ANativeWeaponBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION(ANativeWeaponBase, BurstCounter, COND_SkipOwner);
 }
 
 
@@ -135,6 +139,20 @@ void ANativeWeaponBase::DetachMeshFromCharacter()
 	Mesh->SetHiddenInGame(true);
 }
 
+// PROJECTILLE RELATED
+// -----------------------------------------------------------------------------
+FVector ANativeWeaponBase::GetMuzzleLocation() const
+{
+	return Mesh->GetSocketLocation(MuzzleAttachPoint);
+}
+
+FRotator ANativeWeaponBase::GetMuzzleDirection() const
+{
+	return Mesh->GetSocketRotation(MuzzleAttachPoint);
+}
+
+// FIRING RELATED
+// -----------------------------------------------------------------------------
 void ANativeWeaponBase::StartFire()
 {
 	nbw_output("ANativeWeaponBase::StartFire()");
@@ -237,13 +255,14 @@ void ANativeWeaponBase::OnBurstStarted()
 void ANativeWeaponBase::OnBurstFinished()
 {
 	nbw_output("ANativeWeaponBase::OnBurstFinished()");
+	
 	// reset the burst counter ??
-	// BurstCounter = 0; //??
+	BurstCounter = 0;
 
 	// for everyone that's not the dedicated server, stop the firing
 	if (GetNetMode() != NM_DedicatedServer)
 	{
-		//StopSimulatingWeaponFire();
+		StopSimulatingWeaponFire();
 	}
 
 	// clear our timer
@@ -257,26 +276,34 @@ void ANativeWeaponBase::HandleFiring()
 	// can we fire?
 	if (CanFire())
 	{
+		nbw_output("Firing");
 		// for everyone that's not the dedicated server, start firing
-		//if (GetNetMode() != NM_DedicatedServer)
-		//	SimulatingWeaponFire();
+		if (GetNetMode() != NM_DedicatedServer)
+			SimulateWeaponFire();
+
+		// the impl for projectile weapons should call a server func to 
+		// actually spawn the projectile, while passing in the location/rotation
+		// so we can spawn it at the correct location
 
 		// is it me?
 		if (OwningCharacter && OwningCharacter->IsLocallyControlled())
 		{
-			nbw_output("pew pew");
-			// actually fire the weapon
-			//FireWeapon(); // derived
+			FireWeapon();			
 
 			// update the burst counter
-			//BurstCounter++;
+			BurstCounter++;
 		}
+		else
+		{
+			nbw_output("not me!");
+		}
+
 	}
 	else if (OwningCharacter && OwningCharacter->IsLocallyControlled())
 	{
 		// stop weapon fire fx, but stay in firing state
-		//if (BurstCounter > 0)
-			//BurstCounter = 0;
+		if (BurstCounter > 0)
+			BurstCounter = 0;
 	}
 
 	if (OwningCharacter && OwningCharacter->IsLocallyControlled())
@@ -303,11 +330,83 @@ void ANativeWeaponBase::ServerHandleFiring_Implementation()
 		// use ammo
 
 		// update fx for remote clients
-		//BurstCounter++;
+		BurstCounter++;
 	}
 }
 
 bool ANativeWeaponBase::ServerHandleFiring_Validate()
 {
 	return true;
+}
+
+void ANativeWeaponBase::OnRep_BurstCounter()
+{
+	if (BurstCounter > 0)
+	{
+		SimulateWeaponFire();
+	}
+	else
+	{
+		StopSimulatingWeaponFire();
+	}
+}
+
+FHitResult ANativeWeaponBase::WeaponTrace(const FVector& TraceFrom, const FVector& TraceTo) const
+{
+	FCollisionQueryParams TraceParams(TEXT("WeaponTrace"), true, Instigator);
+	TraceParams.bTraceAsyncScene = true;
+	TraceParams.bReturnPhysicalMaterial = true;
+
+	FHitResult Hit(ForceInit);
+	GetWorld()->LineTraceSingleByChannel(Hit, TraceFrom, TraceTo, COLLISION_WEAPON, TraceParams);
+
+	return Hit;
+}
+
+void ANativeWeaponBase::FireWeapon()
+{
+	nbw_output("pew pew");
+	const auto& loc = GetMuzzleLocation();
+	const auto& rot = GetMuzzleDirection();
+	if (DefaultProjectile != nullptr)
+	{
+		// spawn the projectile
+		FActorSpawnParameters spawnInfo;
+		spawnInfo.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		auto newProjectile = GetWorld()->SpawnActor<AActor>(DefaultProjectile, loc, rot, spawnInfo);
+		if (newProjectile == nullptr)
+		{
+			nbw_output("failed ot spawn");
+		}
+	}
+	else
+	{
+		nbw_output("no projectile");
+	}
+
+}
+
+void ANativeWeaponBase::SimulateWeaponFire()
+{
+	//if (MuzzleFX)
+	//{
+	//	MuzzlePSC = UGameplayStatics::SpawnEmitterAttached(MuzzleFX, Mesh, MuzzleAttachPoint);
+	//}
+
+	if (!bPlayingFireAnim)
+	{
+		//PlayWeaponAnimation(FireAnim);
+		bPlayingFireAnim = true;
+	}
+
+	//PlayWeaponSound(FireSound);
+}
+
+void ANativeWeaponBase::StopSimulatingWeaponFire()
+{
+	if (bPlayingFireAnim)
+	{
+		//StopWeaponAnimation(FireAnim);
+		bPlayingFireAnim = false;
+	}
 }

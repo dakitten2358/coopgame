@@ -62,6 +62,19 @@ private:
 	void AttachMeshToCharacter();
 	void DetachMeshFromCharacter();	
 
+	// PROJECTILLE RELATED
+	// -----------------------------------------------------------------------------
+protected:
+	// default weapon to spawn with
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<AActor> DefaultProjectile;
+
+	UPROPERTY(EditDefaultsOnly)
+	FName MuzzleAttachPoint;
+
+	FVector GetMuzzleLocation() const;
+	FRotator GetMuzzleDirection() const;
+
 	// FIRING RELATED
 	// -----------------------------------------------------------------------------
 private:
@@ -71,6 +84,10 @@ private:
 	float m_lastFireTime;
 	float m_timeBetweenShots;
 	bool m_isRefiring;
+	bool bPlayingFireAnim;
+
+	UPROPERTY(Transient, ReplicatedUsing = OnRep_BurstCounter)
+	int32 BurstCounter;
 
 public:
 	void StartFire();
@@ -91,6 +108,13 @@ public:
 	void ServerHandleFiring_Implementation();
 	bool ServerHandleFiring_Validation();
 
+protected:
+	FHitResult WeaponTrace(const FVector& traceFrom, const FVector& traceTo) const;
+
+	virtual void FireWeapon();
+	virtual void SimulateWeaponFire();
+	virtual void StopSimulatingWeaponFire();
+
 private:
 	bool CanFire() const;
 	void UpdateWeaponState();
@@ -99,5 +123,6 @@ private:
 	void OnBurstStarted();
 	void OnBurstFinished();
 
-	
+	UFUNCTION()
+	void OnRep_BurstCounter();
 };

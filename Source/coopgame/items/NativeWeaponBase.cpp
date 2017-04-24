@@ -3,6 +3,7 @@
 #include "coopgame.h"
 #include "NativeWeaponBase.h"
 #include "NativeCoopCharacter.h"
+#include "NativeCoopPlayerController.h"
 
 void nbw_output(const char* fmt, ...)
 {
@@ -146,10 +147,50 @@ FVector ANativeWeaponBase::GetMuzzleLocation() const
 	return Mesh->GetSocketLocation(MuzzleAttachPoint);
 }
 
-FRotator ANativeWeaponBase::GetMuzzleDirection() const
+FVector ANativeWeaponBase::GetMuzzleDirection() const
 {
-	return Mesh->GetSocketRotation(MuzzleAttachPoint);
+	return Mesh->GetSocketRotation(MuzzleAttachPoint).Vector();
 }
+
+FVector ANativeWeaponBase::GetAdjustedAim() const
+{
+	auto playerController = Instigator ? Cast<ANativeCoopPlayerController>(Instigator->Controller) : nullptr;
+	FVector finalAimDirection = FVector::ZeroVector;
+
+	if (playerController != nullptr)
+	{
+		FVector cameraLocation;
+		FRotator cameraRotation;
+		playerController->GetPlayerViewPoint(cameraLocation, cameraRotation);
+
+		finalAimDirection = cameraRotation.Vector();
+	}
+	else if (Instigator)
+	{
+		finalAimDirection = Instigator->GetBaseAimRotation().Vector();
+	}
+
+	return finalAimDirection;
+}
+
+
+FVector ANativeWeaponBase::GetCameraDamageStartLocation(const FVector& aimDirection) const
+{
+	auto playerController = OwningCharacter ? Cast<ANativeCoopPlayerController>(OwningCharacter->Controller) : nullptr;
+	FVector outStartLocation = FVector::ZeroVector;
+
+	if (playerController != nullptr)
+	{
+		FRotator unusedRotation;
+		playerController->GetPlayerViewPoint(outStartLocation, unusedRotation);
+
+		// Adjust trace so there is nothing blocking the ray between the camera and the pawn, and calculate distance from adjusted start
+		outStartLocation = outStartLocation + aimDirection * (FVector::DotProduct((Instigator->GetActorLocation() - outStartLocation), aimDirection));
+	}
+
+	return outStartLocation;
+}
+
 
 // FIRING RELATED
 // -----------------------------------------------------------------------------
@@ -281,10 +322,6 @@ void ANativeWeaponBase::HandleFiring()
 		if (GetNetMode() != NM_DedicatedServer)
 			SimulateWeaponFire();
 
-		// the impl for projectile weapons should call a server func to 
-		// actually spawn the projectile, while passing in the location/rotation
-		// so we can spawn it at the correct location
-
 		// is it me?
 		if (OwningCharacter && OwningCharacter->IsLocallyControlled())
 		{
@@ -366,24 +403,6 @@ FHitResult ANativeWeaponBase::WeaponTrace(const FVector& TraceFrom, const FVecto
 void ANativeWeaponBase::FireWeapon()
 {
 	nbw_output("pew pew");
-	const auto& loc = GetMuzzleLocation();
-	const auto& rot = GetMuzzleDirection();
-	if (DefaultProjectile != nullptr)
-	{
-		// spawn the projectile
-		FActorSpawnParameters spawnInfo;
-		spawnInfo.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		auto newProjectile = GetWorld()->SpawnActor<AActor>(DefaultProjectile, loc, rot, spawnInfo);
-		if (newProjectile == nullptr)
-		{
-			nbw_output("failed ot spawn");
-		}
-	}
-	else
-	{
-		nbw_output("no projectile");
-	}
-
 }
 
 void ANativeWeaponBase::SimulateWeaponFire()

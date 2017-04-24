@@ -62,18 +62,17 @@ private:
 	void AttachMeshToCharacter();
 	void DetachMeshFromCharacter();	
 
-	// PROJECTILLE RELATED
+	// PROJECTILE/FLASH/ETC RELATED
 	// -----------------------------------------------------------------------------
 protected:
-	// default weapon to spawn with
-	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<AActor> DefaultProjectile;
-
 	UPROPERTY(EditDefaultsOnly)
 	FName MuzzleAttachPoint;
 
 	FVector GetMuzzleLocation() const;
-	FRotator GetMuzzleDirection() const;
+	FVector GetMuzzleDirection() const;
+
+	FVector GetAdjustedAim() const;
+	FVector GetCameraDamageStartLocation(const FVector& aimDirection) const;
 
 	// FIRING RELATED
 	// -----------------------------------------------------------------------------

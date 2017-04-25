@@ -11,5 +11,6 @@
 // DefaultEngine.ini [/Script/Engine.CollisionProfile] should match this list
 // also found under Project Settings > Engine > Collision > Trace Channels
 #define COLLISION_WEAPON				ECC_GameTraceChannel1
+#define COLLISION_PROJECTILE			ECC_GameTraceChannel2
 
 #endif

@@ -5,6 +5,11 @@
 
 #include "Engine.h"
 
+// logging
+// --------------------------------------------------------------------------
+DECLARE_LOG_CATEGORY_EXTERN(LogCoopGame, Log, All);
+DECLARE_LOG_CATEGORY_EXTERN(LogCoopGameWeapon, Log, All);
+
 // collision channels
 // --------------------------------------------------------------------------
 // be aware that these values can be saved into an instance

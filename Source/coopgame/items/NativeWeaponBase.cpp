@@ -5,25 +5,6 @@
 #include "NativeCoopCharacter.h"
 #include "NativeCoopPlayerController.h"
 
-void nbw_output(const char* fmt, ...)
-{
-	static const auto displayDuration = 3.0f;
-	static const auto forceAlwaysDisplay = -1;
-
-	if (GEngine != nullptr)
-	{
-		char buffer[256];
-
-		va_list args;
-		va_start(args, fmt);
-		vsprintf(buffer, fmt, args);
-		va_end(args);
-
-		GEngine->AddOnScreenDebugMessage(forceAlwaysDisplay, displayDuration, FColor::Yellow, buffer);
-	}
-}
-
-
 // Sets default values
 ANativeWeaponBase::ANativeWeaponBase(const FObjectInitializer& objectInitializer)
 {
@@ -128,9 +109,13 @@ void ANativeWeaponBase::AttachMeshToCharacter()
 		Mesh->SetHiddenInGame(false);
 		auto attached = Mesh->AttachToComponent(characterMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, AttachPoint);
 		if (attached)
-			nbw_output("weapon is attached.");
+		{
+			UE_LOG(LogCoopGameWeapon, Verbose, TEXT("Weapon is attached."));
+		}
 		else
-			nbw_output("weapon failed to attach");
+		{
+			UE_LOG(LogCoopGameWeapon, Warning, TEXT("Weaopn failed to attach."));
+		}
 	}
 }
 
@@ -196,7 +181,7 @@ FVector ANativeWeaponBase::GetCameraDamageStartLocation(const FVector& aimDirect
 // -----------------------------------------------------------------------------
 void ANativeWeaponBase::StartFire()
 {
-	nbw_output("ANativeWeaponBase::StartFire()");
+	UE_LOG(LogCoopGameWeapon, Verbose, TEXT("ANativeWeaponBase::StartFire()"));
 	if (Role < ROLE_Authority)
 		ServerStartFire();
 
@@ -214,13 +199,13 @@ bool ANativeWeaponBase::ServerStartFire_Validate()
 
 void ANativeWeaponBase::ServerStartFire_Implementation()
 {
-	nbw_output("ANativeWeaponBase::ServerStartFire_Implementation()");
+	UE_LOG(LogCoopGameWeapon, Verbose, TEXT("ANativeWeaponBase::ServerStartFire_Implementation()"));
 	StartFire();
 }
 
 void ANativeWeaponBase::StopFire()
 {
-	nbw_output("ANativeWeaponBase::StopFire()");
+	UE_LOG(LogCoopGameWeapon, Verbose, TEXT("ANativeWeaponBase::StopFire()"));
 	if (Role < ROLE_Authority)
 		ServerStopFire();
 
@@ -238,7 +223,7 @@ bool ANativeWeaponBase::ServerStopFire_Validate()
 
 void ANativeWeaponBase::ServerStopFire_Implementation()
 {
-	nbw_output("ANativeWeaponBase::ServerStopFire_Implementation()");
+	UE_LOG(LogCoopGameWeapon, Verbose, TEXT("ANativeWeaponBase::ServerStopFire_Implementation()"));
 	StopFire();
 }
 
@@ -280,7 +265,7 @@ void ANativeWeaponBase::SetWeaponState(EWeaponState newState)
 
 void ANativeWeaponBase::OnBurstStarted()
 {
-	nbw_output("ANativeWeaponBase::OnBurstStarted()");
+	UE_LOG(LogCoopGameWeapon, Verbose, TEXT("ANativeWeaponBase::OnBurstStarted()"));
 	float currentTime = GetWorld()->GetTimeSeconds();
 
 	if (m_lastFireTime > 0 && m_timeBetweenShots > 0 && (m_lastFireTime + m_timeBetweenShots) > currentTime)
@@ -295,7 +280,7 @@ void ANativeWeaponBase::OnBurstStarted()
 
 void ANativeWeaponBase::OnBurstFinished()
 {
-	nbw_output("ANativeWeaponBase::OnBurstFinished()");
+	UE_LOG(LogCoopGameWeapon, Verbose, TEXT("ANativeWeaponBase::OnBurstFinished()"));
 	
 	// reset the burst counter ??
 	BurstCounter = 0;
@@ -313,11 +298,11 @@ void ANativeWeaponBase::OnBurstFinished()
 
 void ANativeWeaponBase::HandleFiring()
 {
-	nbw_output("ANativeWeaponBase::HandleFiring()");
+	UE_LOG(LogCoopGameWeapon, Verbose, TEXT("ANativeWeaponBase::HandleFiring()"));
 	// can we fire?
 	if (CanFire())
 	{
-		nbw_output("Firing");
+		UE_LOG(LogCoopGameWeapon, Verbose, TEXT("Firing"));
 		// for everyone that's not the dedicated server, start firing
 		if (GetNetMode() != NM_DedicatedServer)
 			SimulateWeaponFire();
@@ -332,7 +317,7 @@ void ANativeWeaponBase::HandleFiring()
 		}
 		else
 		{
-			nbw_output("not me!");
+			UE_LOG(LogCoopGameWeapon, Warning, TEXT("not me!"));
 		}
 
 	}
@@ -358,7 +343,7 @@ void ANativeWeaponBase::HandleFiring()
 
 void ANativeWeaponBase::ServerHandleFiring_Implementation()
 {
-	nbw_output("ANativeWeaponBase::ServerHandleFiring_Implementation()");
+	UE_LOG(LogCoopGameWeapon, Verbose, TEXT("ANativeWeaponBase::ServerHandleFiring_Implementation()"));
 	HandleFiring();
 
 	bool m_shouldUpdateAmmo = (/*CurrentAmmoInClip > 0 && */CanFire());
@@ -402,7 +387,7 @@ FHitResult ANativeWeaponBase::WeaponTrace(const FVector& TraceFrom, const FVecto
 
 void ANativeWeaponBase::FireWeapon()
 {
-	nbw_output("pew pew");
+	UE_LOG(LogCoopGameWeapon, Display, TEXT("pew pew"));
 }
 
 void ANativeWeaponBase::SimulateWeaponFire()

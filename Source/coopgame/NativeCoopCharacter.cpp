@@ -4,24 +4,6 @@
 #include "NativeCoopCharacter.h"
 #include "items/NativeWeaponBase.h"
 
-void ncc_output(const char* fmt, ...)
-{
-	static const auto displayDuration = 3.0f;
-	static const auto forceAlwaysDisplay = -1;
-	
-	if (GEngine != nullptr)
-	{
-		char buffer[256];
-		
-		va_list args;
-		va_start(args, fmt);
-		vsprintf(buffer, fmt, args);
-		va_end(args);
-		
-		GEngine->AddOnScreenDebugMessage(forceAlwaysDisplay, displayDuration, FColor::Yellow, buffer);
-	}
-}
-
 ANativeCoopCharacter::ANativeCoopCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
@@ -225,7 +207,7 @@ void ANativeCoopCharacter::AddWeapon(ANativeWeaponBase* weapon)
 	// only the server can tell us to add a weapon
 	if (weapon != nullptr && Role == ROLE_Authority)
 	{
-		ncc_output("equipping weapon");
+		UE_LOG(LogCoopGame, Log, TEXT("Equipping weapon"));
 		weapon->OnEnterInventory(this);
 		EquipWeapon(weapon);
 	}
@@ -267,7 +249,7 @@ void ANativeCoopCharacter::OnRep_CurrentWeapon(ANativeWeaponBase* oldWeapon)
 
 void ANativeCoopCharacter::SetCurrentWeapon(ANativeWeaponBase* weapon)
 {
-	ncc_output("setting weapon!");
+	UE_LOG(LogCoopGame, Log, TEXT("Setting weapon!"));
 	CurrentWeapon = weapon;
 	if (CurrentWeapon)
 	{
@@ -295,7 +277,7 @@ void ANativeCoopCharacter::OnStopFire()
 
 void ANativeCoopCharacter::StartWeaponFire()
 {
-	ncc_output("ANativeCoopCharacter::StartWeaponFire() -> bWantsToFire = %s", bWantsToFire ? "true" : "false");
+	UE_LOG(LogCoopGame, Log, TEXT("ANativeCoopCharacter::StartWeaponFire() -> bWantsToFire = %s"), bWantsToFire ? TEXT("true") : TEXT("false"));
 	if (!bWantsToFire)
 	{
 		bWantsToFire = true;
@@ -305,14 +287,14 @@ void ANativeCoopCharacter::StartWeaponFire()
 		}
 		else
 		{
-			ncc_output("no weapon to fire!");
+			UE_LOG(LogCoopGame, Warning, TEXT("No weapon to fire!"));
 		}
 	}
 }
 
 void ANativeCoopCharacter::StopWeaponFire()
 {
-	ncc_output("ANativeCoopCharacter::StopWeaponFire() -> bWantsToFire = %s", bWantsToFire ? "true" : "false");
+	UE_LOG(LogCoopGame, Log, TEXT("ANativeCoopCharacter::StopWeaponFire() -> bWantsToFire = %s"), bWantsToFire ? TEXT("true") : TEXT("false"));
 	if (bWantsToFire)
 	{
 		bWantsToFire = false;
@@ -322,7 +304,7 @@ void ANativeCoopCharacter::StopWeaponFire()
 		}
 		else
 		{
-			ncc_output("no weapon to stop fire");
+			UE_LOG(LogCoopGame, Warning, TEXT("No weapon to stop fire!"));
 		}
 	}
 }

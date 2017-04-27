@@ -21,6 +21,7 @@ ANativeCoopCharacter::ANativeCoopCharacter(const FObjectInitializer& ObjectIniti
 
 	// need to ignore the weapon channel for collisions, otherwise impacts will hit this instead of the character mesh
 	GetCapsuleComponent()->SetCollisionResponseToChannel(COLLISION_WEAPON, ECR_Ignore);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Block);
 
 	// set our turn rates for input
 	BaseTurnRate = 45.f;

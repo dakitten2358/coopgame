@@ -13,7 +13,7 @@ class COOPGAME_API ANativeProjectileBase : public AActor
 	virtual void PostInitializeComponents() override;
 
 	UFUNCTION()
-	void OnImpact(const FHitResult& HitResult);
+	void OnImpact(const FHitResult& hitResult);
 	
 private:
 	UPROPERTY(VisibleDefaultsOnly, Category=Projectile)

@@ -2,6 +2,7 @@
 
 #include "coopgame.h"
 #include "NativeProjectileBase.h"
+#include "NativeCoopCharacter.h"
 
 ANativeProjectileBase::ANativeProjectileBase(const FObjectInitializer& objectInitializer)
 	: Super(objectInitializer)
@@ -54,11 +55,25 @@ void ANativeProjectileBase::PostInitializeComponents()
 	//MyController = GetInstigatorController();
 }
 
-void ANativeProjectileBase::OnImpact(const FHitResult& HitResult)
+void ANativeProjectileBase::OnImpact(const FHitResult& hitResult)
 {
 	if (Role == ROLE_Authority/* && !bExploded*/)
 	{
 		//Explode(HitResult);
+		if (hitResult.Actor != nullptr)
+		{
+			auto actor = hitResult.Actor.Get();
+			UE_LOG(LogCoopGameWeapon, Log, TEXT("Hit an actor!"));
+			auto asNCC = Cast<ANativeCoopCharacter>(actor);
+			if (asNCC != nullptr)
+			{
+				UE_LOG(LogCoopGameWeapon, Log, TEXT("Hit a coop character"));
+			}
+		}
+		else
+		{
+			UE_LOG(LogCoopGameWeapon, Log, TEXT("Hit something else"));
+		}
 		DisableAndDestroy();
 	}
 }

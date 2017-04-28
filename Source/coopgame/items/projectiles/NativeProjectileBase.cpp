@@ -68,6 +68,8 @@ void ANativeProjectileBase::OnImpact(const FHitResult& hitResult)
 			if (asNCC != nullptr)
 			{
 				UE_LOG(LogCoopGameWeapon, Log, TEXT("Hit a coop character"));
+
+				UGameplayStatics::ApplyDamage(asNCC, 100.0f, Instigator->Controller, this, TSubclassOf<UDamageType>(UDamageType::StaticClass()));
 			}
 		}
 		else

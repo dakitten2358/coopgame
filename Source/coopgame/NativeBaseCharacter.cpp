@@ -2,8 +2,8 @@
 
 #include "coopgame.h"
 #include "NativeBaseCharacter.h"
+#include "NativeCoopGameMode.h"
 #include "components/CoopCharacterMovementComponent.h"
-
 
 // sets default values
 ANativeBaseCharacter::ANativeBaseCharacter(const FObjectInitializer& ObjectInitializer)
@@ -48,6 +48,110 @@ float ANativeBaseCharacter::GetMaxHealth() const
 bool ANativeBaseCharacter::IsAlive() const
 {
 	return Health > 0;
+}
+
+float ANativeBaseCharacter::TakeDamage(float damageAmount, const FDamageEvent& damageEvent, AController* instigator, AActor* damageCauser)
+{
+	UE_LOG(LogCoopGame, Log, TEXT("holy geez we're taking damage!"));
+
+	// if we're already dead, don't do anything
+	if (Health <= 0.0f)
+	{
+		UE_LOG(LogCoopGame, Log, TEXT("already DEAD, not taking damage."));
+		return 0.0f;
+	}
+
+	// determine damage based on auth (only authority has the game mode)
+	auto authoratitiveGameMode = GetWorld()->GetAuthGameMode<ANativeCoopGameMode>();
+	if (authoratitiveGameMode == nullptr)
+	{
+		UE_LOG(LogCoopGame, Log, TEXT("we're not the authoritay, setting damage to zero"));
+		damageAmount = 0.0f;
+	}
+	
+	// let the parent class have a say
+	auto actualDamageAmount = Super::TakeDamage(damageAmount, damageEvent, instigator, damageCauser);
+
+	// did we take damage?
+	if (actualDamageAmount > 0.0f)
+	{
+		Health -= actualDamageAmount;
+		if (Health <= 0.0f)
+		{
+			// die
+			UE_LOG(LogCoopGame, Log, TEXT("omg! ded!"));
+			Die(actualDamageAmount, damageEvent, instigator, damageCauser);
+		}
+		else
+		{
+			// hit
+			UE_LOG(LogCoopGame, Log, TEXT("omg! hurt! %.2f / %.2f"), Health, GetMaxHealth());
+		}
+
+		// make a hurt sound in either case
+	}
+	else
+	{
+		UE_LOG(LogCoopGame, Log, TEXT("didn't take damage."));
+	}
+
+	return actualDamageAmount;
+}
+
+bool ANativeBaseCharacter::CanDie(float damageAmount, const FDamageEvent& damageEvent, AController* instigator, AActor* damageCauser) const
+{
+	// already dying, can't die again!
+	if (m_isDying)
+		return false;
+
+	// destroyed, waiting to be removed from the game
+	if (IsPendingKill())
+		return false;
+
+	// only the authoritay can kill us
+	if (Role != ROLE_Authority)
+		return false;
+
+	// level ending
+	#if 0
+	auto authGameMode = GetWorld->GetAuthGameMode<ANativeCoopGameMode>();
+	if (authGameMode == nullptr || authGameMode->GetMatchState() == MatchState::Leaving)
+		return false;
+	#endif
+
+	// i guess we can die
+	return true;
+}
+
+void ANativeBaseCharacter::Die(float damageAmount, const FDamageEvent& damageEvent, AController* instigator, AActor* damageCauser)
+{
+	// can't die for some reason, bail
+	if (!CanDie(damageAmount, damageEvent, instigator, damageCauser))
+		return;
+
+	// force health to zero or less
+	Health = FMath::Min(0.0f, Health);
+
+	// if we were killed by environmental damage, update the killer
+	auto killer = instigator;
+	const UDamageType* const damageType = damageEvent.DamageTypeClass ? damageEvent.DamageTypeClass->GetDefaultObject<UDamageType>() : GetDefault<UDamageType>();
+	killer = GetDamageInstigator(killer, *damageType);
+
+	// let the server know who was killed
+	auto killedController = (Controller != nullptr) ? Controller : Cast<AController>(GetOwner());
+	auto authGameMode = GetWorld()->GetAuthGameMode<ANativeCoopGameMode>();
+	#if 0
+	authGameMode->Killed(killer, killedController, this, damageType);
+	#endif
+
+	// reset the network update frequency, and force a replication update on the movement component to sync the position
+	NetUpdateFrequency = GetDefault<ANativeBaseCharacter>()->NetUpdateFrequency;
+	GetCharacterMovement()->ForceReplicationUpdate();
+
+	// let people know that we've been killed
+	#if 0
+	OnDeath(damageAmount, damageEvent, killer ? killer->GetPawn() : nullptr, damageCauser);
+	#endif
 }
 
 // movement

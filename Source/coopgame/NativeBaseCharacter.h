@@ -17,6 +17,14 @@ public:
 
 	// health
 	// ---------------------------------------------------------------
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = "Health", Replicated)
+	float Health;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
+	bool m_isDying;
+
+public:
 	UFUNCTION(BlueprintCallable, Category = "Health")
 	float GetMaxHealth() const;
 
@@ -25,6 +33,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Health")
 	bool IsAlive() const;
+
+	virtual float TakeDamage(float damageAmount, const struct FDamageEvent& damageEvent, class AController* instigator, class AActor* damageCauser) override;
+	virtual bool CanDie(float damageAmount, const struct FDamageEvent& damageEvent, class AController* instigator, class AActor* damageCauser) const;
+
+	// should only be called by server/authority
+	virtual void Die(float damageAmount, const struct FDamageEvent& damageEvent, class AController* instigator, class AActor* damageCauser);
 
 	// movement
 	// ---------------------------------------------------------------
@@ -75,7 +89,4 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Aiming")
 	FRotator GetAimOffsets() const;
 
-protected:
-	UPROPERTY(EditDefaultsOnly, Category = "Health", Replicated)
-	int Health;
 };

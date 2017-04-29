@@ -2,7 +2,7 @@
 
 #include "coopgame.h"
 #include "NativeProjectileBase.h"
-#include "NativeCoopCharacter.h"
+#include "NativeBaseCharacter.h"
 
 ANativeProjectileBase::ANativeProjectileBase(const FObjectInitializer& objectInitializer)
 	: Super(objectInitializer)
@@ -64,12 +64,12 @@ void ANativeProjectileBase::OnImpact(const FHitResult& hitResult)
 		{
 			auto actor = hitResult.Actor.Get();
 			UE_LOG(LogCoopGameWeapon, Log, TEXT("Hit an actor!"));
-			auto asNCC = Cast<ANativeCoopCharacter>(actor);
-			if (asNCC != nullptr)
+			auto asCharacter = Cast<ANativeBaseCharacter>(actor);
+			if (asCharacter != nullptr)
 			{
 				UE_LOG(LogCoopGameWeapon, Log, TEXT("Hit a coop character"));
 
-				UGameplayStatics::ApplyDamage(asNCC, 100.0f, Instigator->Controller, this, TSubclassOf<UDamageType>(UDamageType::StaticClass()));
+				UGameplayStatics::ApplyDamage(asCharacter, 100.0f, Instigator->Controller, this, TSubclassOf<UDamageType>(UDamageType::StaticClass()));
 			}
 		}
 		else

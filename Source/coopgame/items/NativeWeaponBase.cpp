@@ -28,7 +28,7 @@ ANativeWeaponBase::ANativeWeaponBase(const FObjectInitializer& objectInitializer
 
 	MuzzleAttachPoint = TEXT("Muzzle");
 
-	m_timeBetweenShots = 1.5f;
+	m_timeBetweenShots = 0.2f;
 }
 
 void ANativeWeaponBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

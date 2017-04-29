@@ -40,8 +40,20 @@ public:
 	// should only be called by server/authority
 	virtual void Die(float damageAmount, const struct FDamageEvent& damageEvent, class AController* instigator, class AActor* damageCauser);
 
+	// called on both
+	virtual void Hit(float damageAmount, const struct FDamageEvent& damageEvent, class APawn* instigatorPawn, class AActor* damageCauser);
+
+protected:
+	// client and server
+	virtual void OnDeath(float damageAmount, const struct FDamageEvent& damageEvent, class APawn* instigatorPawn, class AActor* damageCauser);
+
+	// enable ragdoll
+	void SetRagdollPhysics();
+
+
 	// movement
 	// ---------------------------------------------------------------
+public:
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	virtual bool IsSprinting() const;
 

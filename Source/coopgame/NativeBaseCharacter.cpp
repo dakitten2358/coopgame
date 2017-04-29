@@ -77,16 +77,9 @@ float ANativeBaseCharacter::TakeDamage(float damageAmount, const FDamageEvent& d
 	{
 		Health -= actualDamageAmount;
 		if (Health <= 0.0f)
-		{
-			// die
-			UE_LOG(LogCoopGame, Log, TEXT("omg! ded!"));
 			Die(actualDamageAmount, damageEvent, instigator, damageCauser);
-		}
 		else
-		{
-			// hit
-			UE_LOG(LogCoopGame, Log, TEXT("omg! hurt! %.2f / %.2f"), Health, GetMaxHealth());
-		}
+			Hit(actualDamageAmount, damageEvent, instigator ? instigator->GetPawn() : nullptr, damageCauser);
 
 		// make a hurt sound in either case
 	}
@@ -125,6 +118,8 @@ bool ANativeBaseCharacter::CanDie(float damageAmount, const FDamageEvent& damage
 
 void ANativeBaseCharacter::Die(float damageAmount, const FDamageEvent& damageEvent, AController* instigator, AActor* damageCauser)
 {
+	UE_LOG(LogCoopGame, Log, TEXT("omg! ded!"));
+
 	// can't die for some reason, bail
 	if (!CanDie(damageAmount, damageEvent, instigator, damageCauser))
 		return;
@@ -149,9 +144,142 @@ void ANativeBaseCharacter::Die(float damageAmount, const FDamageEvent& damageEve
 	GetCharacterMovement()->ForceReplicationUpdate();
 
 	// let people know that we've been killed
-	#if 0
 	OnDeath(damageAmount, damageEvent, killer ? killer->GetPawn() : nullptr, damageCauser);
-	#endif
+}
+
+void ANativeBaseCharacter::Hit(float damageAmount, const FDamageEvent& damageEvent, APawn* instigatorPawn, AActor* damageCauser)
+{
+	UE_LOG(LogCoopGame, Log, TEXT("omg! hurt! %.2f / %.2f"), Health, GetMaxHealth());
+
+	// server stuff
+	if (Role == ROLE_Authority)
+	{
+		#if 0
+		// make sure this gets replicated to everyone
+		ReplicateHit(damageAmount, damageEvent, instigator, damageCauser, HitResult::Wounded);
+		#endif
+	}
+
+	// physics
+	if (damageAmount > 0.0f)
+		ApplyDamageMomentum(damageAmount, damageEvent, instigatorPawn, damageCauser);
+
+	// update the hud
+}
+
+void ANativeBaseCharacter::OnDeath(float damageAmount, const FDamageEvent& damageEvent, APawn* instigatorPawn, AActor* damageCauser)
+{
+	UE_LOG(LogCoopGame, Log, TEXT("OnDeath!"));
+
+	// already dying, no need for overkill (yet?)
+	if (m_isDying)
+		return;
+
+	// no need to worry about replication anymore
+	bReplicateMovement = false;
+	bTearOff = true;
+
+	// keep track of dying
+	m_isDying = true;
+
+	// server stuff
+	if (Role == ROLE_Authority)
+	{
+		// make sure this gets replicated to everyone
+		#if 0
+		ReplicateHit(damageAmount, damageEvent, instigator, damageCauser, HitResult::Dead);
+		#endif
+	}
+
+	// play dying sound (at location, controller may be null at this point)
+
+	// remove all weapons
+
+	// detach from controller
+	DetachFromControllerPendingDestroy();
+	// stop all montages
+
+	// low health warning
+
+	// running sounds stop
+
+	// play death anim + switch to ragdoll
+	// ------------------------------------------------
+	if (GetMesh())
+	{
+		static FName ragdollCollisionProfileName(TEXT("Ragdoll"));
+		GetMesh()->SetCollisionProfileName(ragdollCollisionProfileName);
+	}
+	SetActorEnableCollision(true);
+
+	// play the death anim montage
+	float deathAnimDuration = 0.0f;
+
+	// enable ragdoll
+	if (deathAnimDuration > 0.0f)
+	{
+		// we need to wait for the death anim to finish, so let's set up a timer and wait
+		float ragdollWaitTime = deathAnimDuration - 0.7f; // stop early, so it falls more naturally and doesn't revert to default anim pose
+
+		// enable blend physics so that the bones are properly blended during the montage
+		GetMesh()->bBlendPhysics = true;
+
+		// local timer, cuz we don't care
+		FTimerHandle ragdollTimerHandle;
+		bool isTimerLooping = false;
+		GetWorldTimerManager().SetTimer(ragdollTimerHandle, [this](){ SetRagdollPhysics(); }, FMath::Max(0.1f, ragdollWaitTime), isTimerLooping);
+	}
+	else
+	{
+		// no anim, so let's just rock the ragdoll physics
+		SetRagdollPhysics();
+	}
+
+	// disable collisions on the capsule
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECR_Ignore);
+}
+
+void ANativeBaseCharacter::SetRagdollPhysics()
+{
+	auto isRagdollAllowed = false;
+
+	// if it's about to be destroyed, don't bother
+	if (IsPendingKill())
+		isRagdollAllowed = false;
+	// we need a mesh, and it needs to have a physics asset
+	else if ((GetMesh() == nullptr) || (GetMesh()->GetPhysicsAsset() == nullptr))
+		isRagdollAllowed = false;
+	// should be good to enable ragdoll
+	else
+	{
+		isRagdollAllowed = true;
+
+		// setup physics
+		GetMesh()->SetSimulatePhysics(true);
+		GetMesh()->WakeAllRigidBodies();
+		GetMesh()->bBlendPhysics = true;
+	}
+
+	// stop and disable movement
+	GetCharacterMovement()->StopMovementImmediately();
+	GetCharacterMovement()->DisableMovement();
+
+	// no need to tick anymore
+	GetCharacterMovement()->SetComponentTickEnabled(false);
+
+	if (!isRagdollAllowed)
+	{
+		// hide and set short lifespan for removal
+		TurnOff();
+		SetActorHiddenInGame(true);
+		SetLifeSpan(1.0f);
+	}
+	else
+	{
+		// let the ragdoll play a bit
+		SetLifeSpan(10.0f);
+	}
 }
 
 // movement

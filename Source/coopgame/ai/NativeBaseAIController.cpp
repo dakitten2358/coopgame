@@ -38,6 +38,7 @@ void ANativeBaseAIController::Possess(APawn* pawnToPossess)
 
 void ANativeBaseAIController::UnPossess()
 {
+	UE_LOG(LogCoopGame, Warning, TEXT("AIController unpossessing"));
 	Super::UnPossess();
 
 	m_behaviorTreeComponent->StopTree();

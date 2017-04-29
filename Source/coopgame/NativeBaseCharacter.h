@@ -4,6 +4,7 @@
 
 #include "GameFramework/Character.h"
 #include "UnrealNetwork.h"
+#include "CoopTypes.h"
 #include "NativeBaseCharacter.generated.h"
 
 UCLASS()
@@ -15,6 +16,9 @@ public:
 	// Sets default values for this character's properties
 	ANativeBaseCharacter(const FObjectInitializer& ObjectInitializer);
 
+	// called just before replication happens
+	virtual void PreReplication(IRepChangedPropertyTracker& ChangedPropertyTracker) override;
+
 	// health
 	// ---------------------------------------------------------------
 protected:
@@ -23,6 +27,11 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
 	bool m_isDying;
+
+	UPROPERTY(Transient, ReplicatedUsing = OnRep_LastTakeHitInfo)
+	FTakeHitInfo LastTakeHitInfo;
+
+	float LastTakeHitTimeoutTime;
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Health")
@@ -50,6 +59,12 @@ protected:
 	// enable ragdoll
 	void SetRagdollPhysics();
 
+	// replication of hits
+	void ReplicateHit(float damageTaken, const struct FDamageEvent& damageEvent, class APawn* instigatorPawn, class AActor* damageCauser, EHitResult hitResult);
+
+	// client side replication of hits
+	UFUNCTION()
+	void OnRep_LastTakeHitInfo();
 
 	// movement
 	// ---------------------------------------------------------------

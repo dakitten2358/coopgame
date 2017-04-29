@@ -19,6 +19,15 @@ ANativeBaseCharacter::ANativeBaseCharacter(const FObjectInitializer& ObjectIniti
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 }
 
+// called just before replication
+void ANativeBaseCharacter::PreReplication(IRepChangedPropertyTracker& ChangedPropertyTracker)
+{
+	Super::PreReplication(ChangedPropertyTracker);
+
+	// only repl this property for a short duration after it changes, so join in progress don't get spammed when joining late
+	DOREPLIFETIME_ACTIVE_OVERRIDE(ANativeBaseCharacter, LastTakeHitInfo, GetWorld() && GetWorld()->GetTimeSeconds() < LastTakeHitTimeoutTime);
+}
+
 // replication
 void ANativeBaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
@@ -27,6 +36,9 @@ void ANativeBaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	// only relevant to other clients
 	DOREPLIFETIME_CONDITION(ANativeBaseCharacter, bWantsToSprint, COND_SkipOwner);
 	DOREPLIFETIME_CONDITION(ANativeBaseCharacter, bIsAimingDownSights, COND_SkipOwner);
+
+	// see above
+	DOREPLIFETIME_CONDITION(ANativeBaseCharacter, LastTakeHitInfo, COND_Custom);
 
 	// replicate to all clients
 	DOREPLIFETIME(ANativeBaseCharacter, Health);
@@ -154,10 +166,8 @@ void ANativeBaseCharacter::Hit(float damageAmount, const FDamageEvent& damageEve
 	// server stuff
 	if (Role == ROLE_Authority)
 	{
-		#if 0
 		// make sure this gets replicated to everyone
-		ReplicateHit(damageAmount, damageEvent, instigator, damageCauser, HitResult::Wounded);
-		#endif
+		ReplicateHit(damageAmount, damageEvent, instigatorPawn, damageCauser, EHitResult::Wounded);
 	}
 
 	// physics
@@ -186,9 +196,7 @@ void ANativeBaseCharacter::OnDeath(float damageAmount, const FDamageEvent& damag
 	if (Role == ROLE_Authority)
 	{
 		// make sure this gets replicated to everyone
-		#if 0
-		ReplicateHit(damageAmount, damageEvent, instigator, damageCauser, HitResult::Dead);
-		#endif
+		ReplicateHit(damageAmount, damageEvent, instigatorPawn, damageCauser, EHitResult::Dead);
 	}
 
 	// play dying sound (at location, controller may be null at this point)
@@ -280,6 +288,43 @@ void ANativeBaseCharacter::SetRagdollPhysics()
 		// let the ragdoll play a bit
 		SetLifeSpan(10.0f);
 	}
+}
+
+void ANativeBaseCharacter::ReplicateHit(float damageTaken, const FDamageEvent& damageEvent, APawn* instigatorPawn, AActor* damageCauser, EHitResult hitResult)
+{
+	float timeoutTime = GetWorld()->GetTimeSeconds() + 0.5f;
+
+	// same frame?
+	const auto& lastDamageEvent = LastTakeHitInfo.GetDamageEvent();
+	if ((instigatorPawn == LastTakeHitInfo.InstigatorPawn.Get()) &&
+		(lastDamageEvent.DamageTypeClass == LastTakeHitInfo.DamageTypeClass) &&
+		(LastTakeHitTimeoutTime == timeoutTime))
+	{
+		// same frame death hit, ignore it
+		if (hitResult == EHitResult::Dead && LastTakeHitInfo.HitResult == EHitResult::Dead)
+			return;
+
+		// if we're not dead, let's accumulate the damage
+		damageTaken += LastTakeHitInfo.ActualDamageTaken;
+	}
+
+	LastTakeHitInfo.ActualDamageTaken = damageTaken;
+	LastTakeHitInfo.InstigatorPawn = Cast<ANativeBaseCharacter>(instigatorPawn);
+	LastTakeHitInfo.DamageCauser = damageCauser;
+	LastTakeHitInfo.SetDamageEvent(damageEvent);
+	LastTakeHitInfo.HitResult = hitResult;
+	LastTakeHitInfo.ForceReplication();
+
+	// update the timeout
+	LastTakeHitTimeoutTime = timeoutTime;
+}
+
+void ANativeBaseCharacter::OnRep_LastTakeHitInfo()
+{
+	if (LastTakeHitInfo.HitResult == EHitResult::Dead)
+		OnDeath(LastTakeHitInfo.ActualDamageTaken, LastTakeHitInfo.GetDamageEvent(), LastTakeHitInfo.InstigatorPawn.Get(), LastTakeHitInfo.DamageCauser.Get());
+	else
+		Hit(LastTakeHitInfo.ActualDamageTaken, LastTakeHitInfo.GetDamageEvent(), LastTakeHitInfo.InstigatorPawn.Get(), LastTakeHitInfo.DamageCauser.Get());
 }
 
 // movement

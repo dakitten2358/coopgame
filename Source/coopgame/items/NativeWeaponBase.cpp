@@ -249,7 +249,7 @@ void ANativeWeaponBase::SetWeaponState(EWeaponState newState)
 	const EWeaponState previousState = m_weaponState;
 
 	// just stopped firing?
-	if (previousState == EWeaponState::Firing && newState == EWeaponState::Firing)
+	if (previousState == EWeaponState::Firing && newState == EWeaponState::Idle)
 	{
 		OnBurstFinished();
 	}

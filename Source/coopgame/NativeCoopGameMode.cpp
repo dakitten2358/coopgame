@@ -10,7 +10,7 @@
 
 ANativeCoopGameMode::ANativeCoopGameMode(const FObjectInitializer& objectInitializer) : Super(objectInitializer)
 {
-	m_maxEnemyCount = 20;
+	m_maxEnemyCount = 10;
 }
 
 void ANativeCoopGameMode::SetPlayerDefaults(APawn* playerPawn)
@@ -92,7 +92,7 @@ AActor* ANativeCoopGameMode::ChoosePlayerStart_Implementation(AController* forCo
 		/* Split the player starts into two arrays for preferred and fallback spawns */
 		for (int32 i = 0; i < enemyStarts.Num(); i++)
 		{
-			ANativeEnemyPlayerStart* startToTest= Cast<ANativeEnemyPlayerStart>(enemyStarts[i]);
+			ANativeEnemyPlayerStart* startToTest = Cast<ANativeEnemyPlayerStart>(enemyStarts[i]);
 
 			if (startToTest && IsEnemySpawnPointAllowed(startToTest, forController))
 			{

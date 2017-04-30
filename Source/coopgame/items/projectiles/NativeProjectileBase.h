@@ -14,6 +14,9 @@ class COOPGAME_API ANativeProjectileBase : public AActor
 
 	UFUNCTION()
 	void OnImpact(const FHitResult& hitResult);
+
+	UFUNCTION(BlueprintNativeEvent)
+	void OnProjectileImpacted();
 	
 private:
 	UPROPERTY(VisibleDefaultsOnly, Category=Projectile)
@@ -21,6 +24,9 @@ private:
 
 	UPROPERTY(VisibleDefaultsOnly, Category=Projectile)
 	USphereComponent* m_collisionComponent;
+
+	UPROPERTY(EditDefaultsOnly, Category=Projectile)
+	UParticleSystem* m_impactEffects;
 
 private:
 	void DisableAndDestroy();

@@ -78,6 +78,10 @@ void ANativeProjectileBase::OnImpact(const FHitResult& hitResult)
 		}
 		DisableAndDestroy();
 	}
+
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), m_impactEffects, GetActorLocation(), GetActorRotation().GetInverse());
+
+	OnProjectileImpacted();
 }
 
 void ANativeProjectileBase::DisableAndDestroy()
@@ -89,7 +93,13 @@ void ANativeProjectileBase::DisableAndDestroy()
 	}*/
 
 	m_movementComponent->StopMovementImmediately();
+	SetActorEnableCollision(false);
 
 	// give clients some time to show explosion
 	SetLifeSpan(2.0f);
+}
+
+void ANativeProjectileBase::OnProjectileImpacted_Implementation()
+{
+	// default impl does nothing
 }

@@ -4,6 +4,7 @@
 #include "NativeCoopCharacter.h"
 #include "items/NativeWeaponBase.h"
 
+
 ANativeCoopCharacter::ANativeCoopCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {

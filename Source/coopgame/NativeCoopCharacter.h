@@ -3,7 +3,6 @@
 #pragma once
 
 #include "NativeBaseCharacter.h"
-#include "AbilitySystemInterface.h"
 #include "NativeCoopCharacter.generated.h"
 
 // fwds
@@ -13,25 +12,13 @@ class ANativeWeaponBase;
 
 // native implementation of a player character
 UCLASS()
-class COOPGAME_API ANativeCoopCharacter : public ANativeBaseCharacter, public IAbilitySystemInterface
+class COOPGAME_API ANativeCoopCharacter : public ANativeBaseCharacter
 {
 	GENERATED_BODY()
 
 	ANativeCoopCharacter(const FObjectInitializer& ObjectInitializer);
 
 	virtual void Tick(float deltaTime) override;
-
-public:
-	// GAS
-	// -----------------------------------------------------------------------------
-	UPROPERTY()
-	UAbilitySystemComponent* AbilitySystemComponent;
-
-	UAbilitySystemComponent* GetAbilitySystemComponent() const override
-	{
-		return AbilitySystemComponent;
-	}
-
 
 	// MOVEMENT
 	// -----------------------------------------------------------------------------

@@ -6,5 +6,6 @@
 IMPLEMENT_PRIMARY_GAME_MODULE( FDefaultGameModuleImpl, coopgame, "coopgame" );
 
 DEFINE_LOG_CATEGORY(LogCoopGame);
+DEFINE_LOG_CATEGORY(LogCoopGameOnline);
 DEFINE_LOG_CATEGORY(LogCoopGameWeapon);
  

@@ -3,6 +3,9 @@
 #pragma once
 
 #include "Engine/GameInstance.h"
+#include <OnlineIdentityInterface.h>
+#include <OnlineSessionInterface.h>
+
 #include "CoopGameInstance.generated.h"
 
 class UUserWidget;
@@ -25,7 +28,18 @@ enum class CoopGameState : uint8
 UCLASS(BluePrintable)
 class COOPGAME_API UCoopGameInstance : public UGameInstance
 {
-	GENERATED_BODY()
+	GENERATED_UCLASS_BODY()
+
+	// ------------------------------------------
+	// UGameInstance
+	// ------------------------------------------
+public:
+	virtual void Init() override;
+	virtual void Shutdown() override;
+	virtual void StartGameInstance() override;
+
+private:
+	void HandleUserLoginChanged(int32 gameUserIndex, ELoginStatus::Type previousLoginStatus, ELoginStatus::Type newLoginStatus, const FUniqueNetId& userID);
 
 	// ------------------------------------------
 	// Game State
@@ -36,6 +50,8 @@ protected:
 	UUserWidget* m_mainMenuWidget = nullptr;
 	TSubclassOf<UUserWidget> m_mainMenuTemplate;
 	FName m_mainMenuLevel;
+
+
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Game State")
@@ -51,9 +67,17 @@ public:
 	void SetDefaultsForMainMenu(TSubclassOf<UUserWidget> menuTemplate, FName menuLevel);
 
 	// ------------------------------------------
+	// Online
+	//-------------------------------------------
+private:
+	bool m_isOnline;
+	bool m_isLicensed;
+
+public:
+	UFUNCTION(BlueprintPure, Category = "Online")
+	bool IsOnline() const;
+
+	// ------------------------------------------
 	// Debug Helpers
 	// ------------------------------------------
-protected:
-	void DebugError(const char* fmt, ...) const;
-
 };

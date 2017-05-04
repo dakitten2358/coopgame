@@ -2,6 +2,7 @@
 
 #include "coopgame.h"
 #include "CoopGameInstance.h"
+#include "NativeBaseCharacter.h"
 #include <OnlineSubsystem.h>
 #include <OnlineIdentityInterface.h>
 #include <OnlineSessionInterface.h>
@@ -22,6 +23,11 @@ void UCoopGameInstance::Init()
 {
 	Super::Init();
 
+	// general app delegate bindings
+	FCoreDelegates::ApplicationWillDeactivateDelegate.AddUObject(this, &UCoopGameInstance::HandleApplicationWillDeactivate);
+
+	// map delegate bindings
+
 	// need the ability to ID users
 	const auto onlineSubsystem = IOnlineSubsystem::Get();
 	check(onlineSubsystem);
@@ -35,6 +41,9 @@ void UCoopGameInstance::Init()
 	// bind ourselves to online subsystem callbacks we need
 	for(int i = 0; i < MAX_LOCAL_PLAYERS; ++i)
 		identityInterface->AddOnLoginStatusChangedDelegate_Handle(i, FOnLoginStatusChangedDelegate::CreateUObject(this, &UCoopGameInstance::HandleUserLoginChanged));
+	identityInterface->AddOnControllerPairingChangedDelegate_Handle(FOnControllerPairingChangedDelegate::CreateUObject(this, &UCoopGameInstance::HandleControllerPairingChanged));
+
+
 }
 
 void UCoopGameInstance::Shutdown()
@@ -45,6 +54,15 @@ void UCoopGameInstance::Shutdown()
 void UCoopGameInstance::StartGameInstance()
 {
 	// nothing to do here - defaults to start up
+	TransitionToState(m_defaultState);
+}
+
+void UCoopGameInstance::HandleApplicationWillDeactivate()
+{
+	if (IsCurrentState(CoopGameState::Playing))
+	{
+		// pause the game
+	}
 }
 
 void UCoopGameInstance::HandleUserLoginChanged(int32 gameUserIndex, ELoginStatus::Type previousLoginStatus, ELoginStatus::Type newLoginStatus, const FUniqueNetId& userID)
@@ -69,14 +87,50 @@ void UCoopGameInstance::HandleUserLoginChanged(int32 gameUserIndex, ELoginStatus
 
 		if (localPlayer == GetFirstGamePlayer() || IsOnline())
 		{
-			//HandleSignInChangeMessaging();
+			HandleSignInChangeMessaging();
 		}
 		else
 		{
-			// remove local split screen players from the list
-			//RemoveExistingLocalPlayer(localPlayer);
+			// remove local players from the list
+			RemoveExistingLocalPlayer(localPlayer);
 		}
 	}
+}
+
+void UCoopGameInstance::HandleSignInChangeMessaging()
+{
+	if (!IsCurrentState(m_defaultState))
+	{
+		// console:
+		//show message then goto state
+
+		TransitionToState(m_defaultState);
+	}
+}
+
+void UCoopGameInstance::RemoveExistingLocalPlayer(ULocalPlayer* localPlayer)
+{
+	check(localPlayer);
+
+	// controlling something?
+	auto playerController = localPlayer->PlayerController;
+	if (playerController != nullptr)
+	{
+		// if we have a pawn, let's kill it
+		auto controlledPawn = Cast<ANativeBaseCharacter>(playerController->GetPawn());
+		if (controlledPawn != nullptr)
+			controlledPawn->KilledBy(nullptr);
+	}
+
+	// remove local split screen player from list
+	RemoveLocalPlayer(localPlayer);
+}
+
+void UCoopGameInstance::HandleControllerPairingChanged(int32 gameUserIndex, const FUniqueNetId& previousUser, const FUniqueNetId& newUser)
+{
+	UE_LOG(LogCoopGameOnline, Log, TEXT("HandleControllerPairingChanged: gameUserIndex = %d, previousUser = %s, newUser = %s"), gameUserIndex, *previousUser.ToString(), *newUser.ToString());
+
+	// console : xbox one specific stuff
 }
 
 // ------------------------------------------
@@ -87,30 +141,11 @@ bool UCoopGameInstance::IsCurrentState(CoopGameState inState) const
 	return m_currentGameState == inState;
 }
 
-CoopGameState UCoopGameInstance::TransitionToState(CoopGameState newState)
+void UCoopGameInstance::TransitionToState(CoopGameState newState)
 {
-	// tried to transition to the same state
-	if (m_currentGameState == newState)
-	{
-		UE_LOG(LogCoopGame, Error, TEXT("Attempted to transition to the same state (%d -> %d)"), (int)m_currentGameState, (int)newState);
-		return m_currentGameState;
-	}
-
-	// clean up
-	switch (m_currentGameState)
-	{
-	// main menu
-	case CoopGameState::MainMenu:
-		break;
-	// in the case of startup, or any unknown state, do nothing
-	case CoopGameState::Startup:
-	default:
-		break;
-	}
-
-	// keep the current state up to date
-	m_currentGameState = newState;
-	return m_currentGameState;
+	// actually changing the state will be handled in the Tick();
+	UE_LOG(LogCoopGame, Log, TEXT("TransitionToState:  newState = %d"), (int) newState);
+	m_pendingGameState = newState;
 }
 
 void UCoopGameInstance::SetDefaultsForMainMenu(TSubclassOf<UUserWidget> menuTemplate, FName menuLevel)

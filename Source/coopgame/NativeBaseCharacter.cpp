@@ -177,6 +177,23 @@ void ANativeBaseCharacter::Hit(float damageAmount, const FDamageEvent& damageEve
 	// update the hud
 }
 
+void ANativeBaseCharacter::Suicide()
+{
+	KilledBy(this);
+}
+
+void ANativeBaseCharacter::KilledBy(const APawn* killer)
+{
+	if (Role == ROLE_Authority)
+	{
+		AController* killingController = nullptr;
+		if (killer)
+			killingController = killer->Controller;
+
+		Die(GetCurrentHealth(), FDamageEvent(UDamageType::StaticClass()), killingController, nullptr);
+	}
+}
+
 void ANativeBaseCharacter::OnDeath(float damageAmount, const FDamageEvent& damageEvent, APawn* instigatorPawn, AActor* damageCauser)
 {
 	UE_LOG(LogCoopGame, Log, TEXT("OnDeath!"));

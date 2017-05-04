@@ -39,13 +39,24 @@ public:
 	virtual void StartGameInstance() override;
 
 private:
+	// general app
+	void HandleApplicationWillDeactivate();
+	
+	// online + multiplayer
 	void HandleUserLoginChanged(int32 gameUserIndex, ELoginStatus::Type previousLoginStatus, ELoginStatus::Type newLoginStatus, const FUniqueNetId& userID);
+	void HandleSignInChangeMessaging();
+	void HandleControllerPairingChanged(int32 gameUserIndex, const FUniqueNetId& previousUser, const FUniqueNetId& newUser);
+
+	void RemoveExistingLocalPlayer(class ULocalPlayer* localPlayer);
 
 	// ------------------------------------------
 	// Game State
 	// ------------------------------------------
 protected:
+	const CoopGameState m_defaultState = CoopGameState::MainMenu;
+	
 	CoopGameState m_currentGameState = CoopGameState::Startup;
+	CoopGameState m_pendingGameState = CoopGameState::Startup;
 	
 	UUserWidget* m_mainMenuWidget = nullptr;
 	TSubclassOf<UUserWidget> m_mainMenuTemplate;
@@ -58,7 +69,7 @@ public:
 	bool IsCurrentState(CoopGameState inState) const;
 
 	UFUNCTION(BlueprintCallable, Category = "Game State")
-	CoopGameState TransitionToState(CoopGameState newState);
+	void TransitionToState(CoopGameState newState);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Game State")
 	void ShowMainMenu();

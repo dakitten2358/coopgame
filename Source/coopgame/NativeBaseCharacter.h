@@ -52,6 +52,12 @@ public:
 	// called on both
 	virtual void Hit(float damageAmount, const struct FDamageEvent& damageEvent, class APawn* instigatorPawn, class AActor* damageCauser);
 
+	// server only
+	virtual void Suicide();
+
+	// server only
+	virtual void KilledBy(const APawn* killer);
+
 protected:
 	// client and server
 	virtual void OnDeath(float damageAmount, const struct FDamageEvent& damageEvent, class APawn* instigatorPawn, class AActor* damageCauser);

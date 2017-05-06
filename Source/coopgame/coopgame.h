@@ -10,6 +10,8 @@
 DECLARE_LOG_CATEGORY_EXTERN(LogCoopGame, Log, All);
 DECLARE_LOG_CATEGORY_EXTERN(LogCoopGameOnline, Log, All);
 DECLARE_LOG_CATEGORY_EXTERN(LogCoopGameWeapon, Log, All);
+DECLARE_LOG_CATEGORY_EXTERN(LogCoopGameNotImplemented, Log, All);
+DECLARE_LOG_CATEGORY_EXTERN(LogCoopGameTodo, Log, All);
 
 
 // collision channels

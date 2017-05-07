@@ -347,11 +347,12 @@ bool UNativeCoopGameInstance::HostGame(ULocalPlayer* localPlayer, CoopGameType g
 {
 	// build the url
 	bool isLanMatch = false;
-	auto startUrl = FString::Printf(TEXT("/Game/%s?game=%s?difficulty=%d%s"),
+	auto startUrl = FString::Printf(TEXT("/Game/%s?game=%s?difficulty=%d%s%s"),
 									*mapName,
 									gameType == CoopGameType::Adventure ? TEXT("adventure") : TEXT("laststand"),
 									difficulty,
-									IsOnline() ? TEXT("?listen") : TEXT(""));
+									IsOnline() ? TEXT("?listen") : TEXT(""),
+									isLanMatch ? TEXT("?bIsLanMatch") : TEXT(""));
 
 	// if we're not online for whatever reason, just start hte match
 	if (!IsOnline())

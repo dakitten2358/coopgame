@@ -366,6 +366,8 @@ bool UNativeCoopGameInstance::HostGame(ULocalPlayer* localPlayer, CoopGameType g
 
 
 
+
+
 	return true;
 }
 
@@ -404,8 +406,25 @@ void UNativeCoopGameInstance::EndCurrentState(CoopGameState stateEnding)
 	switch (stateEnding)
 	{
 	case CoopGameState::MainMenu:
-		
+	{
+		if (m_mainMenuWidget)
+		{
+			m_mainMenuWidget->RemoveFromViewport();
+			m_mainMenuWidget = nullptr;
+		}
+
+		auto localPlayer = GetFirstGamePlayer();
+		auto controller = localPlayer->GetPlayerController(GetWorld());
+		check(controller);
+
+		FInputModeGameOnly gameOnly;
+		controller->SetInputMode(gameOnly);
+
+		FSlateApplication::Get().SetFocusToGameViewport();
+
+		SetMouseCursorEnabled(controller, false);
 		break;
+	}
 	default:
 		break;
 	}
@@ -443,6 +462,7 @@ void UNativeCoopGameInstance::BeginCurrentState(CoopGameState stateBeginning)
 
 		// set up input + cursor
 		FInputModeUIOnly inputModeUIOnly;
+		inputModeUIOnly.SetWidgetToFocus(m_mainMenuWidget->GetCachedWidget());
 		controller->SetInputMode(inputModeUIOnly);
 
 		SetMouseCursorEnabled(controller, true);

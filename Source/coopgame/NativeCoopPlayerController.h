@@ -16,5 +16,8 @@ class COOPGAME_API ANativeCoopPlayerController : public APlayerController
 public:
 	ANativeCoopPlayerController(const FObjectInitializer& ObjectInitializer);
 
+	bool IsGameMenuVisible() const;
+	void ShowInGameMenu();
+
 	
 };

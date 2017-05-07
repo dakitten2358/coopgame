@@ -11,3 +11,14 @@ ANativeCoopPlayerController::ANativeCoopPlayerController(const FObjectInitialize
 	// assign the class types we wish to use
 	PlayerCameraManagerClass = ACoopPlayerCameraManager::StaticClass();
 }
+
+bool ANativeCoopPlayerController::IsGameMenuVisible() const
+{
+	UE_LOG(LogCoopGameNotImplemented, Error, TEXT("ANativeCoopPlayerController::IsGameMenuVisible()"));
+	return false;
+}
+
+void ANativeCoopPlayerController::ShowInGameMenu()
+{
+	UE_LOG(LogCoopGameNotImplemented, Error, TEXT("ANativeCoopPlayerController::ShowInGameMenu"));
+}

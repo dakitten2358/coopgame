@@ -5,6 +5,7 @@
 #include "Engine/GameInstance.h"
 #include <OnlineIdentityInterface.h>
 #include <OnlineSessionInterface.h>
+#include "CoopTypes.h"
 
 #include "NativeCoopGameInstance.generated.h"
 
@@ -21,13 +22,6 @@ enum class CoopGameState : uint8
 	Playing			UMETA(DisplayName = "Playing"),
 	ErrorMessage	UMETA(DisplayName = "Error Message"),
 	Unknown			UMETA(DisplayName = "Unknown"),
-};
-
-UENUM(BlueprintType)
-enum class CoopGameType : uint8
-{
-	Adventure		UMETA(DisplayName = "Adventure"),
-	LastStand		UMETA(DisplayName = "Last Stand"),
 };
 
 /**

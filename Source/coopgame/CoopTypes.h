@@ -3,6 +3,13 @@
 #include "CoopTypes.generated.h"
 #pragma once
 
+UENUM(BlueprintType)
+enum class CoopGameType : uint8
+{
+	Adventure		UMETA(DisplayName = "Adventure"),
+	LastStand		UMETA(DisplayName = "Last Stand"),
+};
+
 UENUM()
 enum class EHitResult
 {

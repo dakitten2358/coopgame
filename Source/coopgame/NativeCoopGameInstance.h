@@ -23,6 +23,13 @@ enum class CoopGameState : uint8
 	Unknown			UMETA(DisplayName = "Unknown"),
 };
 
+UENUM(BlueprintType)
+enum class CoopGameType : uint8
+{
+	Adventure		UMETA(DisplayName = "Adventure"),
+	LastStand		UMETA(DisplayName = "Last Stand"),
+};
+
 /**
  * 
  */
@@ -94,9 +101,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Game State")
 	void TransitionToState(CoopGameState newState);
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Game State")
-	void ShowMainMenu();
-
 	UFUNCTION(BlueprintImplementableEvent, Category = "Game State")
 	void OnGameStateChanged(CoopGameState previousState, CoopGameState newState);
 
@@ -113,6 +117,9 @@ public:
 	void SetIsOnline(bool isOnline);
 
 	void SetPresenceForLocalPlayers(const FVariantData& presenceData);
+
+	UFUNCTION(BlueprintCallable, Category = "Online")
+	bool HostGame(class ULocalPlayer* localPlayer, CoopGameType gameType, const FString& mapName, int difficulty);
 
 	// ------------------------------------------
 	// Splitscreen

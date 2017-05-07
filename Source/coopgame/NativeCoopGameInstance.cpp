@@ -302,31 +302,6 @@ void UNativeCoopGameInstance::TransitionToState(CoopGameState newState)
 	m_pendingGameState = newState;
 }
 
-void UNativeCoopGameInstance::ShowMainMenu_Implementation()
-{
-	/*
-	UE_LOG(LogCoopGame, Log, TEXT("ShowMainMenuCalled"));
-
-	if (IsCurrentState(CoopGameState::Playing))
-		UGameplayStatics::OpenLevel(GetWorld(), m_mainMenuLevel);
-
-	TransitionToState(CoopGameState::MainMenu);
-
-	if (!IsValid(m_mainMenuWidget))
-	{
-		m_mainMenuWidget = CreateWidget<UUserWidget>(UGameplayStatics::GetPlayerController(GetWorld(), 0), m_mainMenuTemplate);
-		m_mainMenuWidget->AddToViewport();
-
-		FInputModeUIOnly inputModeUIOnly;
-		UGameplayStatics::GetPlayerController(GetWorld(), 0)->SetInputMode(inputModeUIOnly);
-	}
-	else
-	{
-		UE_LOG(LogCoopGame, Error, TEXT("Failed to call create main menu widget."));
-	}
-	*/
-}
-
 // ------------------------------------------
 // Online
 // ------------------------------------------
@@ -368,6 +343,32 @@ void UNativeCoopGameInstance::SetPresenceForLocalPlayers(const FVariantData& pre
 	}
 }
 
+bool UNativeCoopGameInstance::HostGame(ULocalPlayer* localPlayer, CoopGameType gameType, const FString& mapName, int difficulty)
+{
+	// build the url
+	bool isLanMatch = false;
+	auto startUrl = FString::Printf(TEXT("/Game/%s?game=%s?difficulty=%d%s"),
+									*mapName,
+									gameType == CoopGameType::Adventure ? TEXT("adventure") : TEXT("laststand"),
+									difficulty,
+									IsOnline() ? TEXT("?listen") : TEXT(""));
+
+	// if we're not online for whatever reason, just start hte match
+	if (!IsOnline())
+	{
+		UE_LOG(LogCoopGameOnline, Warning, TEXT("Not online: starting match offline."));
+		UE_LOG(LogCoopGameTodo, Warning, TEXT("UNativeCoopGameInstance::HostGame: show loading screen here"));
+
+		TransitionToState(CoopGameState::Playing);
+		GetWorld()->ServerTravel(startUrl);
+		return true;
+	}
+
+
+
+	return true;
+}
+
 // ------------------------------------------
 // Splitscreen
 // ------------------------------------------
@@ -403,6 +404,7 @@ void UNativeCoopGameInstance::EndCurrentState(CoopGameState stateEnding)
 	switch (stateEnding)
 	{
 	case CoopGameState::MainMenu:
+		
 		break;
 	default:
 		break;
@@ -414,39 +416,38 @@ void UNativeCoopGameInstance::BeginCurrentState(CoopGameState stateBeginning)
 	switch (stateBeginning)
 	{
 	case CoopGameState::MainMenu:
-		{
-			UE_LOG(LogCoopGameTodo, Warning, TEXT("make sure we hide the loading screen if it's showing"));
+	{
+		UE_LOG(LogCoopGameTodo, Warning, TEXT("make sure we hide the loading screen if it's showing"));
 
-			// not multiplayer in the main menu
-			SetIsOnline(false);
+		// not multiplayer in the main menu
+		SetIsOnline(false);
 
-			// no splitscreen in the main menu
-			DisableSplitscreen();
-			RemoveSplitscreenPlayers();
+		// no splitscreen in the main menu
+		DisableSplitscreen();
+		RemoveSplitscreenPlayers();
 
-			// set presence
-			SetPresenceForLocalPlayers(FVariantData(FString(TEXT("InMenu"))));
+		// set presence
+		SetPresenceForLocalPlayers(FVariantData(FString(TEXT("InMenu"))));
 
-			// load the start up map
-			LoadFrontEndMap(m_mainMenuLevel);
+		// load the start up map
+		LoadFrontEndMap(m_mainMenuLevel);
 
-			// first player gets the UI
-			auto localPlayer = GetFirstGamePlayer();
-			auto controller = localPlayer->GetPlayerController(GetWorld());
-			check(controller);
+		// first player gets the UI
+		auto localPlayer = GetFirstGamePlayer();
+		auto controller = localPlayer->GetPlayerController(GetWorld());
+		check(controller);
 
-			// create the widget
-			m_mainMenuWidget = CreateWidget<UUserWidget>(controller, m_mainMenuTemplate);
-			m_mainMenuWidget->AddToViewport();
+		// create the widget
+		m_mainMenuWidget = CreateWidget<UUserWidget>(controller, m_mainMenuTemplate);
+		m_mainMenuWidget->AddToViewport();
 
-			// set up input + cursor
-			FInputModeUIOnly inputModeUIOnly;
-			controller->SetInputMode(inputModeUIOnly);
+		// set up input + cursor
+		FInputModeUIOnly inputModeUIOnly;
+		controller->SetInputMode(inputModeUIOnly);
 
-			SetMouseCursorEnabled(controller, true);
-
-		}
-		break;	
+		SetMouseCursorEnabled(controller, true);
+		break;
+	}
 	default:
 		break;
 	}
@@ -464,7 +465,7 @@ bool UNativeCoopGameInstance::LoadFrontEndMap(const FString& mapName)
 	}
 
 	// create the url for the map
-	FURL mapUrl(*FString::Printf(TEXT("%s"), *mapName));
+	FURL mapUrl(*FString::Printf(TEXT("/Game/%s"), *mapName));
 
 	if (mapUrl.Valid && !HasAnyFlags(RF_ClassDefaultObject))
 	{

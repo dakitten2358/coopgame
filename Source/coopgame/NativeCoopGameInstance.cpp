@@ -421,7 +421,7 @@ void UNativeCoopGameInstance::EndCurrentState(CoopGameState stateEnding)
 		FInputModeGameOnly gameOnly;
 		controller->SetInputMode(gameOnly);
 
-		FSlateApplication::Get().SetFocusToGameViewport();
+		FSlateApplication::Get().SetUserFocusToGameViewport(0, EFocusCause::SetDirectly);
 
 		SetMouseCursorEnabled(controller, false);
 		break;

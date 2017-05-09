@@ -9,6 +9,7 @@ class ANativeWeaponBase;
 class ANativeBaseAIController;
 class ANativeEnemyPlayerStart;
 class ANativeBaseAICharacter;
+class ANativeCoopGameSession;
 
 /**
  * 
@@ -33,6 +34,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Enemies")
 	TSubclassOf<ANativeBaseAICharacter> DefaultEnemyCharacter;
+
+	// 
+	virtual TSubclassOf<AGameSession> GetGameSessionClass() const override;
 
 private:
 	FTimerHandle m_timerHandleDefault;

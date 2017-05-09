@@ -11,6 +11,7 @@
 
 class FVariantData;
 class UUserWidget;
+class ACoopGameSession;
 
 UENUM(BlueprintType)
 enum class CoopGameState : uint8
@@ -71,6 +72,8 @@ private:
 	// map
 	void OnPostLoadMap();
 
+	FString m_travelUrl;
+
 	// ------------------------------------------
 	// Game State
 	// ------------------------------------------
@@ -115,6 +118,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Online")
 	bool HostGame(class ULocalPlayer* localPlayer, CoopGameType gameType, const FString& mapName, int difficulty);
 
+private:
+	void OnCreatePresenceSessionComplete(FName sessionName, bool wasSuccessful);
+	FDelegateHandle m_onCreatePresenceSessionCompleteDelegateHandle;
+
 	// ------------------------------------------
 	// Splitscreen
 	// ------------------------------------------
@@ -145,6 +152,8 @@ private:
 
 	bool LoadFrontEndMap(const FString& mapName);
 	void SetMouseCursorEnabled(APlayerController* forController, bool isEnabled);
+
+	ACoopGameSession* GetGameSession() const;
 
 	// ------------------------------------------
 	// Debug Helpers

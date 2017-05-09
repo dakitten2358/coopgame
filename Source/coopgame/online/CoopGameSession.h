@@ -36,13 +36,40 @@ UCLASS()
 class COOPGAME_API ACoopGameSession : public AGameSession
 {
 	GENERATED_UCLASS_BODY()
-	
+
+	// -----------------------------------------
+	// AGameSession
+	// -----------------------------------------
+public:
+	virtual void HandleMatchHasStarted() override;
+	virtual void HandleMatchHasEnded() override;
+
+	// -----------------------------------------
+	// hosting
+	// -----------------------------------------
 public:
 	bool HostSession(TSharedPtr<const FUniqueNetId> userId, FName sessionName, CoopGameType gameType, const FString& mapName, bool isLan, bool isPresence, int32 maxPlayers);
 
-private:
-	FCoopGameSessionParams m_currentSessionParameters;
-	
+protected:
+	// settings used to create the host session
+	TSharedPtr<class FCoopGameOnlineSessionSettings> m_hostSettings;
+
+	// delegate for creating a new session
+	FOnCreateSessionCompleteDelegate OnCreateSessionCompleteDelegate;
+	FDelegateHandle OnCreateSessionCompleteDelegateHandle;
+
+	// callback for new session created
+	void OnCreateSessionComplete(FName sessionName, bool wasSuccessful);
+
+	// delegate for starting a new session
+	FOnStartSessionCompleteDelegate OnStartSessionCompleteDelegate;
+	FDelegateHandle OnStartSessionCompleteDelegateHandle;
+
+	void OnStartOnlineGameComplete(FName sessionName, bool wasSuccessful);
+
+	// -----------------------------------------
+	// presence stuff
+	// -----------------------------------------
 protected:
 	// triggered where a presence session is created
 	DECLARE_EVENT_TwoParams(ACoopGameSession, FOnCreatePresenceSessionComplete, FName /*sessionName*/, bool /*wasSuccessful*/);
@@ -50,5 +77,10 @@ protected:
 
 	// get the delegate that's triggered when a presence session is created
 	FOnCreatePresenceSessionComplete& OnCreatePresenceSessionComplete() { return CreatePresenceSessionCompleteEvent; }
+
+protected:
+	FCoopGameSessionParams m_currentSessionParameters;
 	
+private:
+	typedef ACoopGameSession self_t;
 };

@@ -7,10 +7,13 @@
 #include "ai/NativeBaseAICharacter.h"
 #include "ai/NativeBaseAIController.h"
 #include "world/NativeEnemyPlayerStart.h"
+#include "online/CoopGamePlayerState.h"
 
 ANativeCoopGameMode::ANativeCoopGameMode(const FObjectInitializer& objectInitializer) : Super(objectInitializer)
 {
 	m_maxEnemyCount = 10;
+
+	PlayerStateClass = ACoopGamePlayerState::StaticClass();
 }
 
 void ANativeCoopGameMode::SetPlayerDefaults(APawn* playerPawn)

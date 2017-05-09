@@ -19,5 +19,19 @@ public:
 	bool IsGameMenuVisible() const;
 	void ShowInGameMenu();
 
-	
+	// -----------------------------------------
+	// Online
+	// -----------------------------------------
+	UFUNCTION(reliable, client)
+	void ClientStartOnlineGame();
+
+	UFUNCTION(reliable, client)
+	void ClientEndOnlineGame();
+
+private:
+	// retry timer handle while waiting for the player state to be replicated
+	FTimerHandle m_timerHandleWaitingForPlayerState;
+
+	// convenience
+	typedef ANativeCoopPlayerController self_t;	
 };

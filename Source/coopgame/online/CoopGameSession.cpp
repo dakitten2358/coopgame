@@ -90,7 +90,7 @@ bool ACoopGameSession::HostSession(TSharedPtr<const FUniqueNetId> userId, FName 
 			m_hostSettings->Set(SEARCH_KEYWORDS, CustomMatchKeyword, EOnlineDataAdvertisementType::ViaOnlineService);
 
 			OnCreateSessionCompleteDelegateHandle = sessions->AddOnCreateSessionCompleteDelegate_Handle(OnCreateSessionCompleteDelegate);
-			sessions->CreateSession(*m_currentSessionParameters.UserId, m_currentSessionParameters.SessionName, *m_hostSettings);
+			return sessions->CreateSession(*m_currentSessionParameters.UserId, m_currentSessionParameters.SessionName, *m_hostSettings);
 		}
 	}
 #if !UE_BUILD_SHIPPING

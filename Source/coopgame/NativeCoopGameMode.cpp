@@ -8,12 +8,18 @@
 #include "ai/NativeBaseAIController.h"
 #include "world/NativeEnemyPlayerStart.h"
 #include "online/CoopGamePlayerState.h"
+#include "online/CoopGameSession.h"
 
 ANativeCoopGameMode::ANativeCoopGameMode(const FObjectInitializer& objectInitializer) : Super(objectInitializer)
 {
 	m_maxEnemyCount = 10;
 
 	PlayerStateClass = ACoopGamePlayerState::StaticClass();
+}
+
+TSubclassOf<AGameSession> ANativeCoopGameMode::GetGameSessionClass() const
+{
+	return ACoopGameSession::StaticClass();
 }
 
 void ANativeCoopGameMode::SetPlayerDefaults(APawn* playerPawn)

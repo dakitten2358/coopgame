@@ -10,6 +10,7 @@
 #include <OnlineSessionInterface.h>
 #include <Runtime/Engine/Classes/Engine/Engine.h>
 #include <Runtime/UMG/Public/UMG.h>
+#include "online/CoopGameSession.h"
 
 UNativeCoopGameInstance::UNativeCoopGameInstance(const FObjectInitializer& objectInitializer)
 	: Super(objectInitializer)
@@ -347,9 +348,9 @@ bool UNativeCoopGameInstance::HostGame(ULocalPlayer* localPlayer, CoopGameType g
 {
 	// build the url
 	bool isLanMatch = false;
-	auto startUrl = FString::Printf(TEXT("/Game/%s?game=%s?difficulty=%d%s%s"),
+	auto startUrl = FString::Printf(TEXT("/Game/%s?difficulty=%d%s%s"),
 									*mapName,
-									gameType == CoopGameType::Adventure ? TEXT("adventure") : TEXT("laststand"),
+									//gameType == CoopGameType::Adventure ? TEXT("adventure") : TEXT("laststand"),
 									difficulty,
 									IsOnline() ? TEXT("?listen") : TEXT(""),
 									isLanMatch ? TEXT("?bIsLanMatch") : TEXT(""));
@@ -365,11 +366,50 @@ bool UNativeCoopGameInstance::HostGame(ULocalPlayer* localPlayer, CoopGameType g
 		return true;
 	}
 
+	auto gameSession = GetGameSession();
+	if (gameSession)
+	{
+		m_onCreatePresenceSessionCompleteDelegateHandle = gameSession->OnCreatePresenceSessionComplete().AddUObject(this, &self_t::OnCreatePresenceSessionComplete);
 
+		m_travelUrl = startUrl;
 
-
+		if (gameSession->HostSession(localPlayer->GetPreferredUniqueNetId(), GameSessionName, gameType, mapName, isLanMatch, true, 4))
+		{
+			if ((m_pendingGameState == m_currentGameState) || (m_pendingGameState == CoopGameState::Startup))
+			{
+				UE_LOG(LogCoopGameTodo, Warning, TEXT("UNativeCoopGameInstance::HostGame: show loading screen here (2)"));
+				TransitionToState(CoopGameState::Playing);
+				return true;
+			}
+		}
+	}
 
 	return true;
+}
+
+void UNativeCoopGameInstance::OnCreatePresenceSessionComplete(FName sessionName, bool wasSuccessful)
+{
+	auto gameSession = GetGameSession();
+	if (gameSession)
+	{
+		// remove callback
+		gameSession->OnCreatePresenceSessionComplete().Remove(m_onCreatePresenceSessionCompleteDelegateHandle);
+
+		if (wasSuccessful && LocalPlayers.Num() > 1)
+		{
+			UE_LOG(LogCoopGameTodo, Warning, TEXT("UNativeCoopGameInstance::OnCreatePresenceSessionComplete: splitscreen"));
+		}
+		else
+		{
+			// single player or failed
+			//FinishSessionCreation(wasSuccessful ? EOnJoinSessionCompleteResult::Success : EOnJoinSessionCompleteResult::UnknownError);
+			//temp:
+			if (wasSuccessful)
+			{
+				GetWorld()->ServerTravel(m_travelUrl);
+			}
+		}
+	}
 }
 
 // ------------------------------------------
@@ -408,11 +448,14 @@ void UNativeCoopGameInstance::EndCurrentState(CoopGameState stateEnding)
 	{
 	case CoopGameState::MainMenu:
 	{
+		/*
+		// not sure where this gets destroyed, but it does ;(  
 		if (m_mainMenuWidget)
 		{
 			m_mainMenuWidget->RemoveFromViewport();
 			m_mainMenuWidget = nullptr;
 		}
+		*/
 
 		auto localPlayer = GetFirstGamePlayer();
 		auto controller = localPlayer->GetPlayerController(GetWorld());
@@ -440,7 +483,7 @@ void UNativeCoopGameInstance::BeginCurrentState(CoopGameState stateBeginning)
 		UE_LOG(LogCoopGameTodo, Warning, TEXT("make sure we hide the loading screen if it's showing"));
 
 		// not multiplayer in the main menu
-		SetIsOnline(false);
+		SetIsOnline(true);
 
 		// no splitscreen in the main menu
 		DisableSplitscreen();
@@ -517,4 +560,19 @@ void UNativeCoopGameInstance::SetMouseCursorEnabled(APlayerController* forContro
 	forController->bShowMouseCursor = enabled;
 	forController->bEnableClickEvents = enabled;
 	forController->bEnableMouseOverEvents = enabled;
+}
+
+ACoopGameSession* UNativeCoopGameInstance::GetGameSession() const
+{
+	auto world = GetWorld();
+	if (world)
+	{
+		auto game = world->GetAuthGameMode();
+		if (game)
+		{
+			return Cast<ACoopGameSession>(game->GameSession);
+		}
+	}
+
+	return nullptr;
 }

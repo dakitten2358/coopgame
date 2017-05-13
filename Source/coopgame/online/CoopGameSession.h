@@ -75,6 +75,7 @@ protected:
 	DECLARE_EVENT_TwoParams(ACoopGameSession, FOnCreatePresenceSessionComplete, FName /*sessionName*/, bool /*wasSuccessful*/);
 	FOnCreatePresenceSessionComplete CreatePresenceSessionCompleteEvent;
 
+public:
 	// get the delegate that's triggered when a presence session is created
 	FOnCreatePresenceSessionComplete& OnCreatePresenceSessionComplete() { return CreatePresenceSessionCompleteEvent; }
 

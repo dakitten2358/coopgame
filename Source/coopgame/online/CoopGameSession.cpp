@@ -82,7 +82,7 @@ bool ACoopGameSession::HostSession(TSharedPtr<const FUniqueNetId> userId, FName 
 		{
 			FString gameTypeText = gameType == CoopGameType::Adventure ? TEXT("adventure") : TEXT("laststand");
 			m_hostSettings = MakeShareable(new FCoopGameOnlineSessionSettings(isLan, isPresence, maxPlayers));
-			m_hostSettings->Set(SETTING_GAMEMODE, gameTypeText, EOnlineDataAdvertisementType::ViaOnlineService);
+			//m_hostSettings->Set(SETTING_GAMEMODE, gameTypeText, EOnlineDataAdvertisementType::ViaOnlineService);
 			m_hostSettings->Set(SETTING_MAPNAME, mapName, EOnlineDataAdvertisementType::ViaOnlineService);
 			m_hostSettings->Set(SETTING_MATCHING_HOPPER, FString("coop_adventure"), EOnlineDataAdvertisementType::DontAdvertise);
 			m_hostSettings->Set(SETTING_MATCHING_TIMEOUT, 60.0f, EOnlineDataAdvertisementType::ViaOnlineService);
@@ -90,7 +90,7 @@ bool ACoopGameSession::HostSession(TSharedPtr<const FUniqueNetId> userId, FName 
 			m_hostSettings->Set(SEARCH_KEYWORDS, CustomMatchKeyword, EOnlineDataAdvertisementType::ViaOnlineService);
 
 			OnCreateSessionCompleteDelegateHandle = sessions->AddOnCreateSessionCompleteDelegate_Handle(OnCreateSessionCompleteDelegate);
-			sessions->CreateSession(*m_currentSessionParameters.UserId, m_currentSessionParameters.SessionName, *m_hostSettings);
+			return sessions->CreateSession(*m_currentSessionParameters.UserId, m_currentSessionParameters.SessionName, *m_hostSettings);
 		}
 	}
 #if !UE_BUILD_SHIPPING

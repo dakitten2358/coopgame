@@ -4,7 +4,7 @@ using UnrealBuildTool;
 
 public class coopgame : ModuleRules
 {
-	public coopgame(TargetInfo Target)
+	public coopgame(ReadOnlyTargetRules Target) : base(Target)
 	{
 		Definitions.Add("_CRT_SECURE_NO_WARNINGS");
 		PublicDependencyModuleNames.AddRange(

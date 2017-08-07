@@ -131,6 +131,36 @@ AActor* ANativeCoopGameMode::ChoosePlayerStart_Implementation(AController* forCo
 		/* If we failed to find any (so BestStart is nullptr) fall back to the base code */
 		return bestStart ? bestStart : Super::ChoosePlayerStart_Implementation(forController);
 	}
+	else
+	{
+		TArray<APlayerStart*> preferredSpawns;
+
+		/* Get all playerstart objects in level */
+		TArray<AActor*> playerStarts;
+		UGameplayStatics::GetAllActorsOfClass(this, APlayerStart::StaticClass(), playerStarts);
+
+		/* Split the player starts into two arrays for preferred and fallback spawns */
+		for (int32 i = 0; i < playerStarts.Num(); i++)
+		{
+			APlayerStart* startToTest = Cast<APlayerStart>(playerStarts[i]);
+			bool isEnemySpawn = Cast<ANativeEnemyPlayerStart>(playerStarts[i]) != nullptr;
+
+			if (startToTest && !isEnemySpawn)
+			{
+				preferredSpawns.Add(startToTest);
+			}
+		}
+
+		/* Pick a random spawnpoint from the filtered spawn points */
+		AActor* bestStart = nullptr;
+		if (preferredSpawns.Num() > 0)
+		{
+			bestStart = preferredSpawns[FMath::RandHelper(preferredSpawns.Num())];
+		}
+
+		/* If we failed to find any (so BestStart is nullptr) fall back to the base code */
+		return bestStart ? bestStart : Super::ChoosePlayerStart_Implementation(forController);	
+	}
 
 	return Super::ChoosePlayerStart_Implementation(forController);	
 }

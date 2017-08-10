@@ -9,12 +9,48 @@
 #include "world/NativeEnemyPlayerStart.h"
 #include "online/CoopGamePlayerState.h"
 #include "online/CoopGameSession.h"
+#include "BehaviorTree/BehaviorTree.h"
+#include "BehaviorTree/BlackboardComponent.h"
+#include "BehaviorTree/BehaviorTreeComponent.h"
 
 ANativeCoopGameMode::ANativeCoopGameMode(const FObjectInitializer& objectInitializer) : Super(objectInitializer)
 {
 	m_maxEnemyCount = 10;
 
 	PlayerStateClass = ACoopGamePlayerState::StaticClass();
+
+	m_blackboardComponent = objectInitializer.CreateDefaultSubobject<UBlackboardComponent>(this, "BlackboardComponent");
+	m_behaviorTreeComponent = objectInitializer.CreateDefaultSubobject<UBehaviorTreeComponent>(this, "BehaviorTreeComponent");
+	AIBehavior = nullptr;
+}
+
+void ANativeCoopGameMode::PostInitializeComponents()
+{
+	// make sure we call our parent's postinitializecomponents
+	AGameMode::PostInitializeComponents();
+
+	// start up the AI director
+	if (AIBehavior != nullptr && AIBehavior->BlackboardAsset)
+	{
+		// initialize the blackboard
+		if (m_blackboardComponent->InitializeBlackboard(*AIBehavior->BlackboardAsset))
+		{
+			// get the keys we're going to need
+
+			// start the behavior
+			m_behaviorTreeComponent->StartTree(*AIBehavior, EBTExecutionMode::Looped);
+			UE_LOG(LogCoopGame, Warning, TEXT("ANativeCoopGameMode started behavior tree!"));
+		}
+		else
+		{
+			UE_LOG(LogCoopGame, Error, TEXT("Failed to initialize the blackboard component"));
+		}		
+	}
+	else
+	{
+		UE_LOG(LogCoopGame, Error, TEXT("ANativeCoopGameMode had no AIBehavior specified or the AIBehavior doesn't specify a blackboard asset."));
+		check(false);
+	}
 }
 
 TSubclassOf<AGameSession> ANativeCoopGameMode::GetGameSessionClass() const

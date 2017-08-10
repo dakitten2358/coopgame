@@ -35,12 +35,25 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Enemies")
 	TSubclassOf<ANativeBaseAICharacter> DefaultEnemyCharacter;
 
+	// for ai controller
+	UPROPERTY(transient)
+	class UBlackboardComponent* m_blackboardComponent;
+
+	UPROPERTY(transient)
+	class UBehaviorTreeComponent* m_behaviorTreeComponent;
+
+	UPROPERTY(EditAnywhere, Category = Behavior)
+	class UBehaviorTree* AIBehavior;
+
 	// 
 	virtual TSubclassOf<AGameSession> GetGameSessionClass() const override;
 
 private:
 	FTimerHandle m_timerHandleDefault;
 	int m_maxEnemyCount;
+
+public:
+	virtual void PostInitializeComponents() override;
 
 private:
 	void OnDefaultTimer();

@@ -19,6 +19,8 @@ public class coopgame : ModuleRules
 				"SlateCore",
 				"OnlineSubsystem",
 				"OnlineSubsystemUtils",
+				"AIModule",
+				"GameplayTasks",
 			}
 		);
 		DynamicallyLoadedModuleNames.AddRange(

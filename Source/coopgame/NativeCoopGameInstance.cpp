@@ -37,7 +37,7 @@ void UNativeCoopGameInstance::Init()
 	FCoreDelegates::OnControllerConnectionChange.AddUObject(this, &self_t::HandleControllerConnectionChange);
 
 	// map delegate bindings
-	FCoreUObjectDelegates::PostLoadMap.AddUObject(this, &self_t::OnPostLoadMap);
+	FCoreUObjectDelegates::PostLoadMapWithWorld.AddUObject(this, &self_t::OnPostLoadMapWithWorld);
 
 	// bind ourselves to online subsystem callbacks we need
 	const auto onlineSubsystem = IOnlineSubsystem::Get();
@@ -282,7 +282,7 @@ void UNativeCoopGameInstance::HandleControllerPairingChanged(int32 gameUserIndex
 	// console : xbox one specific stuff
 }
 
-void UNativeCoopGameInstance::OnPostLoadMap()
+void UNativeCoopGameInstance::OnPostLoadMapWithWorld(class UWorld* world)
 {
 	UE_LOG(LogCoopGameTodo, Log, TEXT("Make sure loading screen is hidden..."));
 }

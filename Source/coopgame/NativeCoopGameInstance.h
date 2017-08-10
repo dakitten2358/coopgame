@@ -70,7 +70,7 @@ private:
 	void HandleSessionFailure(const FUniqueNetId& newId, ESessionFailure::Type failureType);
 
 	// map
-	void OnPostLoadMap();
+	void OnPostLoadMapWithWorld(class UWorld* world);
 
 	FString m_travelUrl;
 

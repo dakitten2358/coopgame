@@ -88,6 +88,7 @@ void ANativeCoopGameMode::PreInitializeComponents()
 
 void ANativeCoopGameMode::OnDefaultTimer()
 {
+	/*
 	TArray<AActor*> currentEnemies;
 	UGameplayStatics::GetAllActorsOfClass(this, ANativeBaseAICharacter::StaticClass(), currentEnemies);
 	int currentEnemyCount = currentEnemies.Num();
@@ -101,6 +102,7 @@ void ANativeCoopGameMode::OnDefaultTimer()
 			--enemiesToSpawn;
 		}
 	}
+	*/
 }
 
 void ANativeCoopGameMode::SpawnNewEnemy()
@@ -110,6 +112,14 @@ void ANativeCoopGameMode::SpawnNewEnemy()
 
 	ANativeBaseAIController *enemyAIController = GetWorld()->SpawnActor<ANativeBaseAIController>(DefaultEnemyController, spawnInfo);
 	RestartPlayer(enemyAIController);
+}
+
+int ANativeCoopGameMode::CurrentEnemyCount() const
+{
+	TArray<AActor*> currentEnemies;
+	UGameplayStatics::GetAllActorsOfClass(this, ANativeBaseAICharacter::StaticClass(), currentEnemies);
+	int currentEnemyCount = currentEnemies.Num();
+	return currentEnemyCount;
 }
 
 // Used by RestartPlayer() to determine the pawn to create and possess when a bot or player spawns

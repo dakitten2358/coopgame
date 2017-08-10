@@ -58,8 +58,12 @@ public:
 private:
 	void OnDefaultTimer();
 
+public:
 	// enemy spawning
 	void SpawnNewEnemy();
+	int CurrentEnemyCount() const;
+
+private:
 	bool IsEnemySpawnPointAllowed(const ANativeEnemyPlayerStart* spawnPoint, const AController* forController) const;
 	bool IsEnemySpawnPointPreferred(const ANativeEnemyPlayerStart* spawnPoint, const AController* forController) const;
 };

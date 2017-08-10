@@ -12,7 +12,6 @@ EBTNodeResult::Type UBTT_AD_SpawnEnemy::ExecuteTask(UBehaviorTreeComponent& Owne
 	{
 		UE_LOG(LogCoopGame, Warning, TEXT("UBTT_AD_SpawnEnemy::ExecuteTask: Spawning new enemy"));
 		gameMode->SpawnNewEnemy();
-
 		return EBTNodeResult::Succeeded;
 	}
 	return EBTNodeResult::Failed;

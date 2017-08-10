@@ -21,7 +21,6 @@ class COOPGAME_API ANativeCoopGameMode : public AGameMode
 	
 protected:
 	virtual void SetPlayerDefaults(APawn* playerPawn) override;
-	virtual void PreInitializeComponents() override;
 	virtual UClass* GetDefaultPawnClassForController_Implementation(AController* forController) override;
 	virtual AActor* ChoosePlayerStart_Implementation(AController* forController) override;
 
@@ -48,19 +47,18 @@ protected:
 	// 
 	virtual TSubclassOf<AGameSession> GetGameSessionClass() const override;
 
-private:
-	FTimerHandle m_timerHandleDefault;
-	int m_maxEnemyCount;
+public:
+	UPROPERTY(EditAnywhere, Category="Game Mode", meta=(ClampMin="0", ClampMax="200"))
+	int MaxEnemyCount;
 
 public:
 	virtual void PostInitializeComponents() override;
 
-private:
-	void OnDefaultTimer();
-
 public:
 	// enemy spawning
 	void SpawnNewEnemy();
+
+	UFUNCTION(BlueprintCallable, Category = "Game State")
 	int CurrentEnemyCount() const;
 
 private:

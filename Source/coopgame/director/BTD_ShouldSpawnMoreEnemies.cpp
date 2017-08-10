@@ -10,7 +10,7 @@ bool UBTD_ShouldSpawnMoreEnemies::CalculateRawConditionValue(UBehaviorTreeCompon
 	if (gameMode)
 	{
 		int currentCount = gameMode->CurrentEnemyCount();
-		return currentCount < 30;
+		return currentCount < gameMode->MaxEnemyCount;
 	}
 
 	return false;

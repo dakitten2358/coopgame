@@ -15,7 +15,7 @@
 
 ANativeCoopGameMode::ANativeCoopGameMode(const FObjectInitializer& objectInitializer) : Super(objectInitializer)
 {
-	m_maxEnemyCount = 10;
+	MaxEnemyCount = 10;
 
 	PlayerStateClass = ACoopGamePlayerState::StaticClass();
 
@@ -76,33 +76,6 @@ void ANativeCoopGameMode::SetPlayerDefaults(APawn* playerPawn)
 			asCharacter->AddWeapon(newWeapon);
 		}
 	}
-}
-
-void ANativeCoopGameMode::PreInitializeComponents()
-{
-	Super::PreInitializeComponents();
-
-	// set up a timer to spawn new enemies
-	GetWorldTimerManager().SetTimer(m_timerHandleDefault, this, &ANativeCoopGameMode::OnDefaultTimer, GetWorldSettings()->GetEffectiveTimeDilation(), true);
-}
-
-void ANativeCoopGameMode::OnDefaultTimer()
-{
-	/*
-	TArray<AActor*> currentEnemies;
-	UGameplayStatics::GetAllActorsOfClass(this, ANativeBaseAICharacter::StaticClass(), currentEnemies);
-	int currentEnemyCount = currentEnemies.Num();
-	if (currentEnemyCount < m_maxEnemyCount)
-	{
-		int enemiesToSpawn = FMath::Max(m_maxEnemyCount - currentEnemyCount, 0);
-
-		while (enemiesToSpawn > 0)
-		{
-			SpawnNewEnemy();
-			--enemiesToSpawn;
-		}
-	}
-	*/
 }
 
 void ANativeCoopGameMode::SpawnNewEnemy()

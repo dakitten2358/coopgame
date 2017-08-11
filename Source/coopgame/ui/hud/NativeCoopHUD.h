@@ -24,5 +24,8 @@ public:
 	
 protected:
 	FCanvasIcon m_crosshairCenterIcon;
+
+	UPROPERTY()
+	class UFont* DefaultFont;
 	
 };

@@ -21,6 +21,7 @@ public:
 
 public:
 	virtual void DrawHUD() override;
+	virtual void BeginPlay() override;
 	
 protected:
 	FCanvasIcon m_crosshairCenterIcon;
@@ -29,7 +30,15 @@ protected:
 	class UFont* DefaultFont;
 
 private:
+	typedef ANativeCoopHUD self_t;
+
 	void DrawPlayerInfobox(int index, const class APlayerState* playerState, const class ANativeCoopCharacter* character) const;
 	const class ANativeCoopCharacter* FindCharacterFor(const class APlayerState* playerState) const;
 	bool IsMe(const class APlayerState* playerState) const;
+
+	// instructions
+	FTimerHandle m_timerHandleInstructions;
+	void StopShowingTip();
+	bool shouldDrawInstructionsTip = true;
+	void DrawInstructionsTip();
 };

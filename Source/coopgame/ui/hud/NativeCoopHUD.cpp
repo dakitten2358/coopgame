@@ -22,6 +22,19 @@ ANativeCoopHUD::ANativeCoopHUD(const FObjectInitializer& objectInitializer)
 	#endif //!UE_SERVER
 }
 
+void ANativeCoopHUD::BeginPlay()
+{
+	AHUD::BeginPlay();
+
+	// instructions timer
+	GetWorld()->GetTimerManager().SetTimer(m_timerHandleInstructions, this, &self_t::StopShowingTip, 3.0f, false);
+}
+
+void ANativeCoopHUD::StopShowingTip()
+{
+	shouldDrawInstructionsTip = false;
+}
+
 void ANativeCoopHUD::DrawHUD()
 {
 	Super::DrawHUD();
@@ -50,6 +63,9 @@ void ANativeCoopHUD::DrawHUD()
 			index++;
 		}
 	}
+
+	if (shouldDrawInstructionsTip)
+		DrawInstructionsTip();
 }
 
 void ANativeCoopHUD::DrawPlayerInfobox(int index, const APlayerState* playerState, const ANativeCoopCharacter* character) const
@@ -88,4 +104,21 @@ bool ANativeCoopHUD::IsMe(const APlayerState* playerState) const
 		return false;
 
 	return *Identity->GetUniquePlayerId(0).Get() == *playerState->UniqueId;
+}
+
+void ANativeCoopHUD::DrawInstructionsTip()
+{
+	float centerX = Canvas->ClipX / 2;
+	float centerY = Canvas->ClipY / 2;
+
+	DrawRect(FLinearColor(0.0f, 0.0f, 0.0f, 0.85f), 0.0f, centerY - 30, Canvas->ClipX, 60);
+
+	auto tipText = TEXT("Press F1 for instructions");
+
+	float w, h;
+	Canvas->TextSize(DefaultFont, tipText, w, h);
+	
+	FColor textColor(255, 255, 255, 255);
+	FCanvasTextItem textItem(FVector2D::ZeroVector, FText::FromString(tipText), DefaultFont, textColor);
+	Canvas->DrawItem(textItem, centerX - (w/2.0f), centerY - (h/2.0f));
 }

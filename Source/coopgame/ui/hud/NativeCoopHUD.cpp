@@ -2,6 +2,8 @@
 
 #include "coopgame.h"
 #include "NativeCoopHUD.h"
+#include "NativeCoopCharacter.h"
+#include "NativeCoopPlayerController.h"
 #include <Online.h>
 #include <OnlineIdentityInterface.h>
 
@@ -35,45 +37,55 @@ void ANativeCoopHUD::DrawHUD()
 		centerY - m_crosshairCenterIcon.VL * crosshairCenterScale / 2.0f,
 		crosshairCenterScale);
 
-	FColor DrawColor(110,124,131,255);
-	FColor MyColor(220, 124, 131, 255);
-
-	FCanvasTextItem TextItem( FVector2D::ZeroVector, FText::GetEmpty(), DefaultFont, DrawColor );
-	FCanvasTextItem TextItemMe(FVector2D::ZeroVector, FText::GetEmpty(), DefaultFont, MyColor);
-	//TextItem.EnableShadow( FLinearColor::Black );
-	//TextItem.Text = FText::FromString( TEXT("TestText") );
-	
-
 	if (GetWorld()->GetGameState())
 	{
-		float verticalOffset = 10.0f;
-
-		auto Identity = Online::GetIdentityInterface();
-		if (Identity.IsValid())
-		{
-			auto x = Identity->GetPlayerNickname(0);
-			
-		}
-
+		auto index = 0;
 		auto gameState = GetWorld()->GetGameState();
 		for (auto playerState : gameState->PlayerArray)
 		{
-			if (*Identity->GetUniquePlayerId(0).Get() == *playerState->UniqueId)
-			{
-				TextItemMe.Text = FText::FromString(playerState->PlayerName);
-				Canvas->DrawItem(TextItemMe, verticalOffset, 10.0f);
-			}
-			else
-			{
-				TextItem.Text = FText::FromString(playerState->PlayerName);
-				Canvas->DrawItem(TextItem, verticalOffset, 10.0f);
-			}
-			verticalOffset += 30.0f;
-		}		
+			auto character = FindCharacterFor(playerState);
+			if (character)
+				DrawPlayerInfobox(index, playerState, character);
+
+			index++;
+		}
 	}
-	else
+}
+
+void ANativeCoopHUD::DrawPlayerInfobox(int index, const APlayerState* playerState, const ANativeCoopCharacter* character) const
+{
+	FColor otherColor(110,124,131,255);
+	FColor myColor(220, 124, 131, 255);
+
+	float verticalOffset = 10.0f + (30.0f * index);
+
+	FCanvasTextItem textItem(FVector2D::ZeroVector, FText::GetEmpty(), DefaultFont, IsMe(playerState) ? myColor : otherColor);
+	textItem.Text = FText::FromString(playerState->PlayerName);
+	Canvas->DrawItem(textItem, 10.0f, verticalOffset);
+
+	textItem.Text = FText::AsNumber(character->GetCurrentHealth());
+	Canvas->DrawItem(textItem, 200.0f, verticalOffset);
+}
+
+const ANativeCoopCharacter* ANativeCoopHUD::FindCharacterFor(const APlayerState* playerState) const
+{
+	TArray<AActor*> coopCharacterActors;
+	UGameplayStatics::GetAllActorsOfClass(this, ANativeCoopCharacter::StaticClass(), coopCharacterActors);
+	for (auto asActor : coopCharacterActors)
 	{
-		TextItem.Text = FText::FromString(TEXT("Failed to get game state"));
-		Canvas->DrawItem(TextItemMe, 10.0f, 10.0f);
+		auto coopCharacter = Cast<ANativeCoopCharacter>(asActor);
+		if (coopCharacter->PlayerState && coopCharacter->PlayerState->UniqueId == playerState->UniqueId)
+			return coopCharacter;
 	}
+
+	return nullptr;
+}
+
+bool ANativeCoopHUD::IsMe(const APlayerState* playerState) const
+{
+	auto Identity = Online::GetIdentityInterface();
+	if (!Identity.IsValid())
+		return false;
+
+	return *Identity->GetUniquePlayerId(0).Get() == *playerState->UniqueId;
 }

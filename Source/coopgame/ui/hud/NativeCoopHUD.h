@@ -27,5 +27,9 @@ protected:
 
 	UPROPERTY()
 	class UFont* DefaultFont;
-	
+
+private:
+	void DrawPlayerInfobox(int index, const class APlayerState* playerState, const class ANativeCoopCharacter* character) const;
+	const class ANativeCoopCharacter* FindCharacterFor(const class APlayerState* playerState) const;
+	bool IsMe(const class APlayerState* playerState) const;
 };

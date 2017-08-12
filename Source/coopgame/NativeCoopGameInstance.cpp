@@ -72,54 +72,17 @@ bool UNativeCoopGameInstance::Tick(float deltaSeconds)
 	if (IsRunningDedicatedServer())
 		return true;
 
-	// check to see if we need to change state
-	if ((m_pendingGameState != m_currentGameState) && m_pendingGameState != CoopGameState::Startup)
-	{
-		auto previousState = m_currentGameState;
-
-		EndCurrentState(m_currentGameState);
-		m_currentGameState = m_pendingGameState;
-		BeginCurrentState(m_currentGameState);
-
-		OnGameStateChanged(previousState, m_currentGameState);
-	}
 	return true;
 }
 
 void UNativeCoopGameInstance::StartGameInstance()
 {
 	// nothing to do here - defaults to start up
-	TransitionToState(m_defaultState);
+	Super::StartGameInstance();
 }
 
 void UNativeCoopGameInstance::HandleApplicationWillDeactivate()
 {
-	if (IsCurrentState(CoopGameState::Playing))
-	{
-		auto world = GetWorld();
-		if (world == nullptr)
-			return;
-
-		// we'll use the first player ot pause the game
-		auto needsPause = false;
-		for(auto controllerIterator = world->GetControllerIterator(); controllerIterator; ++controllerIterator)
-		{
-			auto controller = Cast<ANativeCoopPlayerController>(*controllerIterator);
-			if (controller != nullptr && (controller->IsPaused() || controller->IsGameMenuVisible()))
-			{
-				// make sure we don't push a menu on top of an existing one
-				needsPause = false;
-				break;
-			}
-		}
-
-		if (needsPause)
-		{
-			auto controller = Cast<ANativeCoopPlayerController>(world->GetFirstPlayerController());
-			if (controller)
-				controller->ShowInGameMenu();
-		}
-	}
 }
 
 void UNativeCoopGameInstance::HandleApplicationSuspend()
@@ -133,21 +96,6 @@ void UNativeCoopGameInstance::HandleApplicationSuspend()
 void UNativeCoopGameInstance::HandleApplicationResume()
 {
 	UE_LOG(LogCoopGameOnline, Warning, TEXT("UNativeCoopGameInstance::HandleApplicationResume"));
-
-	if (!IsCurrentState(CoopGameState::Startup) && !IsCurrentState(m_defaultState))
-	{
-		UE_LOG(LogCoopGameOnline, Warning, TEXT("UNativeCoopGameInstance::HandleApplicationResume: attempting to sign out players"));
-		for(auto i = 0; i < LocalPlayers.Num(); ++i)
-		{
-			auto localPlayer = LocalPlayers[i];
-			if (localPlayer->GetCachedUniqueNetId().IsValid() && !IsLocalPlayerOnline(localPlayer))
-			{
-				UE_LOG(LogCoopGameOnline, Warning, TEXT("UNativeCoopGameInstance::HandleApplicationResume: signed out during resume"));
-				HandleSignInChangeMessaging();
-				break;
-			}
-		}
-	}
 }
 
 void UNativeCoopGameInstance::HandleApplicationLicenseChange()
@@ -190,6 +138,13 @@ void UNativeCoopGameInstance::HandleControllerConnectionChange(bool isConnection
 	}
 }
 
+
+void UNativeCoopGameInstance::HandleSignInChangeMessaging()
+{
+	
+}
+
+
 void UNativeCoopGameInstance::HandleUserLoginChanged(int32 gameUserIndex, ELoginStatus::Type previousLoginStatus, ELoginStatus::Type newLoginStatus, const FUniqueNetId& userID)
 {
 	bool wasDowngraded = (newLoginStatus == ELoginStatus::NotLoggedIn && !IsOnline()) ||
@@ -219,17 +174,6 @@ void UNativeCoopGameInstance::HandleUserLoginChanged(int32 gameUserIndex, ELogin
 			// remove local players from the list
 			RemoveExistingLocalPlayer(localPlayer);
 		}
-	}
-}
-
-void UNativeCoopGameInstance::HandleSignInChangeMessaging()
-{
-	if (!IsCurrentState(m_defaultState))
-	{
-		// console:
-		//show message then goto state
-
-		TransitionToState(m_defaultState);
 	}
 }
 
@@ -285,22 +229,6 @@ void UNativeCoopGameInstance::HandleControllerPairingChanged(int32 gameUserIndex
 void UNativeCoopGameInstance::OnPostLoadMapWithWorld(class UWorld* world)
 {
 	UE_LOG(LogCoopGameTodo, Log, TEXT("Make sure loading screen is hidden..."));
-}
-
-
-// ------------------------------------------
-// Game State
-// ------------------------------------------
-bool UNativeCoopGameInstance::IsCurrentState(CoopGameState inState) const
-{
-	return m_currentGameState == inState;
-}
-
-void UNativeCoopGameInstance::TransitionToState(CoopGameState newState)
-{
-	// actually changing the state will be handled in the Tick();
-	UE_LOG(LogCoopGame, Log, TEXT("TransitionToState:  newState = %d"), (int) newState);
-	m_pendingGameState = newState;
 }
 
 // ------------------------------------------
@@ -361,7 +289,7 @@ bool UNativeCoopGameInstance::HostGame(ULocalPlayer* localPlayer, CoopGameType g
 		UE_LOG(LogCoopGameOnline, Warning, TEXT("Not online: starting match offline."));
 		UE_LOG(LogCoopGameTodo, Warning, TEXT("UNativeCoopGameInstance::HostGame: show loading screen here"));
 
-		TransitionToState(CoopGameState::Playing);
+		//TransitionToState(CoopGameState::Playing);
 		GetWorld()->ServerTravel(startUrl);
 		return true;
 	}
@@ -375,10 +303,10 @@ bool UNativeCoopGameInstance::HostGame(ULocalPlayer* localPlayer, CoopGameType g
 
 		if (gameSession->HostSession(localPlayer->GetPreferredUniqueNetId(), GameSessionName, gameType, mapName, isLanMatch, true, 4))
 		{
-			if ((m_pendingGameState == m_currentGameState) || (m_pendingGameState == CoopGameState::Startup))
+			//if ((m_pendingGameState == m_currentGameState) || (m_pendingGameState == CoopGameState::Startup))
 			{
 				UE_LOG(LogCoopGameTodo, Warning, TEXT("UNativeCoopGameInstance::HostGame: show loading screen here (2)"));
-				TransitionToState(CoopGameState::Playing);
+				//TransitionToState(CoopGameState::Playing);
 				return true;
 			}
 		}
@@ -439,127 +367,11 @@ void UNativeCoopGameInstance::RemoveSplitscreenPlayers()
 	}
 }
 
-// ------------------------------------------
-// State Management
-// ------------------------------------------
-void UNativeCoopGameInstance::EndCurrentState(CoopGameState stateEnding)
-{
-	switch (stateEnding)
-	{
-	case CoopGameState::MainMenu:
-	{
-		/*
-		// not sure where this gets destroyed, but it does ;(  
-		if (m_mainMenuWidget)
-		{
-			m_mainMenuWidget->RemoveFromViewport();
-			m_mainMenuWidget = nullptr;
-		}
-		*/
-
-		auto localPlayer = GetFirstGamePlayer();
-		auto controller = localPlayer->GetPlayerController(GetWorld());
-		check(controller);
-
-		FInputModeGameOnly gameOnly;
-		controller->SetInputMode(gameOnly);
-
-		FSlateApplication::Get().SetUserFocusToGameViewport(0, EFocusCause::SetDirectly);
-
-		SetMouseCursorEnabled(controller, false);
-		break;
-	}
-	default:
-		break;
-	}
-}
-
-void UNativeCoopGameInstance::BeginCurrentState(CoopGameState stateBeginning)
-{
-	switch (stateBeginning)
-	{
-	case CoopGameState::MainMenu:
-	{
-		UE_LOG(LogCoopGameTodo, Warning, TEXT("make sure we hide the loading screen if it's showing"));
-
-		// not multiplayer in the main menu
-		SetIsOnline(true);
-
-		// no splitscreen in the main menu
-		DisableSplitscreen();
-		RemoveSplitscreenPlayers();
-
-		// set presence
-		SetPresenceForLocalPlayers(FVariantData(FString(TEXT("InMenu"))));
-
-		// load the start up map
-		LoadFrontEndMap(m_mainMenuLevel);
-
-		// first player gets the UI
-		auto localPlayer = GetFirstGamePlayer();
-		auto controller = localPlayer->GetPlayerController(GetWorld());
-		check(controller);
-
-		// create the widget
-		m_mainMenuWidget = CreateWidget<UUserWidget>(controller, m_mainMenuTemplate);
-		m_mainMenuWidget->AddToViewport();
-
-		// set up input + cursor
-		FInputModeUIOnly inputModeUIOnly;
-		inputModeUIOnly.SetWidgetToFocus(m_mainMenuWidget->GetCachedWidget());
-		controller->SetInputMode(inputModeUIOnly);
-
-		SetMouseCursorEnabled(controller, true);
-		break;
-	}
-	default:
-		break;
-	}
-}
-
-bool UNativeCoopGameInstance::LoadFrontEndMap(const FString& mapName)
-{
-	// nothing to do if we're already on this map
-	auto world = GetWorld();
-	if (world != nullptr)
-	{
-		auto currentMapName = world->PersistentLevel->GetOutermost()->GetName();
-		if (currentMapName == mapName)
-			return true;
-	}
-
-	// create the url for the map
-	FURL mapUrl(*FString::Printf(TEXT("/Game/%s"), *mapName));
-
-	if (mapUrl.Valid && !HasAnyFlags(RF_ClassDefaultObject))
-	{
-		FString errorText;
-		auto result = GetEngine()->Browse(*WorldContext, mapUrl, errorText);
-		if (result != EBrowseReturnVal::Success)
-		{
-			auto errorMessage = FString::Printf(TEXT("Failed to enter -> %s: %s <-"), *mapName, *errorText);
-			UE_LOG(LogCoopGame, Fatal, TEXT("%s"), *errorMessage);
-			return false;
-		}
-	}
-	else
-	{
-		if (!mapUrl.Valid)
-			UE_LOG(LogCoopGame, Error, TEXT("Failed to create map url"));
-		if (HasAnyFlags(RF_ClassDefaultObject))
-			UE_LOG(LogCoopGame, Error, TEXT("Has class default object flag"));
-
-		return false;
-	}
-
-	return true;
-}
-
 void UNativeCoopGameInstance::SetMouseCursorEnabled(APlayerController* forController, bool enabled)
 {
-	forController->bShowMouseCursor = enabled;
-	forController->bEnableClickEvents = enabled;
-	forController->bEnableMouseOverEvents = enabled;
+       forController->bShowMouseCursor = enabled;
+       forController->bEnableClickEvents = enabled;
+       forController->bEnableMouseOverEvents = enabled;
 }
 
 ACoopGameSession* UNativeCoopGameInstance::GetGameSession() const

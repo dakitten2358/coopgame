@@ -13,18 +13,6 @@ class FVariantData;
 class UUserWidget;
 class ACoopGameSession;
 
-UENUM(BlueprintType)
-enum class CoopGameState : uint8
-{
-	Startup			UMETA(DisplayName = "Startup"),
-	MainMenu		UMETA(DisplayName = "Main Menu"),
-	ServerList		UMETA(DisplayName = "Server List"),
-	Loading			UMETA(DisplayName = "Loading Screen"),
-	Playing			UMETA(DisplayName = "Playing"),
-	ErrorMessage	UMETA(DisplayName = "Error Message"),
-	Unknown			UMETA(DisplayName = "Unknown"),
-};
-
 /**
  * 
  */
@@ -61,8 +49,8 @@ private:
 	void HandleControllerConnectionChange(bool isConnection, int32 unused, int32 gameUserIndex);
 	
 	// online + multiplayer
-	void HandleUserLoginChanged(int32 gameUserIndex, ELoginStatus::Type previousLoginStatus, ELoginStatus::Type newLoginStatus, const FUniqueNetId& userID);
 	void HandleSignInChangeMessaging();
+	void HandleUserLoginChanged(int32 gameUserIndex, ELoginStatus::Type previousLoginStatus, ELoginStatus::Type newLoginStatus, const FUniqueNetId& userID);
 	void HandleControllerPairingChanged(int32 gameUserIndex, const FUniqueNetId& previousUser, const FUniqueNetId& newUser);
 	void RemoveExistingLocalPlayer(class ULocalPlayer* localPlayer);
 	bool IsLocalPlayerOnline(class ULocalPlayer* localPlayer);
@@ -73,33 +61,6 @@ private:
 	void OnPostLoadMapWithWorld(class UWorld* world);
 
 	FString m_travelUrl;
-
-	// ------------------------------------------
-	// Game State
-	// ------------------------------------------
-protected:
-	const CoopGameState m_defaultState = CoopGameState::MainMenu;
-	
-	CoopGameState m_currentGameState = CoopGameState::Startup;
-	CoopGameState m_pendingGameState = CoopGameState::Startup;
-	
-	UUserWidget* m_mainMenuWidget = nullptr;
-
-	UPROPERTY(EditDefaultsOnly, Category="Config")
-	TSubclassOf<UUserWidget> m_mainMenuTemplate;
-
-	UPROPERTY(EditDefaultsOnly, Category="Config")
-	FString m_mainMenuLevel;
-
-public:
-	UFUNCTION(BlueprintCallable, Category = "Game State")
-	bool IsCurrentState(CoopGameState inState) const;
-
-	UFUNCTION(BlueprintCallable, Category = "Game State")
-	void TransitionToState(CoopGameState newState);
-
-	UFUNCTION(BlueprintImplementableEvent, Category = "Game State")
-	void OnGameStateChanged(CoopGameState previousState, CoopGameState newState);
 
 	// ------------------------------------------
 	// Online
@@ -130,15 +91,11 @@ private:
 	void RemoveSplitscreenPlayers();
 
 	// ------------------------------------------
-	// State Management
-	// ------------------------------------------
-private:
-	void BeginCurrentState(CoopGameState stateBeginning);
-	void EndCurrentState(CoopGameState stateEnding);
-
-	// ------------------------------------------
 	// Helpers
 	// ------------------------------------------
+public:
+	UFUNCTION(BlueprintCallable, Category="Misc")
+	void SetMouseCursorEnabled(APlayerController* forController, bool isEnabled);
 private:
 	template <typename TFunc>
 	void foreach_localplayer(TFunc f)
@@ -149,9 +106,6 @@ private:
 			f(localPlayerIndex, localPlayer);
 		}
 	}
-
-	bool LoadFrontEndMap(const FString& mapName);
-	void SetMouseCursorEnabled(APlayerController* forController, bool isEnabled);
 
 	ACoopGameSession* GetGameSession() const;
 

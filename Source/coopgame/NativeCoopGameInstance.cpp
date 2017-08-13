@@ -27,6 +27,7 @@ void UNativeCoopGameInstance::Init()
 	UE_LOG(LogCoopGame, Log, TEXT("UNativeCoopGameInstance::Init"));
 	Super::Init();
 
+	/*
 	// general app delegate bindings
 	FCoreDelegates::ApplicationWillDeactivateDelegate.AddUObject(this, &self_t::HandleApplicationWillDeactivate);
 	FCoreDelegates::ApplicationWillEnterBackgroundDelegate.AddUObject(this, &self_t::HandleApplicationSuspend);
@@ -59,6 +60,7 @@ void UNativeCoopGameInstance::Init()
 	// set up a timer for ticking
 	m_tickDelegate = FTickerDelegate::CreateUObject(this, &self_t::Tick);
 	m_tickDelegateHandle = FTicker::GetCoreTicker().AddTicker(m_tickDelegate);
+	*/
 }
 
 void UNativeCoopGameInstance::Shutdown()

@@ -15,7 +15,7 @@ UCLASS()
 class COOPGAME_API ANativeCoopCharacter : public ANativeBaseCharacter
 {
 	GENERATED_BODY()
-
+public:
 	ANativeCoopCharacter(const FObjectInitializer& ObjectInitializer);
 
 	virtual void Tick(float deltaTime) override;

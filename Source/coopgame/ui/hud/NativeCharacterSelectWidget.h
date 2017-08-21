@@ -21,6 +21,7 @@ public:
 
 private:
 	TSubclassOf<ANativeCoopCharacter> DefaultCharacter;
+	TSubclassOf<ANativeCoopCharacter> OtherCharacter;
 	
 	
 };

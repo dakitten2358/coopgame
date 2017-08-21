@@ -6,13 +6,94 @@
 #include "online/CoopGamePlayerState.h"
 #include "OnlineSubsystem.h"
 #include "Online.h"
+#include "Runtime/UMG/Public/UMG.h"
+#include "ui/hud/NativeInGameMenuWidget.h"
+#include "ui/hud/NativeInstructionsWidget.h"
+#include "ui/hud/NativeCharacterSelectWidget.h"
 
 
 ANativeCoopPlayerController::ANativeCoopPlayerController(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
+	, m_instructionsWidget(nullptr)
+	, m_inGameMenuWidget(nullptr)
 {
 	// assign the class types we wish to use
 	PlayerCameraManagerClass = ACoopPlayerCameraManager::StaticClass();
+}
+
+// -----------------------------------------
+// AActor
+// -----------------------------------------
+void ANativeCoopPlayerController::BeginPlay()
+{
+	if (IsLocalPlayerController())
+	{
+		if (InstructionsWidget)
+		{
+			m_instructionsWidget = CreateWidget<UNativeInstructionsWidget>(this, InstructionsWidget);
+			if (m_instructionsWidget)
+			{
+				m_instructionsWidget->AddToViewport();
+				m_instructionsWidget->SetVisibility(ESlateVisibility::Hidden);
+			}
+		}
+
+		if (InGameMenuWidget)
+		{
+			m_inGameMenuWidget = CreateWidget<UNativeInGameMenuWidget>(this, InGameMenuWidget);
+			if (m_inGameMenuWidget)
+			{
+				m_inGameMenuWidget->AddToViewport();
+				m_inGameMenuWidget->SetVisibility(ESlateVisibility::Hidden);
+				m_inGameMenuWidget->OnHideMenuRequested.AddDynamic(this, &self_t::HideInGameMenu);
+			}
+		}
+
+		if (CharacterSelectWidget)
+		{
+			m_characterSelectWidget = CreateWidget<UNativeCharacterSelectWidget>(this, CharacterSelectWidget);
+			if (m_characterSelectWidget)
+			{
+				m_characterSelectWidget->AddToViewport();
+				m_characterSelectWidget->SetVisibility(ESlateVisibility::Hidden);
+			}
+		}
+	}
+
+	Super::BeginPlay();
+}
+
+// -----------------------------------------
+// APlayerController
+// -----------------------------------------	
+void ANativeCoopPlayerController::SetupInputComponent()
+{
+	// let the base class do it's thing
+	Super::SetupInputComponent();
+
+	// bind our ui commands
+	InputComponent->BindAction("Instructions", IE_Pressed, this, &self_t::OnShowInstructionsPressed);
+	InputComponent->BindAction("Instructions", IE_Released, this, &self_t::OnShowInstructionsReleased);
+	InputComponent->BindAction("ToggleMenu", IE_Pressed, this, &self_t::ShowInGameMenu);
+}
+
+// -----------------------------------------
+// User Interface
+// -----------------------------------------
+void ANativeCoopPlayerController::OnShowInstructionsPressed()
+{
+	if (m_instructionsWidget)
+	{
+		m_instructionsWidget->SetVisibility(ESlateVisibility::Visible);
+	}
+}
+
+void ANativeCoopPlayerController::OnShowInstructionsReleased()
+{
+	if (m_instructionsWidget)
+	{
+		m_instructionsWidget->SetVisibility(ESlateVisibility::Hidden);
+	}
 }
 
 bool ANativeCoopPlayerController::IsGameMenuVisible() const
@@ -23,7 +104,62 @@ bool ANativeCoopPlayerController::IsGameMenuVisible() const
 
 void ANativeCoopPlayerController::ShowInGameMenu()
 {
-	UE_LOG(LogCoopGameNotImplemented, Error, TEXT("ANativeCoopPlayerController::ShowInGameMenu"));
+	if (m_inGameMenuWidget)
+	{
+		m_inGameMenuWidget->SetVisibility(ESlateVisibility::Visible);
+		
+		FInputModeUIOnly inputModeUIOnly;
+		SetInputMode(inputModeUIOnly);
+
+		bShowMouseCursor = true;
+		bEnableClickEvents = true;
+		bEnableMouseOverEvents = true;
+	}
+}
+
+void ANativeCoopPlayerController::HideInGameMenu()
+{
+	if (m_inGameMenuWidget)
+	{
+		m_inGameMenuWidget->SetVisibility(ESlateVisibility::Hidden);
+
+		FInputModeGameOnly inputModeGameOnly;
+		SetInputMode(inputModeGameOnly);
+
+		bShowMouseCursor = false;
+		bEnableClickEvents = false;
+		bEnableMouseOverEvents = false;
+	}
+}
+
+void ANativeCoopPlayerController::ShowCharacterSelect()
+{
+	if (m_characterSelectWidget)
+	{
+		m_characterSelectWidget->SetVisibility(ESlateVisibility::Visible);
+
+		FInputModeUIOnly inputModeUIOnly;
+		SetInputMode(inputModeUIOnly);
+
+		bShowMouseCursor = true;
+		bEnableClickEvents = true;
+		bEnableMouseOverEvents = true;
+	}
+}
+
+void ANativeCoopPlayerController::HideCharacterSelect()
+{
+	if (m_characterSelectWidget)
+	{
+		m_characterSelectWidget->SetVisibility(ESlateVisibility::Hidden);
+
+		FInputModeGameOnly inputModeGameOnly;
+		SetInputMode(inputModeGameOnly);
+
+		bShowMouseCursor = false;
+		bEnableClickEvents = false;
+		bEnableMouseOverEvents = false;
+	}
 }
 
 // -----------------------------------------
@@ -74,4 +210,30 @@ void ANativeCoopPlayerController::ClientEndOnlineGame_Implementation()
 			}
 		}
 	}
+}
+
+void ANativeCoopPlayerController::SetPlayerCharacter(TSubclassOf<ANativeCoopCharacter> characterToUse)
+{
+	UE_LOG(LogCoopGameWeapon, Verbose, TEXT("ANativeCoopPlayerController::SetPlayerCharacter()"));
+	if (Role < ROLE_Authority)
+	{
+		ServerSetPlayerCharacter(characterToUse);
+		return;
+	}
+
+	if (PlayerState && Cast<ACoopGamePlayerState>(PlayerState))
+	{
+		auto playerState = Cast<ACoopGamePlayerState>(PlayerState);
+		playerState->SelectedCharacter = characterToUse;
+	}
+}
+
+void ANativeCoopPlayerController::ServerSetPlayerCharacter_Implementation(TSubclassOf<ANativeCoopCharacter> characterToUse)
+{
+	SetPlayerCharacter(characterToUse);
+}
+
+bool ANativeCoopPlayerController::ServerSetPlayerCharacter_Validate(TSubclassOf<ANativeCoopCharacter> characterToUse)
+{
+	return true;
 }

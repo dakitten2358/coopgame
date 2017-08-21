@@ -53,6 +53,10 @@ public:
 
 public:
 	virtual void PostInitializeComponents() override;
+	virtual void PreInitializeComponents() override;
+
+	virtual void HandleMatchHasStarted() override;
+	virtual void HandleMatchHasEnded() override;
 
 public:
 	// enemy spawning
@@ -60,6 +64,10 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Game State")
 	int CurrentEnemyCount() const;
+
+protected:
+	FTimerHandle m_defaultTimerHandle;
+	void OnDefaultTimer();
 
 private:
 	bool IsEnemySpawnPointAllowed(const ANativeEnemyPlayerStart* spawnPoint, const AController* forController) const;

@@ -3,7 +3,9 @@
 #pragma once
 
 #include "GameFramework/PlayerState.h"
+#include "NativeCoopCharacter.h"
 #include "CoopGamePlayerState.generated.h"
+
 
 /**
  * 
@@ -12,8 +14,15 @@ UCLASS()
 class COOPGAME_API ACoopGamePlayerState : public APlayerState
 {
 	GENERATED_BODY()
+
+public:
+	// Sets default values for this actor's properties
+	ACoopGamePlayerState(const FObjectInitializer& objectInitializer);
+
+	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
-	
+	UPROPERTY(EditDefaultsOnly, Category = "Player")
+	TSubclassOf<ANativeCoopCharacter> SelectedCharacter;
 	
 	
 };

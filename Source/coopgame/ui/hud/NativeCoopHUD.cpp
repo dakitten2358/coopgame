@@ -4,6 +4,7 @@
 #include "NativeCoopHUD.h"
 #include "NativeCoopCharacter.h"
 #include "NativeCoopPlayerController.h"
+#include "online/NativeCoopGameState.h"
 #include <Online.h>
 #include <OnlineIdentityInterface.h>
 
@@ -62,6 +63,8 @@ void ANativeCoopHUD::DrawHUD()
 
 			index++;
 		}
+
+		DrawTimeElapsed();
 	}
 
 	if (shouldDrawInstructionsTip)
@@ -121,4 +124,40 @@ void ANativeCoopHUD::DrawInstructionsTip()
 	FColor textColor(255, 255, 255, 255);
 	FCanvasTextItem textItem(FVector2D::ZeroVector, FText::FromString(tipText), DefaultFont, textColor);
 	Canvas->DrawItem(textItem, centerX - (w/2.0f), centerY - (h/2.0f));
+}
+
+void ANativeCoopHUD::DrawTimeElapsed()
+{
+	float centerX = Canvas->ClipX / 2;
+
+	auto gameState = Cast<ANativeCoopGameState>(GetWorld()->GetGameState());
+	if (gameState == nullptr)
+		return;
+
+	auto matchState = gameState->GetMatchState();
+
+	FString timeText = FString::FormatAsNumber(gameState->TimeElapsed);
+	FString stateText = TEXT("Playing");
+	if (matchState == MatchState::WaitingToStart || matchState == MatchState::WaitingPostMatch)
+	{
+		timeText = FString::FormatAsNumber(gameState->TimeRemaining);
+		if (matchState == MatchState::WaitingToStart)
+			stateText = TEXT("Waiting to Start");
+		else
+			stateText = TEXT("Post match");
+	}
+
+	FColor otherColor(110, 124, 131, 255);
+	FCanvasTextItem textItem(FVector2D::ZeroVector, FText::GetEmpty(), DefaultFont, otherColor);
+
+	// time
+	float w, h;
+	Canvas->TextSize(DefaultFont, timeText, w, h);
+	textItem.Text = FText::FromString(timeText);
+	Canvas->DrawItem(textItem, centerX - (w / 2), 90);
+
+	// state
+	Canvas->TextSize(DefaultFont, stateText, w, h);
+	textItem.Text = FText::FromString(stateText);
+	Canvas->DrawItem(textItem, centerX - (w / 2), 50);
 }

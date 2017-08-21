@@ -41,4 +41,5 @@ private:
 	void StopShowingTip();
 	bool shouldDrawInstructionsTip = true;
 	void DrawInstructionsTip();
+	void DrawTimeElapsed();
 };

@@ -2,11 +2,22 @@
 
 #include "coopgame.h"
 #include "NativeWeaponProjectile.h"
+#include "NativeCoopCharacter.h"
 
 void ANativeWeaponProjectile::FireWeapon()
 {
-	auto shootDirection = GetAdjustedAim();
+	auto aimDirection = GetAdjustedAim();
 	auto shootOrigin = GetMuzzleLocation();
+
+	auto accuracy = 1.0f;
+	if (OwningCharacter && OwningCharacter->IsAimingDownSights())
+		accuracy = 0.2f;
+
+	const int32 randomSeed = FMath::Rand();
+	FRandomStream weaponRandomStream(randomSeed);
+	const float currentSpread = 10.0f * accuracy;
+	const float coneHalfAngle = FMath::DegreesToRadians(currentSpread * 0.5f);
+	auto shootDirection = weaponRandomStream.VRandCone(aimDirection, coneHalfAngle, coneHalfAngle);
 
 	// trace from camera to check what's under crosshair
 	const float projectilMaxRange = 10000.0f;

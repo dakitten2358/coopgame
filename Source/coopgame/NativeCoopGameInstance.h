@@ -74,22 +74,6 @@ public:
 	bool IsOnline() const;
 	void SetIsOnline(bool isOnline);
 
-	void SetPresenceForLocalPlayers(const FVariantData& presenceData);
-
-	UFUNCTION(BlueprintCallable, Category = "Online")
-	bool HostGame(class ULocalPlayer* localPlayer, CoopGameType gameType, const FString& mapName, int difficulty);
-
-private:
-	void OnCreatePresenceSessionComplete(FName sessionName, bool wasSuccessful);
-	FDelegateHandle m_onCreatePresenceSessionCompleteDelegateHandle;
-
-	// ------------------------------------------
-	// Splitscreen
-	// ------------------------------------------
-	void EnableSplitscreen();
-	void DisableSplitscreen();
-	void RemoveSplitscreenPlayers();
-
 	// ------------------------------------------
 	// Helpers
 	// ------------------------------------------

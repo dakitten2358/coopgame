@@ -2,7 +2,7 @@
 
 #include "coopgame.h"
 #include "NativeWeaponBase.h"
-#include "NativeCoopCharacter.h"
+#include "NativeBaseCharacter.h"
 #include "NativeCoopPlayerController.h"
 
 // Sets default values
@@ -55,7 +55,7 @@ void ANativeWeaponBase::Tick(float DeltaTime)
 
 // INVENTORY RELATED
 // -----------------------------------------------------------------------------
-void ANativeWeaponBase::OnEnterInventory(ANativeCoopCharacter* ofCharacter)
+void ANativeWeaponBase::OnEnterInventory(ANativeBaseCharacter* ofCharacter)
 {
 	SetOwningCharacter(ofCharacter);
 	AttachMeshToCharacter();
@@ -72,7 +72,7 @@ void ANativeWeaponBase::OnLeaveInventory()
 	DetachMeshFromCharacter();
 }
 
-void ANativeWeaponBase::SetOwningCharacter(ANativeCoopCharacter* newOwner)
+void ANativeWeaponBase::SetOwningCharacter(ANativeBaseCharacter* newOwner)
 {
 	if (OwningCharacter != newOwner)
 	{

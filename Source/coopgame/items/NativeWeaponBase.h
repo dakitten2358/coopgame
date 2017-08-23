@@ -5,7 +5,7 @@
 #include "GameFramework/Actor.h"
 #include "NativeWeaponBase.generated.h"
 
-class ANativeCoopCharacter;
+class ANativeBaseCharacter;
 
 UENUM()
 enum class EWeaponState
@@ -42,19 +42,19 @@ public:
 	// INVENTORY RELATED
 	// -----------------------------------------------------------------------------
 public:
-	void OnEnterInventory(ANativeCoopCharacter*);
+	void OnEnterInventory(ANativeBaseCharacter*);
 	void OnLeaveInventory();
 
 protected:
 	/** pawn owner */
 	UPROPERTY(Transient, ReplicatedUsing = OnRep_OwningCharacter)
-	ANativeCoopCharacter* OwningCharacter;
+	ANativeBaseCharacter* OwningCharacter;
 
 	UFUNCTION()
 	void OnRep_OwningCharacter();
 
 public:
-	void SetOwningCharacter(ANativeCoopCharacter* newOwner);
+	void SetOwningCharacter(ANativeBaseCharacter* newOwner);
 private:
 	
 	void ResetOwningCharacter();

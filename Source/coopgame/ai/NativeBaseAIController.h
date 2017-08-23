@@ -21,10 +21,20 @@ private:
 
 	UPROPERTY(transient)
 	UBehaviorTreeComponent* m_behaviorTreeComponent;
+
+	int32 m_enemyKeyID;
 	
 public:
 	// AController interface
 	virtual void Possess(APawn* pawnToPossess) override;
 	virtual void UnPossess() override;	
+
+public:
+	UFUNCTION(BlueprintCallable, Category = Behavior)
+	bool FindClosestEnemyWithLOS();
+
+private:
+	void SetEnemy(class APawn* enemyPawn);
+	bool HasWeaponLOSToEnemy(AActor* enemyActor) const;
 	
 };

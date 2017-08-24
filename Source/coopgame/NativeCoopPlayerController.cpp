@@ -10,7 +10,7 @@
 #include "ui/hud/NativeInGameMenuWidget.h"
 #include "ui/hud/NativeInstructionsWidget.h"
 #include "ui/hud/NativeCharacterSelectWidget.h"
-
+#include "GameFramework/GameMode.h"
 
 ANativeCoopPlayerController::ANativeCoopPlayerController(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -225,6 +225,18 @@ void ANativeCoopPlayerController::SetPlayerCharacter(TSubclassOf<ANativeCoopChar
 	{
 		auto playerState = Cast<ACoopGamePlayerState>(PlayerState);
 		playerState->SelectedCharacter = characterToUse;
+
+		
+
+		// if the match is already in progress, let's restart the player so that he ends up with the selected character
+		AGameMode* gameMode = Cast<AGameMode>(GetWorld()->GetAuthGameMode());
+		if (gameMode && gameMode->GetMatchState() == MatchState::InProgress)
+		{
+			auto existingPawn = GetPawn();
+			UnPossess();
+			existingPawn->Destroy();
+			gameMode->RestartPlayer(this);
+		}
 	}
 }
 

@@ -8,6 +8,7 @@
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Object.h"
 #include "NativeCoopCharacter.h"
+#include "items/NativeWeaponBase.h"
 
 ANativeBaseAIController::ANativeBaseAIController(const FObjectInitializer& objectInitializer)
 	: Super(objectInitializer)
@@ -143,4 +144,40 @@ void ANativeBaseAIController::SetEnemy(APawn* InPawn)
 		m_blackboardComponent->SetValue<UBlackboardKeyType_Object>(m_enemyKeyID, InPawn);
 		//SetFocus(InPawn);
 	}
+}
+
+APawn* ANativeBaseAIController::GetEnemy() const
+{
+	if (m_blackboardComponent)
+	{
+		return Cast<APawn>(m_blackboardComponent->GetValue<UBlackboardKeyType_Object>(m_enemyKeyID));
+	}
+
+	return nullptr;
+}
+
+void ANativeBaseAIController::ShootEnemy()
+{
+	auto selfPawn = Cast<ANativeBaseAICharacter>(GetPawn());
+	auto weapon = selfPawn ? selfPawn->GetCurrentWeapon() : nullptr;
+
+	if (selfPawn == nullptr || weapon == nullptr)
+	{
+		UE_LOG(LogCoopGame, Log, TEXT("ANativeBaseAIController::ShootEnemy() has either an incorrect pawn, or doesn't have a weapon."));
+		return;
+	}
+
+	bool canShoot = false;
+	auto enemy = Cast<ANativeBaseCharacter>(GetEnemy());
+	if (enemy && enemy->IsAlive() && weapon->CanFire())
+	{
+		// do we have line of sight?
+		if (LineOfSightTo(enemy, selfPawn->GetActorLocation()))
+			canShoot = true;
+	}
+
+	if (canShoot)
+		selfPawn->StartWeaponFire();
+	else
+		selfPawn->StopWeaponFire();
 }

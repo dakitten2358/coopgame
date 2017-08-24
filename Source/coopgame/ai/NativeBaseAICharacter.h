@@ -41,6 +41,10 @@ public:
 
 	void SetCurrentWeapon(ANativeWeaponBase* weapon);
 
+	/** get currently equipped weapon */
+	UFUNCTION(BlueprintCallable, Category = "Game|Weapon")
+	ANativeWeaponBase* GetCurrentWeapon() const;
+
 
 	// FIRING
 	// ---------------------------------------------------------------

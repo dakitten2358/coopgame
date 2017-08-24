@@ -161,7 +161,7 @@ FVector ANativeWeaponBase::GetAdjustedAim() const
 
 FVector ANativeWeaponBase::GetCameraDamageStartLocation(const FVector& aimDirection) const
 {
-	auto playerController = OwningCharacter ? Cast<ANativeCoopPlayerController>(OwningCharacter->Controller) : nullptr;
+	auto playerController = OwningCharacter ? Cast<AController>(OwningCharacter->Controller) : nullptr;
 	FVector outStartLocation = FVector::ZeroVector;
 
 	if (playerController != nullptr)

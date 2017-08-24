@@ -90,6 +90,11 @@ void ANativeBaseAICharacter::SetCurrentWeapon(ANativeWeaponBase* weapon)
 	}
 }
 
+ANativeWeaponBase* ANativeBaseAICharacter::GetCurrentWeapon() const
+{
+	return CurrentWeapon;
+}
+
 // FIRING
 // -----------------------------------------------------------------------------
 void ANativeBaseAICharacter::OnStartFire()

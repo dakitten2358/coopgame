@@ -114,8 +114,10 @@ protected:
 	virtual void SimulateWeaponFire();
 	virtual void StopSimulatingWeaponFire();
 
-private:
+public:
 	bool CanFire() const;
+
+private:
 	void UpdateWeaponState();
 	void SetWeaponState(EWeaponState newState);
 

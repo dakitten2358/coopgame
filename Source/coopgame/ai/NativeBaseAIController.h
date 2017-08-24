@@ -33,8 +33,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Behavior)
 	bool FindClosestEnemyWithLOS();
 
+	UFUNCTION(BlueprintCallable, Category = Behavior)
+	void ShootEnemy();
+
 private:
 	void SetEnemy(class APawn* enemyPawn);
+	class APawn* GetEnemy() const;
 	bool HasWeaponLOSToEnemy(AActor* enemyActor) const;
 	
 };

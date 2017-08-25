@@ -18,6 +18,8 @@ public:
 
 	virtual void PossessedBy(AController* newController) override;
 
+	virtual void Destroyed() override;
+
 	// WEAPONS
 	// -----------------------------------------------------------------------------
 public:

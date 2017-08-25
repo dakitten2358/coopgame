@@ -45,6 +45,12 @@ void ANativeCoopCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	DOREPLIFETIME(ANativeCoopCharacter, CurrentWeapon);
 }
 
+void ANativeCoopCharacter::Destroyed()
+{
+	Super::Destroyed();
+	DestroyInventory();
+}
+
 // APawn IMPLEMENTATION
 // -----------------------------------------------------------------------------
 void ANativeCoopCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -309,4 +315,14 @@ void ANativeCoopCharacter::StopWeaponFire()
 			UE_LOG(LogCoopGame, Warning, TEXT("No weapon to stop fire!"));
 		}
 	}
+}
+
+void ANativeCoopCharacter::DestroyInventory()
+{
+	// only if we're authority
+	if (Role < ROLE_Authority)
+		return;
+
+	CurrentWeapon->Destroy();
+	CurrentWeapon = nullptr;
 }

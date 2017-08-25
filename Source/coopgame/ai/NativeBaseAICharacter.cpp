@@ -32,6 +32,18 @@ void ANativeBaseAICharacter::PossessedBy(AController* newController)
 	}
 }
 
+void ANativeBaseAICharacter::Destroyed()
+{
+	Super::Destroyed();
+
+	// get rid of the current weapon if we have one (and we have authoritay)
+	if (Role >= ROLE_Authority)
+	{
+		CurrentWeapon->Destroy();
+		CurrentWeapon = nullptr;
+	}
+}
+
 // WEAPONS
 // -----------------------------------------------------------------------------
 void ANativeBaseAICharacter::AddWeapon(ANativeWeaponBase* weapon)

@@ -19,6 +19,7 @@ public:
 	ANativeCoopCharacter(const FObjectInitializer& ObjectInitializer);
 
 	virtual void Tick(float deltaTime) override;
+	virtual void Destroyed() override;
 
 	// MOVEMENT
 	// -----------------------------------------------------------------------------
@@ -94,6 +95,8 @@ public:
 	void OnRep_CurrentWeapon(ANativeWeaponBase* LastWeapon);
 	
 	void SetCurrentWeapon(ANativeWeaponBase* weapon);
+
+	void DestroyInventory();
 
 
 	// FIRING

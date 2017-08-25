@@ -61,6 +61,8 @@ void ANativeCoopPlayerController::BeginPlay()
 	}
 
 	Super::BeginPlay();
+
+	ShowCharacterSelect();
 }
 
 // -----------------------------------------

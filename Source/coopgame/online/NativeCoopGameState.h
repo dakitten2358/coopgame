@@ -16,17 +16,17 @@ class COOPGAME_API ANativeCoopGameState : public AGameState
 	
 public:
 	// time left for warmup / post match
-	UPROPERTY(Transient, Replicated)
+	UPROPERTY(BlueprintReadOnly, Transient, Replicated)
 	int32 TimeRemaining;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	int32 WarmupTime = 4 * 60;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	int32 PostMatchTime = 2 * 60;
 
 	// time that has elapsed
-	UPROPERTY(Transient, Replicated)
+	UPROPERTY(BlueprintReadOnly, Transient, Replicated)
 	int32 TimeElapsed;
 
 	// overrides

@@ -21,7 +21,7 @@ public:
 
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated, Category = "Player")
 	TSubclassOf<ANativeCoopCharacter> SelectedCharacter;
 	
 	

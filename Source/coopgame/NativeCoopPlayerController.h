@@ -66,15 +66,18 @@ public:
 	void ServerSetPlayerCharacter_Implementation(TSubclassOf<ANativeCoopCharacter> characterToUse);
 	bool ServerSetPlayerCharacter_Validate(TSubclassOf<ANativeCoopCharacter> characterToUse);
 
+	UFUNCTION(reliable, client)
+	void ClientHandleMatchStarting();
 
 private:
 	// retry timer handle while waiting for the player state to be replicated
 	FTimerHandle m_timerHandleWaitingForPlayerState;
 
 	// widgets
-	class UUserWidget* m_x;
 	class UNativeInstructionsWidget* m_instructionsWidget;
 	class UNativeInGameMenuWidget* m_inGameMenuWidget;
+
+	UPROPERTY()
 	class UNativeCharacterSelectWidget* m_characterSelectWidget;
 
 	// convenience

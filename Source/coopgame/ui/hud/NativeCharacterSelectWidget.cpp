@@ -13,6 +13,11 @@ UNativeCharacterSelectWidget::UNativeCharacterSelectWidget(const FObjectInitiali
 	OtherCharacter = OtherPawnOb.Class;
 }
 
+UNativeCharacterSelectWidget::~UNativeCharacterSelectWidget()
+{
+	UE_LOG(LogCoopGame, Warning, TEXT("UNativeCharacterSelectWidget"));
+}
+
 void UNativeCharacterSelectWidget::SelectCharacter(int32 characterIndex)
 {
 	if (GetOwningPlayer() && Cast<ANativeCoopPlayerController>(GetOwningPlayer()))
@@ -30,4 +35,6 @@ void UNativeCharacterSelectWidget::SelectCharacter(int32 characterIndex)
 			break;
 		}		
 	}
+
+
 }

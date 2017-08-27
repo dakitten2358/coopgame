@@ -269,9 +269,17 @@ void ANativeCoopGameMode::OnDefaultTimer()
 			else if (matchState == MatchState::WaitingToStart)
 			{
 				StartMatch();
+
+				// let the (connected) clients know that the match is starting
+				for (auto it = GetWorld()->GetPlayerControllerIterator(); it; ++it)
+				{
+					auto playerController = Cast<ANativeCoopPlayerController>(*it);
+					if (playerController)
+					{
+						playerController->ClientHandleMatchStarting();
+					}
+				}
 			}
 		}
-	}
-
-	
+	}	
 }

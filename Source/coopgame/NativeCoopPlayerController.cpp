@@ -11,6 +11,7 @@
 #include "ui/hud/NativeInstructionsWidget.h"
 #include "ui/hud/NativeCharacterSelectWidget.h"
 #include "GameFramework/GameMode.h"
+#include "online/NativeCoopGameState.h"
 
 ANativeCoopPlayerController::ANativeCoopPlayerController(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -161,6 +162,8 @@ void ANativeCoopPlayerController::HideCharacterSelect()
 		bShowMouseCursor = false;
 		bEnableClickEvents = false;
 		bEnableMouseOverEvents = false;
+
+		m_characterSelectWidget = nullptr;
 	}
 }
 
@@ -214,9 +217,24 @@ void ANativeCoopPlayerController::ClientEndOnlineGame_Implementation()
 	}
 }
 
+void ANativeCoopPlayerController::ClientHandleMatchStarting_Implementation()
+{
+	// hide the character select
+	if (PlayerState && Cast<ACoopGamePlayerState>(PlayerState) && Cast<ACoopGamePlayerState>(PlayerState)->SelectedCharacter != nullptr)
+		HideCharacterSelect();
+}
+
 void ANativeCoopPlayerController::SetPlayerCharacter(TSubclassOf<ANativeCoopCharacter> characterToUse)
 {
 	UE_LOG(LogCoopGameWeapon, Verbose, TEXT("ANativeCoopPlayerController::SetPlayerCharacter()"));
+
+	// if the match has started, hide the UI
+	auto gameState = Cast<ANativeCoopGameState>(GetWorld()->GetGameState());	
+	if (gameState && gameState->GetMatchState() != MatchState::WaitingToStart)
+	{
+		HideCharacterSelect();
+	}
+
 	if (Role < ROLE_Authority)
 	{
 		ServerSetPlayerCharacter(characterToUse);
@@ -235,8 +253,11 @@ void ANativeCoopPlayerController::SetPlayerCharacter(TSubclassOf<ANativeCoopChar
 		if (gameMode && gameMode->GetMatchState() == MatchState::InProgress)
 		{
 			auto existingPawn = GetPawn();
-			UnPossess();
-			existingPawn->Destroy();
+			if (existingPawn)
+			{
+				UnPossess();
+				existingPawn->Destroy();
+			}
 			gameMode->RestartPlayer(this);
 		}
 	}

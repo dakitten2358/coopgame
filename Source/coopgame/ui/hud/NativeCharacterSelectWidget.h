@@ -19,6 +19,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SelectCharacter(int32 characterIndex);
 
+	virtual ~UNativeCharacterSelectWidget();
+
 private:
 	TSubclassOf<ANativeCoopCharacter> DefaultCharacter;
 	TSubclassOf<ANativeCoopCharacter> OtherCharacter;

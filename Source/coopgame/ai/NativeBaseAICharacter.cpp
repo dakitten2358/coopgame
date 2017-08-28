@@ -143,9 +143,9 @@ void ANativeBaseAICharacter::StartWeaponFire()
 
 void ANativeBaseAICharacter::StopWeaponFire()
 {
-	UE_LOG(LogCoopGame, Log, TEXT("ANativeBaseAICharacter::StopWeaponFire() -> bWantsToFire = %s"), bWantsToFire ? TEXT("true") : TEXT("false"));
 	if (bWantsToFire)
 	{
+		UE_LOG(LogCoopGame, Log, TEXT("ANativeBaseAICharacter::StopWeaponFire() -> bWantsToFire = %s"), bWantsToFire ? TEXT("true") : TEXT("false"));
 		bWantsToFire = false;
 		if (CurrentWeapon)
 		{

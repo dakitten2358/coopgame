@@ -3,6 +3,7 @@
 #include "coopgame.h"
 #include "NativeBaseCharacter.h"
 #include "NativeCoopGameMode.h"
+#include "NativeCoopCharacter.h"
 #include "components/CoopCharacterMovementComponent.h"
 
 // sets default values
@@ -84,6 +85,11 @@ float ANativeBaseCharacter::TakeDamage(float damageAmount, const FDamageEvent& d
 	// let the parent class have a say
 	auto actualDamageAmount = Super::TakeDamage(damageAmount, damageEvent, instigator, damageCauser);
 
+#if 0 // god mode for players
+	if (Cast<ANativeCoopCharacter>(this))
+		actualDamageAmount = 0;
+#endif
+
 	// did we take damage?
 	if (actualDamageAmount > 0.0f)
 	{
@@ -118,12 +124,10 @@ bool ANativeBaseCharacter::CanDie(float damageAmount, const FDamageEvent& damage
 		return false;
 
 	// level ending
-	#if 0
-	auto authGameMode = GetWorld->GetAuthGameMode<ANativeCoopGameMode>();
-	if (authGameMode == nullptr || authGameMode->GetMatchState() == MatchState::Leaving)
+	auto authGameMode = GetWorld()->GetAuthGameMode<ANativeCoopGameMode>();
+	if (authGameMode == nullptr || authGameMode->GetMatchState() == MatchState::LeavingMap)
 		return false;
-	#endif
-
+	
 	// i guess we can die
 	return true;
 }
@@ -147,9 +151,7 @@ void ANativeBaseCharacter::Die(float damageAmount, const FDamageEvent& damageEve
 	// let the server know who was killed
 	auto killedController = (Controller != nullptr) ? Controller : Cast<AController>(GetOwner());
 	auto authGameMode = GetWorld()->GetAuthGameMode<ANativeCoopGameMode>();
-	#if 0
 	authGameMode->Killed(killer, killedController, this, damageType);
-	#endif
 
 	// reset the network update frequency, and force a replication update on the movement component to sync the position
 	NetUpdateFrequency = GetDefault<ANativeBaseCharacter>()->NetUpdateFrequency;
@@ -219,7 +221,7 @@ void ANativeBaseCharacter::OnDeath(float damageAmount, const FDamageEvent& damag
 	// play dying sound (at location, controller may be null at this point)
 
 	// remove all weapons
-
+	
 	// detach from controller
 	DetachFromControllerPendingDestroy();
 	// stop all montages

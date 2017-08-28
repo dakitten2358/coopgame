@@ -10,6 +10,7 @@
 #include "ui/hud/NativeInGameMenuWidget.h"
 #include "ui/hud/NativeInstructionsWidget.h"
 #include "ui/hud/NativeCharacterSelectWidget.h"
+#include "ui/hud/NativePostMatchWidget.h"
 #include "GameFramework/GameMode.h"
 #include "online/NativeCoopGameState.h"
 
@@ -57,6 +58,16 @@ void ANativeCoopPlayerController::BeginPlay()
 			{
 				m_characterSelectWidget->AddToViewport();
 				m_characterSelectWidget->SetVisibility(ESlateVisibility::Hidden);
+			}
+		}
+
+		if (PostMatchWidget)
+		{
+			m_postMatchWidget = CreateWidget<UNativePostMatchWidget>(this, PostMatchWidget);
+			if (m_postMatchWidget)
+			{
+				m_postMatchWidget->AddToViewport();
+				m_postMatchWidget->SetVisibility(ESlateVisibility::Hidden);
 			}
 		}
 	}
@@ -167,6 +178,21 @@ void ANativeCoopPlayerController::HideCharacterSelect()
 	}
 }
 
+void ANativeCoopPlayerController::ShowPostMatchWidget()
+{
+	if (m_postMatchWidget)
+	{
+		m_postMatchWidget->SetVisibility(ESlateVisibility::Visible);
+
+		FInputModeUIOnly inputModeUIOnly;
+		SetInputMode(inputModeUIOnly);
+
+		bShowMouseCursor = true;
+		bEnableClickEvents = true;
+		bEnableMouseOverEvents = true;
+	}
+}
+
 // -----------------------------------------
 // Online
 // -----------------------------------------
@@ -217,11 +243,21 @@ void ANativeCoopPlayerController::ClientEndOnlineGame_Implementation()
 	}
 }
 
+void ANativeCoopPlayerController::GameHasEnded(AActor* focus, bool isWinner)
+{
+	Super::GameHasEnded(focus, isWinner);
+}
+
 void ANativeCoopPlayerController::ClientHandleMatchStarting_Implementation()
 {
 	// hide the character select
 	if (PlayerState && Cast<ACoopGamePlayerState>(PlayerState) && Cast<ACoopGamePlayerState>(PlayerState)->SelectedCharacter != nullptr)
 		HideCharacterSelect();
+}
+
+void ANativeCoopPlayerController::ClientHandleMatchEnding_Implementation()
+{
+	ShowPostMatchWidget();
 }
 
 void ANativeCoopPlayerController::SetPlayerCharacter(TSubclassOf<ANativeCoopCharacter> characterToUse)

@@ -39,6 +39,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "User Interface")
 	TSubclassOf<class UNativeCharacterSelectWidget> CharacterSelectWidget;
 
+	UPROPERTY(EditDefaultsOnly, Category = "User Interface")
+	TSubclassOf<class UNativePostMatchWidget> PostMatchWidget;
+
 	bool IsGameMenuVisible() const;
 	void ShowInGameMenu();
 	UFUNCTION(BlueprintCallable)
@@ -50,6 +53,9 @@ public:
 	void ShowCharacterSelect();
 	UFUNCTION(BlueprintCallable)
 	void HideCharacterSelect();
+
+	UFUNCTION(BlueprintCallable)
+	void ShowPostMatchWidget();
 
 	// -----------------------------------------
 	// Online
@@ -69,6 +75,11 @@ public:
 	UFUNCTION(reliable, client)
 	void ClientHandleMatchStarting();
 
+	UFUNCTION(reliable, client)
+	void ClientHandleMatchEnding();
+
+	virtual void GameHasEnded(class AActor*, bool isWinner) override;
+
 private:
 	// retry timer handle while waiting for the player state to be replicated
 	FTimerHandle m_timerHandleWaitingForPlayerState;
@@ -79,6 +90,9 @@ private:
 
 	UPROPERTY()
 	class UNativeCharacterSelectWidget* m_characterSelectWidget;
+
+	UPROPERTY()
+	class UNativePostMatchWidget* m_postMatchWidget;
 
 	// convenience
 	typedef ANativeCoopPlayerController self_t;	

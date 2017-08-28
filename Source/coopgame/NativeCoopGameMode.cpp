@@ -63,6 +63,37 @@ void ANativeCoopGameMode::PostInitializeComponents()
 	}
 }
 
+void ANativeCoopGameMode::PreLogin(const FString& options, const FString& address, const FUniqueNetIdRepl& uniqueID, FString& errorMessage)
+{
+	auto gameState = Cast<ANativeCoopGameState>(GameState);
+	auto isMatchOver = gameState->HasMatchEnded();
+	if (isMatchOver)
+	{
+		errorMessage = TEXT("Match is over!");
+	}
+	else
+	{
+		// GameSession can be NULL if the match is over
+		Super::PreLogin(options, address, uniqueID, errorMessage);
+	}
+
+	UE_LOG(LogCoopGameOnline, Error, TEXT("ANativeCoopGameMode::PreLogin"));
+}
+
+void ANativeCoopGameMode::PostLogin(APlayerController* newPlayer)
+{
+	Super::PostLogin(newPlayer);
+
+	auto player = Cast<ANativeCoopPlayerController>(newPlayer);
+	if (player && IsMatchInProgress())
+	{
+		/*player->ClientGameStarted();*/
+		player->ClientStartOnlineGame();
+	}
+
+	UE_LOG(LogCoopGameOnline, Error, TEXT("ANativeCoopGameMode::PostLogin"));
+}
+
 void ANativeCoopGameMode::HandleMatchHasStarted()
 {
 	Super::HandleMatchHasStarted();
@@ -282,4 +313,64 @@ void ANativeCoopGameMode::OnDefaultTimer()
 			}
 		}
 	}	
+}
+
+void ANativeCoopGameMode::Killed(AController* killer, AController* killedPlayer, APawn* killedPawn, const UDamageType* damageType)
+{
+	// check to see if all players are dead
+	bool allDead = true;
+	for (auto it = GetWorld()->GetPlayerControllerIterator(); it; ++it)
+	{
+		auto playerController = Cast<ANativeCoopPlayerController>(*it);
+		if (playerController)
+		{
+			const ANativeBaseCharacter* character = Cast<ANativeBaseCharacter>(playerController->GetPawn());
+			if (character)
+			{
+				if (character->IsAlive())
+					allDead = false;
+			}
+		}
+	}
+
+	if (allDead)
+	{
+		FinishMatch();
+	}	
+}
+
+void ANativeCoopGameMode::FinishMatch()
+{
+	ANativeCoopGameState* const gameState = Cast<ANativeCoopGameState>(GameState);
+	if (IsMatchInProgress())
+	{
+		EndMatch();
+		//DetermineMatchWinner();
+
+		// notify players
+		for (FConstControllerIterator It = GetWorld()->GetControllerIterator(); It; ++It)
+		{
+			//AShooterPlayerState* PlayerState = Cast<AShooterPlayerState>((*It)->PlayerState);
+			//const bool bIsWinner = IsWinner(PlayerState);
+
+			(*It)->GameHasEnded(NULL, false);
+
+			if (Cast<ANativeCoopPlayerController>(*It))
+			{
+				auto pc = Cast<ANativeCoopPlayerController>(*It);
+				pc->ClientHandleMatchEnding();
+			}
+		}
+
+		// lock all pawns
+		// pawns are not marked as keep for seamless travel, so we will create new pawns on the next match rather than
+		// turning these back on.
+		for (FConstPawnIterator It = GetWorld()->GetPawnIterator(); It; ++It)
+		{
+			(*It)->TurnOff();
+		}
+
+		// set up to restart the match
+		gameState->TimeRemaining = gameState->PostMatchTime;
+	}
 }

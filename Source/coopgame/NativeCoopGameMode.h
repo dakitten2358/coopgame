@@ -55,6 +55,9 @@ public:
 	virtual void PostInitializeComponents() override;
 	virtual void PreInitializeComponents() override;
 
+	virtual void PreLogin(const FString& options, const FString& address, const FUniqueNetIdRepl& uniqueID, FString& errorMessage) override;
+	virtual void PostLogin(class APlayerController* newPlayer) override;
+
 	virtual void HandleMatchHasStarted() override;
 	virtual void HandleMatchHasEnded() override;
 
@@ -65,9 +68,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Game State")
 	int CurrentEnemyCount() const;
 
+	// death notifications
+	virtual void Killed(AController* Killer, AController* KilledPlayer, APawn* KilledPawn, const UDamageType* DamageType);
+
 protected:
 	FTimerHandle m_defaultTimerHandle;
 	void OnDefaultTimer();
+
+	virtual void FinishMatch();
 
 private:
 	bool IsEnemySpawnPointAllowed(const ANativeEnemyPlayerStart* spawnPoint, const AController* forController) const;

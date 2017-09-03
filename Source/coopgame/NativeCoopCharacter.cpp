@@ -323,6 +323,10 @@ void ANativeCoopCharacter::DestroyInventory()
 	if (Role < ROLE_Authority)
 		return;
 
-	CurrentWeapon->Destroy();
-	CurrentWeapon = nullptr;
+	// if we have a wepaon, destroy it
+	if (CurrentWeapon)
+	{
+		CurrentWeapon->Destroy();
+		CurrentWeapon = nullptr;
+	}
 }

@@ -88,7 +88,7 @@ void ANativeCoopGameMode::PostLogin(APlayerController* newPlayer)
 	if (player && IsMatchInProgress())
 	{
 		/*player->ClientGameStarted();*/
-		player->ClientStartOnlineGame();
+		//player->ClientStartOnlineGame();
 	}
 
 	UE_LOG(LogCoopGameOnline, Error, TEXT("ANativeCoopGameMode::PostLogin"));
@@ -113,7 +113,7 @@ void ANativeCoopGameMode::HandleMatchHasEnded()
 
 TSubclassOf<AGameSession> ANativeCoopGameMode::GetGameSessionClass() const
 {
-	return ACoopGameSession::StaticClass();
+	return Super::GetGameSessionClass();
 }
 
 void ANativeCoopGameMode::SetPlayerDefaults(APawn* playerPawn)
@@ -295,7 +295,18 @@ void ANativeCoopGameMode::OnDefaultTimer()
 		{
 			if (matchState == MatchState::WaitingPostMatch)
 			{
-				RestartGame();
+				//RestartGame();
+				if (GameSession->CanRestartGame())
+				{
+					if (GetMatchState() == MatchState::LeavingMap)
+					{
+						//return;
+					}
+					else
+					{
+						GetWorld()->ServerTravel("?Restart?Listen", GetTravelType());
+					}
+				}
 			}
 			else if (matchState == MatchState::WaitingToStart)
 			{

@@ -198,6 +198,7 @@ void ANativeCoopPlayerController::ShowPostMatchWidget()
 // -----------------------------------------
 void ANativeCoopPlayerController::ClientStartOnlineGame_Implementation()
 {
+	/*
 	if (!IsPrimaryPlayer())
 		return;
 
@@ -220,10 +221,12 @@ void ANativeCoopPlayerController::ClientStartOnlineGame_Implementation()
 		// player state hasn't been replicated yet, retry
 		GetWorld()->GetTimerManager().SetTimer(m_timerHandleWaitingForPlayerState, this, &self_t::ClientStartOnlineGame_Implementation, 0.1f, false);
 	}
+	*/
 }
 
 void ANativeCoopPlayerController::ClientEndOnlineGame_Implementation()
 {
+	/*
 	if (!IsPrimaryPlayer())
 		return;
 
@@ -241,6 +244,7 @@ void ANativeCoopPlayerController::ClientEndOnlineGame_Implementation()
 			}
 		}
 	}
+	*/
 }
 
 void ANativeCoopPlayerController::GameHasEnded(AActor* focus, bool isWinner)

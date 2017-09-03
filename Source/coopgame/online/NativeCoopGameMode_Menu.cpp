@@ -19,5 +19,5 @@ void ANativeCoopGameMode_Menu::RestartPlayer(class AController* newPlayer)
 
 TSubclassOf<AGameSession> ANativeCoopGameMode_Menu::GetGameSessionClass() const
 {
-	return ACoopGameSession::StaticClass();
+	return Super::GetGameSessionClass();
 }

@@ -66,11 +66,11 @@ public:
 	UFUNCTION(reliable, client)
 	void ClientEndOnlineGame();
 
-	void SetPlayerCharacter(TSubclassOf<ANativeCoopCharacter> characterToUse);
+	void SetPlayerCharacter(const FName& characterToUse);
 	UFUNCTION(Reliable, Server, WithValidation)
-	void ServerSetPlayerCharacter(TSubclassOf<ANativeCoopCharacter> characterToUse);
-	void ServerSetPlayerCharacter_Implementation(TSubclassOf<ANativeCoopCharacter> characterToUse);
-	bool ServerSetPlayerCharacter_Validate(TSubclassOf<ANativeCoopCharacter> characterToUse);
+	void ServerSetPlayerCharacter(const FName& characterToUse);
+	void ServerSetPlayerCharacter_Implementation(const FName& characterToUse);
+	bool ServerSetPlayerCharacter_Validate(const FName& characterToUse);
 
 	UFUNCTION(reliable, client)
 	void ClientHandleMatchStarting();
@@ -93,6 +93,8 @@ private:
 
 	UPROPERTY()
 	class UNativePostMatchWidget* m_postMatchWidget;
+
+	void RemoveAllWidgets();
 
 	// convenience
 	typedef ANativeCoopPlayerController self_t;	

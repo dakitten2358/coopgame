@@ -30,6 +30,9 @@ void ANativeCoopPlayerController::BeginPlay()
 {
 	if (IsLocalPlayerController())
 	{
+		// Clean up the widgets that may have been left over
+		RemoveAllWidgets();
+
 		if (InstructionsWidget)
 		{
 			m_instructionsWidget = CreateWidget<UNativeInstructionsWidget>(this, InstructionsWidget);
@@ -74,7 +77,12 @@ void ANativeCoopPlayerController::BeginPlay()
 
 	Super::BeginPlay();
 
-	ShowCharacterSelect();
+	FInputModeGameOnly inputModeGameOnly;
+	SetInputMode(inputModeGameOnly);
+
+	bShowMouseCursor = false;
+	bEnableClickEvents = false;
+	bEnableMouseOverEvents = false;
 }
 
 // -----------------------------------------
@@ -255,7 +263,7 @@ void ANativeCoopPlayerController::GameHasEnded(AActor* focus, bool isWinner)
 void ANativeCoopPlayerController::ClientHandleMatchStarting_Implementation()
 {
 	// hide the character select
-	if (PlayerState && Cast<ACoopGamePlayerState>(PlayerState) && Cast<ACoopGamePlayerState>(PlayerState)->SelectedCharacter != nullptr)
+	if (PlayerState && Cast<ACoopGamePlayerState>(PlayerState) && Cast<ACoopGamePlayerState>(PlayerState)->SelectedCharacterID.IsNone() != false)
 		HideCharacterSelect();
 }
 
@@ -264,7 +272,7 @@ void ANativeCoopPlayerController::ClientHandleMatchEnding_Implementation()
 	ShowPostMatchWidget();
 }
 
-void ANativeCoopPlayerController::SetPlayerCharacter(TSubclassOf<ANativeCoopCharacter> characterToUse)
+void ANativeCoopPlayerController::SetPlayerCharacter(const FName& characterToUse)
 {
 	UE_LOG(LogCoopGameWeapon, Verbose, TEXT("ANativeCoopPlayerController::SetPlayerCharacter()"));
 
@@ -284,10 +292,8 @@ void ANativeCoopPlayerController::SetPlayerCharacter(TSubclassOf<ANativeCoopChar
 	if (PlayerState && Cast<ACoopGamePlayerState>(PlayerState))
 	{
 		auto playerState = Cast<ACoopGamePlayerState>(PlayerState);
-		playerState->SelectedCharacter = characterToUse;
-
+		playerState->SelectedCharacterID = characterToUse;
 		
-
 		// if the match is already in progress, let's restart the player so that he ends up with the selected character
 		AGameMode* gameMode = Cast<AGameMode>(GetWorld()->GetAuthGameMode());
 		if (gameMode && gameMode->GetMatchState() == MatchState::InProgress)
@@ -303,12 +309,24 @@ void ANativeCoopPlayerController::SetPlayerCharacter(TSubclassOf<ANativeCoopChar
 	}
 }
 
-void ANativeCoopPlayerController::ServerSetPlayerCharacter_Implementation(TSubclassOf<ANativeCoopCharacter> characterToUse)
+void ANativeCoopPlayerController::ServerSetPlayerCharacter_Implementation(const FName& characterToUse)
 {
 	SetPlayerCharacter(characterToUse);
 }
 
-bool ANativeCoopPlayerController::ServerSetPlayerCharacter_Validate(TSubclassOf<ANativeCoopCharacter> characterToUse)
+bool ANativeCoopPlayerController::ServerSetPlayerCharacter_Validate(const FName& characterToUse)
 {
 	return true;
+}
+
+void ANativeCoopPlayerController::RemoveAllWidgets()
+{
+	auto world = GetWorld();
+	if (world && world->IsGameWorld())
+	{
+		if (auto viewportClient = world->GetGameViewport())
+		{
+			viewportClient->RemoveAllViewportWidgets();
+		}
+	}
 }

@@ -67,3 +67,42 @@ public:
 	void SetDamageEvent(const FDamageEvent& damageEvent);
 	void ForceReplication();	
 };
+
+USTRUCT(BlueprintType)
+struct FLevelInfoRow : public FTableRowBase
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+	FLevelInfoRow();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level Info")
+	FName Map;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level Info")
+	FText LevelName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level Info")
+	FText LevelDescription;
+};
+
+USTRUCT(BlueprintType)
+struct FCharacterInfoRow : public FTableRowBase
+{
+	GENERATED_USTRUCT_BODY();
+
+public:
+	FCharacterInfoRow();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	TSubclassOf<class ANativeCoopCharacter> Character;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	TSubclassOf<class ANativeWeaponBase> DefaultPrimaryWeapon;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Text")
+	FText Name;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Display")
+	const class UTexture2D* Icon;
+};

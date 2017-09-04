@@ -22,7 +22,15 @@ class COOPGAME_API ANativeCoopGameMode : public AGameMode
 protected:
 	virtual void SetPlayerDefaults(APawn* playerPawn) override;
 	virtual UClass* GetDefaultPawnClassForController_Implementation(AController* forController) override;
+	UClass* GetDefaultPawnClassForNativeCoopPlayerController(class ANativeCoopPlayerController* playerController);
+	UClass* GetRandomPawnClassForNativeCoopPlayerController(class ANativeCoopPlayerController* playerController);
 	virtual AActor* ChoosePlayerStart_Implementation(AController* forController) override;
+
+	bool IsCharacterInUse(class ANativeCoopPlayerController* exceptingController, const FName& characterID);
+
+	// for characters
+	UPROPERTY(EditDefaultsOnly, Category = "Data")
+	class UDataTable* CharacterDataTable;
 
 	// default weapon to spawn with
 	UPROPERTY(EditDefaultsOnly, Category = "Player")

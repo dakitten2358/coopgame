@@ -20,9 +20,11 @@ public:
 	ACoopGamePlayerState(const FObjectInitializer& objectInitializer);
 
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void CopyProperties(APlayerState* receivingState) override;
 	
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated, Category = "Player")
+	//TSubclassOf<ANativeCoopCharacter> SelectedCharacter;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated, Category = "Player")
-	TSubclassOf<ANativeCoopCharacter> SelectedCharacter;
-	
-	
+	FName SelectedCharacterID;
 };

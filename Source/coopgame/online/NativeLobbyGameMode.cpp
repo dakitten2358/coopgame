@@ -16,7 +16,7 @@ void ANativeLobbyGameMode::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
-	m_countDown = 15;
+	m_countDown = 12;
 
 	// set up a simple 1s timer
 	auto& timerManager = GetWorldTimerManager();

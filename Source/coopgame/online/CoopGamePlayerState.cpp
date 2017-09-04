@@ -14,7 +14,17 @@ void ACoopGamePlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(ACoopGamePlayerState, SelectedCharacter);
+	//DOREPLIFETIME(ACoopGamePlayerState, SelectedCharacter);
+	DOREPLIFETIME(ACoopGamePlayerState, SelectedCharacterID);
 }
 
+void ACoopGamePlayerState::CopyProperties(APlayerState* receivingState)
+{
+	Super::CopyProperties(receivingState);
+
+	if (auto receivingCoopState = Cast<ACoopGamePlayerState>(receivingState))
+	{
+		receivingCoopState->SelectedCharacterID = SelectedCharacterID;
+	}
+}
 

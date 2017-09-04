@@ -17,13 +17,10 @@ class COOPGAME_API UNativeCharacterSelectWidget : public UUserWidget
 	
 public:
 	UFUNCTION(BlueprintCallable)
-	void SelectCharacter(int32 characterIndex);
+	void SelectCharacterByName(const FName& characterName);
 
 	virtual ~UNativeCharacterSelectWidget();
 
 private:
-	TSubclassOf<ANativeCoopCharacter> DefaultCharacter;
-	TSubclassOf<ANativeCoopCharacter> OtherCharacter;
-	
-	
+	const class UDataTable* m_characterTable;
 };

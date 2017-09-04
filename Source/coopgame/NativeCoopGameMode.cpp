@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "coopgame.h"
+#include "CoopTypes.h"
 #include "NativeCoopGameMode.h"
 #include "NativeCoopCharacter.h"
 #include "NativeCoopPlayerController.h"
@@ -167,22 +168,78 @@ UClass* ANativeCoopGameMode::GetDefaultPawnClassForController_Implementation(ACo
 	}
 	else if (Cast<ANativeCoopPlayerController>(forController))
 	{
-		auto playerController = Cast<ANativeCoopPlayerController>(forController);
-		if (playerController->PlayerState && Cast<ACoopGamePlayerState>(playerController->PlayerState))
+		auto pawnClass = GetDefaultPawnClassForNativeCoopPlayerController(Cast<ANativeCoopPlayerController>(forController));
+		if (pawnClass == nullptr)
 		{
-			// do we have a preferred character here?  if so, let's use that.
-			auto playerState = Cast<ACoopGamePlayerState>(playerController->PlayerState);
-			if (playerState->SelectedCharacter)
-				return playerState->SelectedCharacter;
-
-			// otherwise, fallback on the default
-			return Super::GetDefaultPawnClassForController_Implementation(forController);
+			UE_LOG(LogCoopGameOnline, Error, TEXT("Failed to find a pawn for ANativeCoopPlayerController, falling back on default."));
+			pawnClass = Super::GetDefaultPawnClassForController_Implementation(forController);
 		}
-
+		return pawnClass;
 	}
 
 	// unknown controller type, fallback on the default
 	return Super::GetDefaultPawnClassForController_Implementation(forController);
+}
+
+UClass* ANativeCoopGameMode::GetDefaultPawnClassForNativeCoopPlayerController(ANativeCoopPlayerController* playerController)
+{
+	if (CharacterDataTable == nullptr)
+	{
+		UE_LOG(LogCoopGameOnline, Warning, TEXT("No CharacterDataTable present, falling back on default character."));
+		return Super::GetDefaultPawnClassForController_Implementation(playerController);
+	}
+
+	if (playerController->PlayerState == nullptr || Cast<ACoopGamePlayerState>(playerController->PlayerState) == nullptr)
+	{
+		UE_LOG(LogCoopGameOnline, Warning, TEXT("Found ANativeCoopPlayerController that doesn't have an ACoopGamePlayerState."));
+		return GetRandomPawnClassForNativeCoopPlayerController(playerController);
+	}
+
+	// do we have a preferred character here?  if so, let's use that.
+	auto playerState = Cast<ACoopGamePlayerState>(playerController->PlayerState);
+	auto selectedCharacter = playerState->SelectedCharacterID;
+	auto characterInfo = CharacterDataTable->FindRow<FCharacterInfoRow>(selectedCharacter, TEXT("ANativeCoopGameMode::GetDefaultPawnClassForController"));
+	if (characterInfo && characterInfo->Character)
+	{
+		return characterInfo->Character;
+	}
+	else
+	{
+		// select a random character out of the table
+		UE_LOG(LogCoopGame, Error, TEXT("ANativeCoopGameMode::GetDefaultPawnClassForController received an invalid name: %s"), *selectedCharacter.ToString());
+		return GetRandomPawnClassForNativeCoopPlayerController(playerController);
+	}
+
+	return nullptr;
+}
+
+UClass* ANativeCoopGameMode::GetRandomPawnClassForNativeCoopPlayerController(ANativeCoopPlayerController* playerController)
+{
+	for (const auto& p : CharacterDataTable->GetRowNames())
+	{
+		auto characterInfo = CharacterDataTable->FindRow<FCharacterInfoRow>(p, TEXT("ANativeCoopGameMode::GetRandomPawnClassForNativeCoopPlayerController"));
+		if (characterInfo && !IsCharacterInUse(playerController, p))
+			return characterInfo->Character;
+	}
+
+	return nullptr;
+}
+
+bool ANativeCoopGameMode::IsCharacterInUse(ANativeCoopPlayerController* exceptController, const FName& characterID)
+{
+	for (auto it = GetWorld()->GetPlayerControllerIterator(); it; ++it)
+	{
+		auto playerController = Cast<ANativeCoopPlayerController>(*it);
+		if (playerController && playerController->PlayerState && Cast<ACoopGamePlayerState>(playerController->PlayerState))
+		{
+			auto playerState = Cast<ACoopGamePlayerState>(playerController->PlayerState);
+
+			if (!playerState->SelectedCharacterID.IsNone() && playerState->SelectedCharacterID == characterID)
+				return true;
+		}
+	}
+
+	return false;
 }
 
 AActor* ANativeCoopGameMode::ChoosePlayerStart_Implementation(AController* forController)

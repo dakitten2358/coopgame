@@ -70,6 +70,7 @@ void ANativeCoopGameMode::PreLogin(const FString& options, const FString& addres
 	auto isMatchOver = gameState->HasMatchEnded();
 	if (isMatchOver)
 	{
+		// sucks, cuz this is like vermintide, oh well :(
 		errorMessage = TEXT("Match is over!");
 	}
 	else
@@ -88,6 +89,9 @@ void ANativeCoopGameMode::PostLogin(APlayerController* newPlayer)
 	auto player = Cast<ANativeCoopPlayerController>(newPlayer);
 	if (player && IsMatchInProgress())
 	{
+		// if we're logging into a match that's in progress, we need to let the player know
+		// they should be able to select a character
+
 		/*player->ClientGameStarted();*/
 		//player->ClientStartOnlineGame();
 	}
@@ -305,7 +309,8 @@ void ANativeCoopGameMode::OnDefaultTimer()
 					}
 					else
 					{
-						GetWorld()->ServerTravel("TestSmallMap", false, false);
+						// move back to the lobby
+						GetWorld()->ServerTravel("LobbyMap", false, false);
 					}
 				}
 			}

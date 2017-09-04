@@ -27,6 +27,7 @@ ANativeCoopGameMode::ANativeCoopGameMode(const FObjectInitializer& objectInitial
 
 	bDelayedStart = true;
 	bStartPlayersAsSpectators = true;
+	bUseSeamlessTravel = true;
 }
 
 void ANativeCoopGameMode::PreInitializeComponents()
@@ -304,7 +305,7 @@ void ANativeCoopGameMode::OnDefaultTimer()
 					}
 					else
 					{
-						GetWorld()->ServerTravel("?Restart?Listen", GetTravelType());
+						GetWorld()->ServerTravel("TestSmallMap", false, false);
 					}
 				}
 			}

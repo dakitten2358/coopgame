@@ -64,12 +64,17 @@ void ANativeProjectileBase::OnImpact(const FHitResult& hitResult)
 		{
 			auto actor = hitResult.Actor.Get();
 			UE_LOG(LogCoopGameWeapon, Log, TEXT("Hit an actor!"));
-			auto asCharacter = Cast<ANativeBaseCharacter>(actor);
-			if (asCharacter != nullptr)
+			auto asCoopCharacter = Cast<ANativeCoopCharacter>(actor);
+			if (asCoopCharacter != nullptr)
 			{
 				UE_LOG(LogCoopGameWeapon, Log, TEXT("Hit a coop character"));
 
-				UGameplayStatics::ApplyDamage(asCharacter, 25.0f, Instigator->Controller, this, TSubclassOf<UDamageType>(UDamageType::StaticClass()));
+				UGameplayStatics::ApplyDamage(asCoopCharacter, 8.0f, Instigator->Controller, this, TSubclassOf<UDamageType>(UDamageType::StaticClass()));
+			}
+			else if (auto asCharacter = Cast<ANativeBaseCharacter>(actor))
+			{
+				UE_LOG(LogCoopGameWeapon, Log, TEXT("Hit a character"));
+				UGameplayStatics::ApplyDamage(asCharacter, 34.0f, Instigator->Controller, this, TSubclassOf<UDamageType>(UDamageType::StaticClass()));
 			}
 		}
 		else

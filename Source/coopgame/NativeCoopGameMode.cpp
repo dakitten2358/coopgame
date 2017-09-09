@@ -271,7 +271,7 @@ AActor* ANativeCoopGameMode::ChoosePlayerStart_Implementation(AController* forCo
 			}
 
 		}
-
+		
 		/* Pick a random spawnpoint from the filtered spawn points */
 		AActor* bestStart = nullptr;
 		if (preferredSpawns.Num() > 0)
@@ -327,6 +327,32 @@ bool ANativeCoopGameMode::IsEnemySpawnPointAllowed(const ANativeEnemyPlayerStart
 
 bool ANativeCoopGameMode::IsEnemySpawnPointPreferred(const ANativeEnemyPlayerStart* spawnPoint, const AController* forController) const
 {
+	FCollisionQueryParams traceParams(SCENE_QUERY_STAT(AIWeaponLosTrace), true, spawnPoint);
+	traceParams.bTraceAsyncScene = true;
+	traceParams.bReturnPhysicalMaterial = true;
+
+	FVector startLocation = spawnPoint->GetActorLocation();
+	//startLocation.Z += GetPawn()->BaseEyeHeight; //look from eyes
+
+	// loop over the player controllers
+	for (auto it = GetWorld()->GetPlayerControllerIterator(); it; ++it)
+	{
+		auto playerController = Cast<ANativeCoopPlayerController>(*it);
+		if (playerController && playerController->GetPawn())
+		{
+			FHitResult hitResult(ForceInit);
+			const FVector endLocation = playerController->GetPawn()->GetActorLocation();
+			GetWorld()->LineTraceSingleByChannel(hitResult, startLocation, endLocation, COLLISION_WEAPON, traceParams);
+			if (hitResult.bBlockingHit == true)
+			{
+				AActor* hitActor = hitResult.GetActor();
+				auto hitPlayer = Cast<ANativeCoopCharacter>(hitActor);
+				if (hitPlayer)
+					return false;
+			}
+		}
+	}
+
 	return true;
 }
 

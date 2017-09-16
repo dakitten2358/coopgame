@@ -7,12 +7,18 @@
 #include "online/NativeCoopGameState.h"
 #include <Online.h>
 #include <OnlineIdentityInterface.h>
+#include "online/CoopGamePlayerState.h"
+#include "CoopTypes.h"
 
 ANativeCoopHUD::ANativeCoopHUD(const FObjectInitializer& objectInitializer)
 	: AHUD(objectInitializer)
 {
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDCenterDotObj(TEXT("/Game/UI/HUD/hud_main"));
 	m_crosshairCenterIcon = UCanvas::MakeIcon(HUDCenterDotObj.Object, 0, 0, 64, 64);
+
+	// going to need access to the character table
+	static ConstructorHelpers::FObjectFinder<UDataTable> characterDataTableFinder(TEXT("DataTable'/Game/Data/CharacterDataTable.CharacterDataTable'"));
+	m_characterTable = characterDataTableFinder.Object;
 
 	// Fonts are not included in dedicated server builds.
 	#if !UE_SERVER
@@ -21,6 +27,18 @@ ANativeCoopHUD::ANativeCoopHUD(const FObjectInitializer& objectInitializer)
 		DefaultFont = DefaultFontOb.Object;
 	}
 	#endif //!UE_SERVER
+}
+
+void ANativeCoopHUD::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	if (MainHUDTexture)
+	{
+		m_unitFrameBackground = UCanvas::MakeIcon(MainHUDTexture, 14, 385, 298, 123);
+		m_unitFrameHealthbar = UCanvas::MakeIcon(MainHUDTexture, 98, 354, 210, 25);
+	}
+	
 }
 
 void ANativeCoopHUD::BeginPlay()
@@ -71,19 +89,63 @@ void ANativeCoopHUD::DrawHUD()
 		DrawInstructionsTip();
 }
 
-void ANativeCoopHUD::DrawPlayerInfobox(int index, const APlayerState* playerState, const ANativeCoopCharacter* character) const
+void ANativeCoopHUD::DrawPlayerInfobox(int index, const APlayerState* playerState, const ANativeCoopCharacter* character)
 {
 	FColor otherColor(110,124,131,255);
 	FColor myColor(220, 124, 131, 255);
 
-	float verticalOffset = 10.0f + (30.0f * index);
+	//textItem.Text = FText::AsNumber(character->GetCurrentHealth());
+	//Canvas->DrawItem(textItem, 200.0f, verticalOffset);
+
+	float margin = 30.0f;
+
+	float horizontalOffset = margin + ((m_unitFrameBackground.UL + margin) * index);
+	float verticalOffset = Canvas->ClipY - (margin + m_unitFrameBackground.VL);
+
+	Canvas->DrawIcon(m_unitFrameBackground, horizontalOffset, verticalOffset);
+
+	// text offset
+	float textHorizontalOffset = 25.0f;
+	float textVerticalOffset = 88.0f;
 
 	FCanvasTextItem textItem(FVector2D::ZeroVector, FText::GetEmpty(), DefaultFont, IsMe(playerState) ? myColor : otherColor);
 	textItem.Text = FText::FromString(playerState->PlayerName);
-	Canvas->DrawItem(textItem, 10.0f, verticalOffset);
+	Canvas->DrawItem(textItem, horizontalOffset + textHorizontalOffset, verticalOffset + textVerticalOffset);
 
-	textItem.Text = FText::AsNumber(character->GetCurrentHealth());
-	Canvas->DrawItem(textItem, 200.0f, verticalOffset);
+	// health offset
+	float healthHorizontalOffset = 84.0f;
+	float healthVerticalOffset = 54.0f;
+
+	const float HealthAmount = FMath::Min(1.0f, (float)character->GetCurrentHealth() / (float)character->GetMaxHealth());
+
+	FCanvasTileItem TileItem(FVector2D(healthHorizontalOffset + horizontalOffset, healthVerticalOffset + verticalOffset), m_unitFrameHealthbar.Texture->Resource,
+		FVector2D(m_unitFrameHealthbar.UL * HealthAmount, m_unitFrameHealthbar.VL ), FLinearColor::Green);
+	MakeUV(m_unitFrameHealthbar, TileItem.UV0, TileItem.UV1, m_unitFrameHealthbar.U, m_unitFrameHealthbar.V, m_unitFrameHealthbar.UL * HealthAmount, m_unitFrameHealthbar.VL);
+	TileItem.BlendMode = SE_BLEND_Translucent;
+	Canvas->DrawItem(TileItem);
+
+
+	//Canvas->DrawIcon(m_unitFrameHealthbar, healthHorizontalOffset + horizontalOffset, healthVerticalOffset + verticalOffset);
+
+	auto coopPlayerState = Cast<ACoopGamePlayerState>(playerState);
+	if (coopPlayerState && m_characterTable)
+	{
+		const auto& characterName = coopPlayerState->SelectedCharacterID;
+		auto characterRow = m_characterTable->FindRow<FCharacterInfoRow>(characterName, TEXT("UNativeCharacterSelectWidget::SelectCharacterByName"));
+		if (characterRow)
+		{
+			auto avatarTexture = characterRow->Icon;
+			if (avatarTexture)
+			{
+				Canvas->K2_DrawTexture(const_cast<UTexture2D*>(avatarTexture),
+					FVector2D(4.0f + horizontalOffset, 4.0f + verticalOffset),
+					FVector2D(75.0f, 75.0f),
+					FVector2D::ZeroVector,
+					FVector2D::UnitVector);
+			}
+		}
+
+	}
 }
 
 const ANativeCoopCharacter* ANativeCoopHUD::FindCharacterFor(const APlayerState* playerState) const
@@ -160,4 +222,15 @@ void ANativeCoopHUD::DrawTimeElapsed()
 	Canvas->TextSize(DefaultFont, stateText, w, h);
 	textItem.Text = FText::FromString(stateText);
 	Canvas->DrawItem(textItem, centerX - (w / 2), 50);
+}
+
+void ANativeCoopHUD::MakeUV(FCanvasIcon& Icon, FVector2D& UV0, FVector2D& UV1, uint16 U, uint16 V, uint16 UL, uint16 VL)
+{
+	if (Icon.Texture)
+	{
+		const float Width = Icon.Texture->GetSurfaceWidth();
+		const float Height = Icon.Texture->GetSurfaceHeight();
+		UV0 = FVector2D(U / Width, V / Height);
+		UV1 = UV0 + FVector2D(UL / Width, VL / Height);
+	}
 }

@@ -16,6 +16,8 @@ class COOPGAME_API ANativeCoopHUD : public AHUD
 public:
 	ANativeCoopHUD(const FObjectInitializer& objectInitializer);
 
+	virtual void PostInitializeComponents() override;
+
 	UPROPERTY(EditDefaultsOnly)
 	UTexture2D* MainHUDTexture;
 
@@ -29,10 +31,16 @@ protected:
 	UPROPERTY()
 	class UFont* DefaultFont;
 
+	UPROPERTY()
+	FCanvasIcon m_unitFrameBackground;
+
+	UPROPERTY()
+	FCanvasIcon m_unitFrameHealthbar;
+
 private:
 	typedef ANativeCoopHUD self_t;
 
-	void DrawPlayerInfobox(int index, const class APlayerState* playerState, const class ANativeCoopCharacter* character) const;
+	void DrawPlayerInfobox(int index, const class APlayerState* playerState, const class ANativeCoopCharacter* character);
 	const class ANativeCoopCharacter* FindCharacterFor(const class APlayerState* playerState) const;
 	bool IsMe(const class APlayerState* playerState) const;
 
@@ -42,4 +50,9 @@ private:
 	bool shouldDrawInstructionsTip = true;
 	void DrawInstructionsTip();
 	void DrawTimeElapsed();
+
+	void MakeUV(FCanvasIcon& Icon, FVector2D& UV0, FVector2D& UV1, uint16 U, uint16 V, uint16 UL, uint16 VL);
+
+private:
+	const class UDataTable* m_characterTable;
 };

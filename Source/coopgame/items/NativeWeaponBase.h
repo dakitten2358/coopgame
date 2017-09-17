@@ -120,7 +120,10 @@ public:
 private:
 	void UpdateWeaponState();
 	void SetWeaponState(EWeaponState newState);
+public:
+	EWeaponState GetCurrentState() const;
 
+private:
 	void OnBurstStarted();
 	void OnBurstFinished();
 

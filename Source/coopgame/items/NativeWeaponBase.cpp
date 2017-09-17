@@ -237,6 +237,11 @@ void ANativeWeaponBase::UpdateWeaponState()
 	SetWeaponState(newState);
 }
 
+EWeaponState ANativeWeaponBase::GetCurrentState() const
+{
+	return m_weaponState;
+}
+
 bool ANativeWeaponBase::CanFire() const
 {
 	bool characterCanFire = true; // check the pawn to see if it's ok to fire

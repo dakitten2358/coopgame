@@ -157,3 +157,11 @@ void ANativeBaseAICharacter::StopWeaponFire()
 		}
 	}
 }
+
+bool ANativeBaseAICharacter::IsFiring() const
+{
+	if (CurrentWeapon && CurrentWeapon->GetCurrentState() == EWeaponState::Firing)
+		return true;
+
+	return false;
+}

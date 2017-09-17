@@ -111,6 +111,9 @@ public:
 	void StartWeaponFire();
 	void StopWeaponFire();
 
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	bool IsFiring() const;
+
 
 	// APawn IMPLEMENTATION
 	// -----------------------------------------------------------------------------

@@ -317,6 +317,14 @@ void ANativeCoopCharacter::StopWeaponFire()
 	}
 }
 
+bool ANativeCoopCharacter::IsFiring() const
+{
+	if (CurrentWeapon && CurrentWeapon->GetCurrentState() == EWeaponState::Firing)
+		return true;
+
+	return false;
+}
+
 void ANativeCoopCharacter::DestroyInventory()
 {
 	// only if we're authority

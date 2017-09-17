@@ -108,7 +108,7 @@ public:
 	bool ServerHandleFiring_Validation();
 
 protected:
-	FHitResult WeaponTrace(const FVector& traceFrom, const FVector& traceTo) const;
+	FHitResult WeaponTrace(const FVector& traceFrom, const FVector& traceTo, const FName& traceTag) const;
 
 	virtual void FireWeapon();
 	virtual void SimulateWeaponFire();

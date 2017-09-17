@@ -23,7 +23,7 @@ void ANativeWeaponProjectile::FireWeapon()
 	const float projectilMaxRange = 10000.0f;
 	const auto& startTrace = GetCameraDamageStartLocation(shootDirection);
 	const auto& endTrace = startTrace + shootDirection * projectilMaxRange;
-	FHitResult Impact = WeaponTrace(startTrace, endTrace);
+	FHitResult Impact = WeaponTrace(startTrace, endTrace, FName(TEXT("ProjectileWeapon")));
 
 	// and adjust directions to hit that actor
 	if (Impact.bBlockingHit)
@@ -44,7 +44,7 @@ void ANativeWeaponProjectile::FireWeapon()
 
 			FVector muzzleStartTrace = shootOrigin - GetMuzzleDirection() * 150.0f;
 			FVector muzzleEndTrace = shootOrigin;
-			FHitResult MuzzleImpact = WeaponTrace(muzzleStartTrace, muzzleEndTrace);
+			FHitResult MuzzleImpact = WeaponTrace(muzzleStartTrace, muzzleEndTrace, FName(TEXT("ProjectileWeapon")));
 
 			if (MuzzleImpact.bBlockingHit)
 			{

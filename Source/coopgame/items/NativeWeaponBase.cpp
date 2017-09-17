@@ -378,11 +378,12 @@ void ANativeWeaponBase::OnRep_BurstCounter()
 	}
 }
 
-FHitResult ANativeWeaponBase::WeaponTrace(const FVector& TraceFrom, const FVector& TraceTo) const
+FHitResult ANativeWeaponBase::WeaponTrace(const FVector& TraceFrom, const FVector& TraceTo, const FName& traceTag) const
 {
 	FCollisionQueryParams TraceParams(TEXT("WeaponTrace"), true, Instigator);
 	TraceParams.bTraceAsyncScene = true;
 	TraceParams.bReturnPhysicalMaterial = true;
+	TraceParams.TraceTag = traceTag;
 
 	FHitResult Hit(ForceInit);
 	GetWorld()->LineTraceSingleByChannel(Hit, TraceFrom, TraceTo, COLLISION_WEAPON, TraceParams);

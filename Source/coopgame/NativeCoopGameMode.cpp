@@ -129,16 +129,20 @@ void ANativeCoopGameMode::SetPlayerDefaults(APawn* playerPawn)
 	ANativeCoopCharacter* asCharacter = Cast<ANativeCoopCharacter>(playerPawn);
 	if (asCharacter != nullptr)
 	{
-		if (DefaultWeapon != nullptr)
+		auto preferredWeapon = GetDefaultWeaponClassForNativeCoopPlayerController(Cast<ANativeCoopPlayerController>(playerPawn->GetController()));
+		if (preferredWeapon == nullptr)
+			preferredWeapon = DefaultWeapon;
+
+		if (preferredWeapon)
 		{
 			// spawn the weapon
 			FActorSpawnParameters spawnInfo;
 			spawnInfo.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-			auto newWeapon = GetWorld()->SpawnActor<ANativeWeaponBase>(DefaultWeapon, spawnInfo);
+			auto newWeapon = GetWorld()->SpawnActor<ANativeWeaponBase>(preferredWeapon, spawnInfo);
 
 			// add it to the player
 			asCharacter->AddWeapon(newWeapon);
-		}
+		}		
 	}
 }
 
@@ -223,6 +227,33 @@ UClass* ANativeCoopGameMode::GetRandomPawnClassForNativeCoopPlayerController(ANa
 	}
 
 	return nullptr;
+}
+
+TSubclassOf<ANativeWeaponBase> ANativeCoopGameMode::GetDefaultWeaponClassForNativeCoopPlayerController(ANativeCoopPlayerController* playerController)
+{
+	if (CharacterDataTable == nullptr)
+	{
+		UE_LOG(LogCoopGameOnline, Warning, TEXT("No CharacterDataTable present, falling back on default wepaon."));
+		return DefaultWeapon;
+	}
+
+	if (playerController->PlayerState == nullptr || Cast<ACoopGamePlayerState>(playerController->PlayerState) == nullptr)
+	{
+		UE_LOG(LogCoopGameOnline, Warning, TEXT("Found ANativeCoopPlayerController that doesn't have an ACoopGamePlayerState (2)."));
+		return DefaultWeapon;
+	}
+
+	// do we have a preferred character here?  if so, let's use that.
+	auto playerState = Cast<ACoopGamePlayerState>(playerController->PlayerState);
+	auto selectedCharacter = playerState->SelectedCharacterID;
+	auto characterInfo = CharacterDataTable->FindRow<FCharacterInfoRow>(selectedCharacter, TEXT("ANativeCoopGameMode::GetDefaultPawnClassForController"));
+	if (characterInfo && characterInfo->Character)
+	{
+		return characterInfo->DefaultPrimaryWeapon;
+	}
+
+	// fallback on default 
+	return DefaultWeapon;
 }
 
 bool ANativeCoopGameMode::IsCharacterInUse(ANativeCoopPlayerController* exceptController, const FName& characterID)

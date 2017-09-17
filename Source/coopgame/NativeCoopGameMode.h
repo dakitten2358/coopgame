@@ -26,6 +26,8 @@ protected:
 	UClass* GetRandomPawnClassForNativeCoopPlayerController(class ANativeCoopPlayerController* playerController);
 	virtual AActor* ChoosePlayerStart_Implementation(AController* forController) override;
 
+	TSubclassOf<ANativeWeaponBase> GetDefaultWeaponClassForNativeCoopPlayerController(class ANativeCoopPlayerController* playerController);
+
 	bool IsCharacterInUse(class ANativeCoopPlayerController* exceptingController, const FName& characterID);
 
 	// for characters

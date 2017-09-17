@@ -41,4 +41,10 @@ protected:
 	void OnRep_HitLocation();
 
 	void SimulateInstantHit(const FVector& hitResult);
+
+	//
+	UPROPERTY(EditDefaultsOnly)
+	UParticleSystem* TracerFX;
+
+	void SpawnTrailEffects(const FVector& impactPoint);
 };

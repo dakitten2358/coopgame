@@ -171,8 +171,7 @@ void ANativeWeaponInstant::ServerNotifyMiss_Implementation(FVector_NetQuantizeNo
 
 	if (GetNetMode() != NM_DedicatedServer)
 	{
-		//TODO:
-		//SpawnTrailEffects(EndTrace);
+		SpawnTrailEffects(shootEnd);
 	}
 }
 
@@ -258,10 +257,36 @@ void ANativeWeaponInstant::SimulateInstantHit(const FVector& impactPoint)
 	{
 		//TODO:
 		//SpawnImpactEffects(hitResult);
-		//SpawnTrailEffects(hitResult.ImpactPoint);
+		SpawnTrailEffects(hitResult.ImpactPoint);
 	}
 	else
 	{
-		//SpawnTrailEffects(shootEnd);
+		SpawnTrailEffects(shootEnd);
+	}
+}
+
+void ANativeWeaponInstant::SpawnTrailEffects(const FVector& impactPoint)
+{
+	// check survival game for more complete
+	auto shootOrigin = GetMuzzleLocation();
+	auto shootDirection = impactPoint - shootOrigin;
+
+	// Only spawn if a minimum distance is satisfied.
+	/*
+	if (ShootDir.Size() < MinimumProjectileSpawnDistance)
+	{
+		return;
+	}
+	*/
+
+	//if (BulletsShotCount % TracerRoundInterval == 0)
+	if (true)
+	{
+		if (TracerFX)
+		{
+			shootDirection.Normalize();
+			UGameplayStatics::SpawnEmitterAtLocation(this, TracerFX, shootOrigin, shootDirection.Rotation());
+			WeaponTrace(shootOrigin, impactPoint, FName("TracerRound"));
+		}
 	}
 }

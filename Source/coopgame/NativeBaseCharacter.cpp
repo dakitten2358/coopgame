@@ -5,6 +5,7 @@
 #include "NativeCoopGameMode.h"
 #include "NativeCoopCharacter.h"
 #include "components/CoopCharacterMovementComponent.h"
+#include "ui/hud/NativeCoopHUD.h"
 
 // sets default values
 ANativeBaseCharacter::ANativeBaseCharacter(const FObjectInitializer& ObjectInitializer)
@@ -177,6 +178,23 @@ void ANativeBaseCharacter::Hit(float damageAmount, const FDamageEvent& damageEve
 		ApplyDamageMomentum(damageAmount, damageEvent, instigatorPawn, damageCauser);
 
 	// update the hud
+	ANativeCoopPlayerController* coopPlayerController = Cast<ANativeCoopPlayerController>(Controller);
+	ANativeCoopHUD* coopHUD = coopPlayerController ? Cast<ANativeCoopHUD>(coopPlayerController->GetHUD()) : nullptr;
+	if (coopHUD)
+	{
+		coopHUD->NotifyWeaponHit(damageAmount, damageEvent, instigatorPawn);
+	}
+	/*
+	if (PawnInstigator && PawnInstigator != this && PawnInstigator->IsLocallyControlled())
+	{
+		AShooterPlayerController* InstigatorPC = Cast<AShooterPlayerController>(PawnInstigator->Controller);
+		AShooterHUD* InstigatorHUD = InstigatorPC ? Cast<AShooterHUD>(InstigatorPC->GetHUD()) : NULL;
+		if (InstigatorHUD)
+		{
+			InstigatorHUD->NotifyEnemyHit();
+		}
+	}
+	*/
 }
 
 void ANativeBaseCharacter::Suicide()

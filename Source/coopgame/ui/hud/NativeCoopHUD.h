@@ -21,9 +21,14 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	UTexture2D* MainHUDTexture;
 
+	UPROPERTY(EditDefaultsOnly)
+	UTexture2D* HitIndicatorTexture;
+
 public:
 	virtual void DrawHUD() override;
 	virtual void BeginPlay() override;
+
+	void NotifyWeaponHit(float DamageTaken, const struct FDamageEvent& DamageEvent, class APawn* PawnInstigator);
 	
 protected:
 	FCanvasIcon m_crosshairCenterIcon;
@@ -55,4 +60,13 @@ private:
 
 private:
 	const class UDataTable* m_characterTable;
+
+	struct FHitByEnemyInfo
+	{
+		float TimeRemaining;
+		FVector HitImpulse;
+	};
+
+	static constexpr int MaxEnemyHitsRecorded = 16;
+	TArray<FHitByEnemyInfo, TFixedAllocator<MaxEnemyHitsRecorded>> EnemyHitIndicatorInfo;	
 };

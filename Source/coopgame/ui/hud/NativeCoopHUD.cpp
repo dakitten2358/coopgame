@@ -69,6 +69,31 @@ void ANativeCoopHUD::DrawHUD()
 		centerY - m_crosshairCenterIcon.VL * crosshairCenterScale / 2.0f,
 		crosshairCenterScale);
 
+#if 0
+	static float rot = 0.0f;
+	rot += 1.0f;
+
+	FVector front(1, 0, 0);
+	FVector left(0, -1, 0);
+
+	const FVector HitVector = FRotationMatrix(PlayerOwner->GetControlRotation()).InverseTransformVector(left);
+	auto cosTheta = FVector::DotProduct(front, HitVector);
+	auto angle = FGenericPlatformMath::Acos(cosTheta);
+	rot = FMath::RadiansToDegrees(angle);
+
+	Canvas->K2_DrawTexture(
+		HitIndicatorTexture,
+		FVector2D(centerX - 16, centerY - 128),
+		FVector2D(32, 128),
+		FVector2D(0, 0),
+		FVector2D::UnitVector,
+		FLinearColor::White,
+		BLEND_Translucent,
+		rot,
+		FVector2D(0.5F, 1.0F)
+	);
+#endif
+
 	if (GetWorld()->GetGameState())
 	{
 		auto index = 0;
@@ -233,4 +258,14 @@ void ANativeCoopHUD::MakeUV(FCanvasIcon& Icon, FVector2D& UV0, FVector2D& UV1, u
 		UV0 = FVector2D(U / Width, V / Height);
 		UV1 = UV0 + FVector2D(UL / Width, VL / Height);
 	}
+}
+
+void ANativeCoopHUD::NotifyWeaponHit(float DamageTaken, const struct FDamageEvent& DamageEvent, class APawn* PawnInstigator)
+{
+	// todo:
+	FVector ImpulseDir;
+	FHitResult Hit;
+	DamageEvent.GetBestHitInfo(this, PawnInstigator, Hit, ImpulseDir);
+
+	// find a free slot, or the oldest slot if available
 }

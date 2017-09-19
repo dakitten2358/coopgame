@@ -10,6 +10,9 @@ class COOPGAME_API ANativeBaseAICharacter : public ANativeBaseCharacter
 {
 	GENERATED_BODY()
 
+private:
+	typedef ANativeBaseAICharacter self_t;
+
 public:
 	ANativeBaseAICharacter(const FObjectInitializer& ObjectInitializer);
 	
@@ -18,7 +21,20 @@ public:
 
 	virtual void PossessedBy(AController* newController) override;
 
+	virtual void BeginPlay() override;
 	virtual void Destroyed() override;
+
+	// SENSES
+	// -----------------------------------------------------------------------------
+public:
+	class UPawnSensingComponent* PawnSenses;
+
+protected:
+	UFUNCTION()
+	void OnAISeePawn(APawn* pawnSeen);
+
+	UFUNCTION()
+	void OnAIHearNoise(APawn* noiseInstigator, const FVector& noiseLocation, float noiseVolume);
 
 	// WEAPONS
 	// -----------------------------------------------------------------------------
@@ -46,7 +62,6 @@ public:
 	/** get currently equipped weapon */
 	UFUNCTION(BlueprintCallable, Category = "Game|Weapon")
 	ANativeWeaponBase* GetCurrentWeapon() const;
-
 
 	// FIRING
 	// ---------------------------------------------------------------

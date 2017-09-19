@@ -3,11 +3,20 @@
 #include "coopgame.h"
 #include "NativeBaseAICharacter.h"
 #include "items/NativeWeaponBase.h"
+#include "Runtime/AIModule/Classes/Perception/PawnSensingComponent.h"
 
 ANativeBaseAICharacter::ANativeBaseAICharacter(const FObjectInitializer& objectInitializer)
 	: Super(objectInitializer)
 {
 	bUseControllerRotationYaw = true;
+
+	PawnSenses = objectInitializer.CreateDefaultSubobject<UPawnSensingComponent>(this, TEXT("Senses"));
+
+	// reasonable defaults
+	PawnSenses->HearingThreshold = 600.0f;
+	PawnSenses->LOSHearingThreshold = 2000.0f;
+	PawnSenses->SightRadius = 2000.0f;
+	PawnSenses->SetPeripheralVisionAngle(55.0f);
 }
 
 void ANativeBaseAICharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -16,6 +25,30 @@ void ANativeBaseAICharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty
 
 	DOREPLIFETIME(ANativeBaseAICharacter, CurrentWeapon);
 }
+
+void ANativeBaseAICharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (PawnSenses)
+	{
+		PawnSenses->OnSeePawn.AddDynamic(this, &self_t::OnAISeePawn);
+		PawnSenses->OnHearNoise.AddDynamic(this, &self_t::OnAIHearNoise);
+	}
+}
+
+void ANativeBaseAICharacter::Destroyed()
+{
+	Super::Destroyed();
+
+	// get rid of the current weapon if we have one (and we have authoritay)
+	if (Role >= ROLE_Authority && CurrentWeapon != nullptr)
+	{
+		CurrentWeapon->Destroy();
+		CurrentWeapon = nullptr;
+	}
+}
+
 
 void ANativeBaseAICharacter::PossessedBy(AController* newController)
 {
@@ -29,18 +62,6 @@ void ANativeBaseAICharacter::PossessedBy(AController* newController)
 
 		// add it to the ai
 		AddWeapon(newWeapon);
-	}
-}
-
-void ANativeBaseAICharacter::Destroyed()
-{
-	Super::Destroyed();
-
-	// get rid of the current weapon if we have one (and we have authoritay)
-	if (Role >= ROLE_Authority && CurrentWeapon != nullptr)
-	{
-		CurrentWeapon->Destroy();
-		CurrentWeapon = nullptr;
 	}
 }
 
@@ -164,4 +185,16 @@ bool ANativeBaseAICharacter::IsFiring() const
 		return true;
 
 	return false;
+}
+
+// SENSES
+// -----------------------------------------------------------------------------
+void ANativeBaseAICharacter::OnAISeePawn(APawn* Pawn)
+{
+	UE_LOG(LogCoopGame, Warning, TEXT("SAW PAWN"));
+}
+
+void ANativeBaseAICharacter::OnAIHearNoise(APawn* NoiseInstigator, const FVector& Location, float Volume)
+{
+	UE_LOG(LogCoopGame, Warning, TEXT("HEARD NOISE"));
 }

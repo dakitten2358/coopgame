@@ -5,6 +5,8 @@
 #include "GameFramework/HUD.h"
 #include "NativeCoopHUD.generated.h"
 
+
+
 /**
  * 
  */
@@ -27,6 +29,7 @@ public:
 public:
 	virtual void DrawHUD() override;
 	virtual void BeginPlay() override;
+	virtual void Tick(float deltaSeconds) override;
 
 	void NotifyWeaponHit(float DamageTaken, const struct FDamageEvent& DamageEvent, class APawn* PawnInstigator);
 	
@@ -67,6 +70,14 @@ private:
 		FVector HitImpulse;
 	};
 
+	static constexpr int HitIndicatorDuration = 2.0f;
 	static constexpr int MaxEnemyHitsRecorded = 16;
-	TArray<FHitByEnemyInfo, TFixedAllocator<MaxEnemyHitsRecorded>> EnemyHitIndicatorInfo;	
+	//TArray<FHitByEnemyInfo, TFixedAllocator<MaxEnemyHitsRecorded>> EnemyHitIndicatorInfo;
+	FHitByEnemyInfo EnemyHitIndicatorInfo[MaxEnemyHitsRecorded];
+	FHitByEnemyInfo& FindFreeHitIndicatorSlot();
+	void DrawHitIndicators(float centerX, float centerY) const;
+	void UpdateHitIndicatorTimers(float elapsedTime);
+
+	FVector2D m_hitIndicatorOffset;
+	FVector2D m_hitIndicatorSize;
 };

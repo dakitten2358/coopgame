@@ -9,6 +9,7 @@
 #include <OnlineIdentityInterface.h>
 #include "online/CoopGamePlayerState.h"
 #include "CoopTypes.h"
+#include <limits>
 
 ANativeCoopHUD::ANativeCoopHUD(const FObjectInitializer& objectInitializer)
 	: AHUD(objectInitializer)
@@ -27,6 +28,9 @@ ANativeCoopHUD::ANativeCoopHUD(const FObjectInitializer& objectInitializer)
 		DefaultFont = DefaultFontOb.Object;
 	}
 	#endif //!UE_SERVER
+
+	m_hitIndicatorOffset = FVector2D(8, 8);
+	m_hitIndicatorSize = FVector2D(16, 128);
 }
 
 void ANativeCoopHUD::PostInitializeComponents()
@@ -47,6 +51,13 @@ void ANativeCoopHUD::BeginPlay()
 
 	// instructions timer
 	GetWorld()->GetTimerManager().SetTimer(m_timerHandleInstructions, this, &self_t::StopShowingTip, 3.0f, false);
+}
+
+void ANativeCoopHUD::Tick(float elapsedTime)
+{
+	Super::Tick(elapsedTime);
+
+	UpdateHitIndicatorTimers(elapsedTime);
 }
 
 void ANativeCoopHUD::StopShowingTip()
@@ -94,6 +105,8 @@ void ANativeCoopHUD::DrawHUD()
 	);
 #endif
 
+	DrawHitIndicators(centerX, centerY);
+	
 	if (GetWorld()->GetGameState())
 	{
 		auto index = 0;
@@ -268,4 +281,69 @@ void ANativeCoopHUD::NotifyWeaponHit(float DamageTaken, const struct FDamageEven
 	DamageEvent.GetBestHitInfo(this, PawnInstigator, Hit, ImpulseDir);
 
 	// find a free slot, or the oldest slot if available
+	auto& hitIndicatorSlot = FindFreeHitIndicatorSlot();
+	hitIndicatorSlot.HitImpulse = ImpulseDir;
+	hitIndicatorSlot.TimeRemaining = HitIndicatorDuration;
+}
+
+ANativeCoopHUD::FHitByEnemyInfo& ANativeCoopHUD::FindFreeHitIndicatorSlot()
+{
+	auto lowestTimeRemaining = std::numeric_limits<float>::min();
+	FHitByEnemyInfo* lowestInfoSoFar = nullptr;
+
+	for (auto& currentInfo : EnemyHitIndicatorInfo)
+	{
+		// if we find one that's completely available, use it
+		if (currentInfo.TimeRemaining <= 0.0f)
+			return currentInfo;
+
+		// keep track of the oldest (nearest to zero)
+		if (lowestTimeRemaining < currentInfo.TimeRemaining)
+		{
+			lowestInfoSoFar = &currentInfo;
+			lowestTimeRemaining = currentInfo.TimeRemaining;
+		}
+	}
+
+	check(lowestInfoSoFar);
+	return *lowestInfoSoFar;
+}
+
+void ANativeCoopHUD::DrawHitIndicators(float centerX, float centerY) const
+{
+	for (const auto& currentInfo : EnemyHitIndicatorInfo)
+	{
+		if (currentInfo.TimeRemaining <= 0.0f)
+			continue;
+
+		// figure out the angle we should be drawing it at
+		const auto& impulseDirection = currentInfo.HitImpulse;
+		const FVector hitVector = FRotationMatrix(PlayerOwner->GetControlRotation()).InverseTransformVector(-impulseDirection);
+
+		auto angleInRadians = FGenericPlatformMath::Atan2(hitVector.Y, hitVector.X);
+		auto angleInDegrees = FMath::RadiansToDegrees(angleInRadians);
+
+		Canvas->K2_DrawTexture(
+			MainHUDTexture,
+			FVector2D(centerX - (m_hitIndicatorSize.X / 2), centerY - (m_hitIndicatorSize.Y)),
+			FVector2D(m_hitIndicatorSize.X, m_hitIndicatorSize.Y),
+			FVector2D(m_hitIndicatorOffset.X / 512.0f, m_hitIndicatorOffset.Y / 512.0f),
+			FVector2D(m_hitIndicatorSize.X / 512.0f, m_hitIndicatorSize.Y / 512.0f),
+			FLinearColor::Red,
+			BLEND_Translucent,
+			angleInDegrees,
+			FVector2D(0.5f, 1.0f)
+		);
+	}
+}
+
+void ANativeCoopHUD::UpdateHitIndicatorTimers(float elapsedTime)
+{
+	for (auto& currentInfo : EnemyHitIndicatorInfo)
+	{
+		if (currentInfo.TimeRemaining <= 0.0f)
+			continue;
+
+		currentInfo.TimeRemaining -= elapsedTime;
+	}
 }

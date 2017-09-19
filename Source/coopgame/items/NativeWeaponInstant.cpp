@@ -227,6 +227,11 @@ void ANativeWeaponInstant::DealDamage(const FHitResult& hitResult, const FVector
 		}
 	}
 	*/
+	auto asCoopCharacter = hitResult.GetActor() ? Cast<ANativeCoopCharacter>(hitResult.GetActor()) : nullptr;
+	if (asCoopCharacter)
+	{
+		ActualHitDamage = 8.0f;
+	}
 
 	FPointDamageEvent pointDmg;
 	pointDmg.DamageTypeClass = TSubclassOf<UDamageType>(UDamageType::StaticClass());

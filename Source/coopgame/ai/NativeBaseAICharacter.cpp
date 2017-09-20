@@ -4,6 +4,8 @@
 #include "NativeBaseAICharacter.h"
 #include "items/NativeWeaponBase.h"
 #include "Runtime/AIModule/Classes/Perception/PawnSensingComponent.h"
+#include "NativeCoopCharacter.h"
+#include "NativeBaseAIController.h"
 
 ANativeBaseAICharacter::ANativeBaseAICharacter(const FObjectInitializer& objectInitializer)
 	: Super(objectInitializer)
@@ -191,10 +193,42 @@ bool ANativeBaseAICharacter::IsFiring() const
 // -----------------------------------------------------------------------------
 void ANativeBaseAICharacter::OnAISeePawn(APawn* Pawn)
 {
-	UE_LOG(LogCoopGame, Warning, TEXT("SAW PAWN"));
+	auto asPlayer = Cast<ANativeCoopCharacter>(Pawn);
+
+	// if it's a player, let the controller know
+	if (asPlayer != nullptr && GetController() && Cast<ANativeBaseAIController>(GetController()))
+	{
+		auto aiController = Cast<ANativeBaseAIController>(GetController());
+		aiController->OnHeardPlayer(asPlayer);
+	}
 }
 
 void ANativeBaseAICharacter::OnAIHearNoise(APawn* NoiseInstigator, const FVector& Location, float Volume)
 {
-	UE_LOG(LogCoopGame, Warning, TEXT("HEARD NOISE"));
+	auto asPlayer = Cast<ANativeCoopCharacter>(NoiseInstigator);
+	
+	// if it's a player, let the controller
+	if (asPlayer != nullptr && GetController() && Cast<ANativeBaseAIController>(GetController()))
+	{
+		auto aiController = Cast<ANativeBaseAIController>(GetController());
+		aiController->OnHeardPlayer(asPlayer);
+	}
+}
+
+float ANativeBaseAICharacter::TakeDamage(float DamageAmount, const struct FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	auto f = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+	if (EventInstigator && EventInstigator->GetPawn() && Cast<ANativeCoopCharacter>(EventInstigator->GetPawn()))
+	{
+		auto asPlayer = Cast<ANativeCoopCharacter>(EventInstigator->GetPawn());
+		// if it's a player, let the controller
+		if (asPlayer != nullptr && GetController() && Cast<ANativeBaseAIController>(GetController()))
+		{
+			auto aiController = Cast<ANativeBaseAIController>(GetController());
+			aiController->OnTookDamageFromPlayer(asPlayer, DamageAmount);
+		}
+	}
+
+	return f;
 }

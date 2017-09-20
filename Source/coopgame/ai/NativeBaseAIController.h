@@ -3,6 +3,7 @@
 #pragma once
 
 #include "AIController.h"
+#include "CoopTypes.h"
 #include "NativeBaseAIController.generated.h"
 
 // forwards
@@ -40,5 +41,19 @@ private:
 	void SetEnemy(class APawn* enemyPawn);
 	class APawn* GetEnemy() const;
 	bool HasWeaponLOSToEnemy(AActor* enemyActor) const;
-	
+
+	// Threat
+	UPROPERTY(EditAnywhere, Category = Behavior)
+	EAIState			CombatStatus;
+
+	UPROPERTY(EditAnywhere, Category = Behavior)
+	EAIClassBehavior	CombatType;
+
+	TMap<class ANativeCoopCharacter*, int>  ThreatTable;
+	void AddThreat(class ANativeCoopCharacter*, int amount);
+
+public:
+	void OnSawPlayer(class ANativeCoopCharacter* playerSeen);
+	void OnHeardPlayer(class ANativeCoopCharacter* playerHeard);
+	void OnTookDamageFromPlayer(class ANativeCoopCharacter* causedByPlayer, float damageAmount);
 };

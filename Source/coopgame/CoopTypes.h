@@ -106,3 +106,19 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Display")
 	const class UTexture2D* Icon;
 };
+
+UENUM(BlueprintType)
+enum class EAIState : uint8
+{
+	Idle,
+	Suspicious,
+	Hostile,
+};
+
+UENUM(BlueprintType)
+enum class EAIClassBehavior : uint8
+{
+	Assault,
+	Cover,
+	Heavy,
+};

@@ -16,6 +16,9 @@ ANativeBaseAIController::ANativeBaseAIController(const FObjectInitializer& objec
 	m_blackboardComponent = objectInitializer.CreateDefaultSubobject<UBlackboardComponent>(this, "BlackboardComponent");
 	m_behaviorTreeComponent = objectInitializer.CreateDefaultSubobject<UBehaviorTreeComponent>(this, "BehaviorTreeComponent");
 	BrainComponent = m_behaviorTreeComponent;
+
+	CombatStatus = EAIState::Idle;
+	CombatType = EAIClassBehavior::Assault;
 }
 
 void ANativeBaseAIController::Possess(APawn* pawnToPossess)
@@ -180,4 +183,33 @@ void ANativeBaseAIController::ShootEnemy()
 		selfPawn->StartWeaponFire();
 	else
 		selfPawn->StopWeaponFire();
+}
+
+
+void ANativeBaseAIController::AddThreat(class ANativeCoopCharacter* toCharacter, int amount)
+{
+	// add threat
+	if (ThreatTable.Contains(toCharacter))
+		ThreatTable[toCharacter] += amount;
+	else
+		ThreatTable.Add(toCharacter, amount);
+
+	// figure out the highest threat
+
+	// update the blackboard
+}
+
+void ANativeBaseAIController::OnSawPlayer(class ANativeCoopCharacter* playerSeen)
+{
+	AddThreat(playerSeen, 10);
+}
+
+void ANativeBaseAIController::OnHeardPlayer(class ANativeCoopCharacter* playerHeard)
+{
+	AddThreat(playerHeard, 20);
+}
+
+void ANativeBaseAIController::OnTookDamageFromPlayer(class ANativeCoopCharacter* causedByPlayer, float damageAmount)
+{
+	AddThreat(causedByPlayer, (int)damageAmount);
 }

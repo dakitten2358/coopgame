@@ -5,6 +5,7 @@
 #include "NativeBaseCharacter.h"
 #include "NativeBaseAICharacter.generated.h"
 
+
 UCLASS()
 class COOPGAME_API ANativeBaseAICharacter : public ANativeBaseCharacter
 {
@@ -27,7 +28,11 @@ public:
 	// SENSES
 	// -----------------------------------------------------------------------------
 public:
+	UPROPERTY(EditDefaultsOnly, Category = "Senses")
 	class UPawnSensingComponent* PawnSenses;
+
+
+	virtual float TakeDamage(float DamageAmount, const struct FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 protected:
 	UFUNCTION()

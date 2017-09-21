@@ -6,9 +6,11 @@
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
+#include "BehaviorTree/Blackboard/BlackboardKeyType_Enum.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Object.h"
 #include "NativeCoopCharacter.h"
 #include "items/NativeWeaponBase.h"
+#include <limits>
 
 ANativeBaseAIController::ANativeBaseAIController(const FObjectInitializer& objectInitializer)
 	: Super(objectInitializer)
@@ -33,9 +35,18 @@ void ANativeBaseAIController::Possess(APawn* pawnToPossess)
 
 		// get the keys we're going to need
 		m_enemyKeyID = m_blackboardComponent->GetKeyID("TargetToFollow");
+		m_keyHighestThreat = m_blackboardComponent->GetKeyID("HighestThreatTarget");
+		m_keyCombatStatus = m_blackboardComponent->GetKeyID("CombatStatus");
+		m_keyCombatType = m_blackboardComponent->GetKeyID("CombatType");
 
+		// set up defaults
+		m_blackboardComponent->SetValue<UBlackboardKeyType_Enum>(m_keyCombatStatus, static_cast<UBlackboardKeyType_Enum::FDataType>(CombatStatus));
+		m_blackboardComponent->SetValue<UBlackboardKeyType_Enum>(m_keyCombatType, static_cast<UBlackboardKeyType_Enum::FDataType>(CombatType));
+		
 		// start the behavior
 		m_behaviorTreeComponent->StartTree(*(asAICharacter->AIBehavior));
+
+		
 	}
 	else
 	{
@@ -195,21 +206,57 @@ void ANativeBaseAIController::AddThreat(class ANativeCoopCharacter* toCharacter,
 		ThreatTable.Add(toCharacter, amount);
 
 	// figure out the highest threat
+	auto highestThreat = GetHighestThreat();
+	if (highestThreat && m_blackboardComponent)
+	{
+		// update the blackboard
+		m_blackboardComponent->SetValue<UBlackboardKeyType_Object>(m_keyHighestThreat, highestThreat);
+	}	
+}
 
-	// update the blackboard
+ANativeCoopCharacter* ANativeBaseAIController::GetHighestThreat() const
+{
+	ANativeCoopCharacter* highestThreatCharacter = nullptr;
+	int highestThreatAmount = std::numeric_limits<int>::min();
+
+	for (const auto& e : ThreatTable)
+	{
+		if (e.Value > highestThreatAmount)
+		{
+			highestThreatCharacter = e.Key;
+			highestThreatAmount = e.Value;
+		}
+	}
+
+	return highestThreatCharacter;
 }
 
 void ANativeBaseAIController::OnSawPlayer(class ANativeCoopCharacter* playerSeen)
 {
 	AddThreat(playerSeen, 10);
+	BecomeHostileIfNecessary();
 }
 
 void ANativeBaseAIController::OnHeardPlayer(class ANativeCoopCharacter* playerHeard)
 {
 	AddThreat(playerHeard, 20);
+	BecomeHostileIfNecessary();
 }
 
 void ANativeBaseAIController::OnTookDamageFromPlayer(class ANativeCoopCharacter* causedByPlayer, float damageAmount)
 {
 	AddThreat(causedByPlayer, (int)damageAmount);
+	BecomeHostileIfNecessary();
+}
+
+void ANativeBaseAIController::BecomeHostileIfNecessary()
+{
+	if (CombatStatus != EAIState::Hostile)
+	{
+		CombatStatus = EAIState::Hostile;
+
+		// update the blackboard
+		if (m_blackboardComponent)
+			m_blackboardComponent->SetValue<UBlackboardKeyType_Enum>(m_keyCombatStatus, static_cast<UBlackboardKeyType_Enum::FDataType>(CombatStatus));
+	}
 }

@@ -24,6 +24,9 @@ private:
 	UBehaviorTreeComponent* m_behaviorTreeComponent;
 
 	int32 m_enemyKeyID;
+	int32 m_keyCombatStatus;
+	int32 m_keyCombatType;
+	int32 m_keyHighestThreat;	
 	
 public:
 	// AController interface
@@ -51,6 +54,11 @@ private:
 
 	TMap<class ANativeCoopCharacter*, int>  ThreatTable;
 	void AddThreat(class ANativeCoopCharacter*, int amount);
+
+	UFUNCTION(BlueprintCallable, Category = Behavior)
+	class ANativeCoopCharacter* GetHighestThreat() const;
+
+	void BecomeHostileIfNecessary();
 
 public:
 	void OnSawPlayer(class ANativeCoopCharacter* playerSeen);

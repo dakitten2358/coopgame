@@ -199,7 +199,7 @@ void ANativeBaseAICharacter::OnAISeePawn(APawn* Pawn)
 	if (asPlayer != nullptr && GetController() && Cast<ANativeBaseAIController>(GetController()))
 	{
 		auto aiController = Cast<ANativeBaseAIController>(GetController());
-		aiController->OnHeardPlayer(asPlayer);
+		aiController->OnSawPlayer(asPlayer);
 	}
 }
 

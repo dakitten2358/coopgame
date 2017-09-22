@@ -40,6 +40,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Behavior)
 	void ShootEnemy();
 
+	UFUNCTION(BlueprintCallable, Category = Behavior)
+	void ShootAtTarget(AActor* targetToShootAt);
+
 private:
 	void SetEnemy(class APawn* enemyPawn);
 	class APawn* GetEnemy() const;
@@ -54,6 +57,7 @@ private:
 
 	TMap<class ANativeCoopCharacter*, int>  ThreatTable;
 	void AddThreat(class ANativeCoopCharacter*, int amount);
+	bool IsThreat(class ANativeCoopCharacter*) const;
 
 	UFUNCTION(BlueprintCallable, Category = Behavior)
 	class ANativeCoopCharacter* GetHighestThreat() const;

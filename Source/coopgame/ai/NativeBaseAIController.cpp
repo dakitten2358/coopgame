@@ -196,6 +196,30 @@ void ANativeBaseAIController::ShootEnemy()
 		selfPawn->StopWeaponFire();
 }
 
+void ANativeBaseAIController::ShootAtTarget(AActor* targetToShootAt)
+{
+	auto selfPawn = Cast<ANativeBaseAICharacter>(GetPawn());
+	auto weapon = selfPawn ? selfPawn->GetCurrentWeapon() : nullptr;
+
+	if (selfPawn == nullptr || weapon == nullptr)
+	{
+		UE_LOG(LogCoopGame, Log, TEXT("ANativeBaseAIController::ShootEnemy() has either an incorrect pawn, or doesn't have a weapon."));
+		return;
+	}
+
+	bool canShoot = false;
+	if (targetToShootAt && /*enemy->IsAlive() &&*/ weapon->CanFire())
+	{
+		// do we have line of sight?
+		if (LineOfSightTo(targetToShootAt, selfPawn->GetActorLocation()))
+			canShoot = true;
+	}
+
+	if (canShoot)
+		selfPawn->StartWeaponFire();
+	else
+		selfPawn->StopWeaponFire();
+}
 
 void ANativeBaseAIController::AddThreat(class ANativeCoopCharacter* toCharacter, int amount)
 {
@@ -212,6 +236,11 @@ void ANativeBaseAIController::AddThreat(class ANativeCoopCharacter* toCharacter,
 		// update the blackboard
 		m_blackboardComponent->SetValue<UBlackboardKeyType_Object>(m_keyHighestThreat, highestThreat);
 	}	
+}
+
+bool ANativeBaseAIController::IsThreat(class ANativeCoopCharacter* ch) const
+{
+	return ThreatTable.Find(ch) != nullptr;
 }
 
 ANativeCoopCharacter* ANativeBaseAIController::GetHighestThreat() const
@@ -233,13 +262,15 @@ ANativeCoopCharacter* ANativeBaseAIController::GetHighestThreat() const
 
 void ANativeBaseAIController::OnSawPlayer(class ANativeCoopCharacter* playerSeen)
 {
-	AddThreat(playerSeen, 10);
+	if (!IsThreat(playerSeen))
+		AddThreat(playerSeen, 10);
 	BecomeHostileIfNecessary();
 }
 
 void ANativeBaseAIController::OnHeardPlayer(class ANativeCoopCharacter* playerHeard)
 {
-	AddThreat(playerHeard, 20);
+	if (!IsThreat(playerHeard))
+		AddThreat(playerHeard, 20);
 	BecomeHostileIfNecessary();
 }
 

@@ -13,8 +13,8 @@ UCLASS()
 class COOPGAME_API UBTT_FireAtTarget : public UBTTask_BlackboardBase
 {
 	GENERATED_BODY()
-	
-	
-	
-	
+
+public:
+	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& ownerComponent, uint8* memory) override;
+	virtual void TickTask(UBehaviorTreeComponent& ownerComp, uint8 * nodeMemory, float deltaSeconds) override;
 };

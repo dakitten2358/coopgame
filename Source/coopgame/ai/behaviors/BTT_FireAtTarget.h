@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/Tasks/BTTask_BlackboardBase.h"
-#include "BTT_AttackHighestThreat.generated.h"
+#include "BTT_FireAtTarget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class COOPGAME_API UBTT_AttackHighestThreat : public UBTTask_BlackboardBase
+class COOPGAME_API UBTT_FireAtTarget : public UBTTask_BlackboardBase
 {
 	GENERATED_BODY()
 	

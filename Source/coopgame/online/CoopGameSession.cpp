@@ -30,7 +30,7 @@ void ACoopGameSession::HandleMatchHasStarted()
 		auto sessions = onlineSubsystem->GetSessionInterface();
 		if (sessions.IsValid())
 		{
-			UE_LOG(LogCoopGameOnline, Log, TEXT("starting session %s on server"), *GameSessionName.ToString());
+			UE_LOG(LogCoopGameOnline, Log, TEXT("starting session %s on server"), *((FName)GameSessionName).ToString());
 			OnStartSessionCompleteDelegateHandle = sessions->AddOnStartSessionCompleteDelegate_Handle(OnStartSessionCompleteDelegate);
 			sessions->StartSession(GameSessionName);
 		}
@@ -56,7 +56,7 @@ void ACoopGameSession::HandleMatchHasEnded()
 			}
 
 			// end the server
-			UE_LOG(LogCoopGameOnline, Log, TEXT("Ending session %s on server."), *GameSessionName.ToString());
+			UE_LOG(LogCoopGameOnline, Log, TEXT("Ending session %s on server."), *((FName)GameSessionName).ToString());
 			sessions->EndSession(GameSessionName);
 		}
 	}

@@ -9,7 +9,7 @@
  * 
  */
 UCLASS()
-class COOPGAME_API ANativeWeaponProjectile : public ANativeWeaponBase
+class ANativeWeaponProjectile : public ANativeWeaponBase
 {
 	GENERATED_BODY()
 	

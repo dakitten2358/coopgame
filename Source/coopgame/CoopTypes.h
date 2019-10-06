@@ -1,7 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
-#include "CoopTypes.generated.h"
 #pragma once
+
+#include "CoreMinimal.h"
+#include "Engine/DataTable.h"
+#include "CoopTypes.generated.h"
 
 UENUM(BlueprintType)
 enum class CoopGameType : uint8

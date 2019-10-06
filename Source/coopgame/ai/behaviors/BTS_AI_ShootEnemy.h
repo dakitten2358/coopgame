@@ -10,7 +10,7 @@
  * 
  */
 UCLASS()
-class COOPGAME_API UBTS_AI_ShootEnemy : public UBTService
+class UBTS_AI_ShootEnemy : public UBTService
 {
 	GENERATED_BODY()
 	

@@ -9,7 +9,7 @@
  * 
  */
 UCLASS()
-class COOPGAME_API UCoopLocalPlayer : public ULocalPlayer
+class UCoopLocalPlayer : public ULocalPlayer
 {
 	GENERATED_BODY()
 	

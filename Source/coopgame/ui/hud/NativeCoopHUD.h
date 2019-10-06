@@ -3,6 +3,7 @@
 #pragma once
 
 #include "GameFramework/HUD.h"
+#include "Engine/Canvas.h"
 #include "NativeCoopHUD.generated.h"
 
 
@@ -11,7 +12,7 @@
  * 
  */
 UCLASS()
-class COOPGAME_API ANativeCoopHUD : public AHUD
+class ANativeCoopHUD : public AHUD
 {
 	GENERATED_BODY()
 

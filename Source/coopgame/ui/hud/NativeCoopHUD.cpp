@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "coopgame.h"
 #include "NativeCoopHUD.h"
 #include "NativeCoopCharacter.h"
 #include "NativeCoopPlayerController.h"
@@ -10,6 +9,8 @@
 #include "online/CoopGamePlayerState.h"
 #include "CoopTypes.h"
 #include <limits>
+#include "Kismet/GameplayStatics.h"
+#include "GameFramework/GameState.h"
 
 ANativeCoopHUD::ANativeCoopHUD(const FObjectInitializer& objectInitializer)
 	: AHUD(objectInitializer)
@@ -147,7 +148,7 @@ void ANativeCoopHUD::DrawPlayerInfobox(int index, const APlayerState* playerStat
 	float textVerticalOffset = 88.0f;
 
 	FCanvasTextItem textItem(FVector2D::ZeroVector, FText::GetEmpty(), DefaultFont, IsMe(playerState) ? myColor : otherColor);
-	textItem.Text = FText::FromString(playerState->PlayerName);
+	textItem.Text = FText::FromString(playerState->GetPlayerName());
 	Canvas->DrawItem(textItem, horizontalOffset + textHorizontalOffset, verticalOffset + textVerticalOffset);
 
 	// health offset
@@ -193,7 +194,7 @@ const ANativeCoopCharacter* ANativeCoopHUD::FindCharacterFor(const APlayerState*
 	for (auto asActor : coopCharacterActors)
 	{
 		auto coopCharacter = Cast<ANativeCoopCharacter>(asActor);
-		if (coopCharacter->PlayerState && coopCharacter->PlayerState->UniqueId == playerState->UniqueId)
+		if (coopCharacter->GetPlayerState() && coopCharacter->GetPlayerState()->UniqueId == playerState->UniqueId)
 			return coopCharacter;
 	}
 
@@ -238,6 +239,7 @@ void ANativeCoopHUD::DrawTimeElapsed()
 
 	FString timeText = FString::FormatAsNumber(gameState->TimeElapsed);
 	FString stateText = TEXT("Playing");
+#if defined(TEMP_DISABLED)
 	if (matchState == MatchState::WaitingToStart || matchState == MatchState::WaitingPostMatch)
 	{
 		timeText = FString::FormatAsNumber(gameState->TimeRemaining);
@@ -246,6 +248,7 @@ void ANativeCoopHUD::DrawTimeElapsed()
 		else
 			stateText = TEXT("Post match");
 	}
+#endif
 
 	FColor otherColor(110, 124, 131, 255);
 	FCanvasTextItem textItem(FVector2D::ZeroVector, FText::GetEmpty(), DefaultFont, otherColor);

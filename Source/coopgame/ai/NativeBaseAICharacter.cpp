@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "coopgame.h"
 #include "NativeBaseAICharacter.h"
+#include "coopgame.h"
 #include "items/NativeWeaponBase.h"
 #include "Runtime/AIModule/Classes/Perception/PawnSensingComponent.h"
 #include "NativeCoopCharacter.h"

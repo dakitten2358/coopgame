@@ -9,7 +9,7 @@
  * 
  */
 UCLASS()
-class COOPGAME_API ANativeCoopPlayerStart : public APlayerStart
+class ANativeCoopPlayerStart : public APlayerStart
 {
 	GENERATED_BODY()
 	

@@ -8,7 +8,7 @@
 #include "NativeBaseCharacter.generated.h"
 
 UCLASS()
-class COOPGAME_API ANativeBaseCharacter : public ACharacter
+class ANativeBaseCharacter : public ACharacter
 {
 	GENERATED_BODY()
 

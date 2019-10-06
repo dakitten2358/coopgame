@@ -3,10 +3,12 @@
 #pragma once
 
 #include "GameFramework/Actor.h"
+#include "GameFramework/ProjectileMovementComponent.h"
+#include "Components/SphereComponent.h"
 #include "NativeProjectileBase.generated.h"
 
 UCLASS(Abstract, Blueprintable)
-class COOPGAME_API ANativeProjectileBase : public AActor
+class ANativeProjectileBase : public AActor
 {
 	GENERATED_UCLASS_BODY()
 

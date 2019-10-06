@@ -9,7 +9,7 @@
  * 
  */
 UCLASS()
-class COOPGAME_API ACoopPlayerCameraManager : public APlayerCameraManager
+class ACoopPlayerCameraManager : public APlayerCameraManager
 {
 	GENERATED_BODY()
 

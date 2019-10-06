@@ -11,7 +11,7 @@ class ANativeCoopCharacter;
  * 
  */
 UCLASS()
-class COOPGAME_API UNativeCharacterSelectWidget : public UUserWidget
+class UNativeCharacterSelectWidget : public UUserWidget
 {
 	GENERATED_UCLASS_BODY()
 	

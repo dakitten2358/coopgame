@@ -10,7 +10,7 @@
  * 
  */
 UCLASS()
-class COOPGAME_API ANativeLobbyGameMode : public AGameMode
+class ANativeLobbyGameMode : public AGameMode
 {
 	GENERATED_UCLASS_BODY()
 

@@ -1,8 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "coopgame.h"
 #include "NativeProjectileBase.h"
+#include "coopgame.h"
 #include "NativeBaseCharacter.h"
+#include "Kismet/GameplayStatics.h"
+#include "GameFramework/DamageType.h"
+#include "NativeCoopCharacter.h"
 
 ANativeProjectileBase::ANativeProjectileBase(const FObjectInitializer& objectInitializer)
 	: Super(objectInitializer)

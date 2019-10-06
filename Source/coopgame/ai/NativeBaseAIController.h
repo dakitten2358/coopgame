@@ -12,7 +12,7 @@ class UBehaviorTreeComponent;
 
 
 UCLASS(config=Game)
-class COOPGAME_API ANativeBaseAIController : public AAIController
+class ANativeBaseAIController : public AAIController
 {
 	GENERATED_UCLASS_BODY()
 
@@ -30,8 +30,8 @@ private:
 	
 public:
 	// AController interface
-	virtual void Possess(APawn* pawnToPossess) override;
-	virtual void UnPossess() override;	
+	virtual void OnPossess(APawn* pawnToPossess) override;
+	virtual void OnUnPossess() override;	
 
 public:
 	UFUNCTION(BlueprintCallable, Category = Behavior)

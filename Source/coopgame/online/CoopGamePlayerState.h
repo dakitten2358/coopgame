@@ -2,16 +2,16 @@
 
 #pragma once
 
+#include "CoreMinimal.h"
 #include "GameFramework/PlayerState.h"
 #include "NativeCoopCharacter.h"
 #include "CoopGamePlayerState.generated.h"
-
 
 /**
  * 
  */
 UCLASS()
-class COOPGAME_API ACoopGamePlayerState : public APlayerState
+class ACoopGamePlayerState : public APlayerState
 {
 	GENERATED_BODY()
 

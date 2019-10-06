@@ -1,8 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "coopgame.h"
-#include "CoopTypes.h"
 #include "NativeCoopGameMode.h"
+#include "CoopTypes.h"
+#include "coopgame.h"
 #include "NativeCoopCharacter.h"
 #include "NativeCoopPlayerController.h"
 #include "items/NativeWeaponBase.h"
@@ -15,6 +15,7 @@
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 ANativeCoopGameMode::ANativeCoopGameMode(const FObjectInitializer& objectInitializer) : Super(objectInitializer)
 {
@@ -359,7 +360,6 @@ bool ANativeCoopGameMode::IsEnemySpawnPointAllowed(const ANativeEnemyPlayerStart
 bool ANativeCoopGameMode::IsEnemySpawnPointPreferred(const ANativeEnemyPlayerStart* spawnPoint, const AController* forController) const
 {
 	FCollisionQueryParams traceParams(SCENE_QUERY_STAT(AIWeaponLosTrace), true, spawnPoint);
-	traceParams.bTraceAsyncScene = true;
 	traceParams.bReturnPhysicalMaterial = true;
 
 	FVector startLocation = spawnPoint->GetActorLocation();

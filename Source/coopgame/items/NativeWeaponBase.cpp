@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "coopgame.h"
 #include "NativeWeaponBase.h"
+#include "coopgame.h"
 #include "NativeBaseCharacter.h"
 #include "NativeCoopPlayerController.h"
 
@@ -10,7 +10,7 @@ ANativeWeaponBase::ANativeWeaponBase(const FObjectInitializer& objectInitializer
 {
 	Mesh = objectInitializer.CreateDefaultSubobject<USkeletalMeshComponent>(this, TEXT("WeaponMesh3P"));
 
-	Mesh->MeshComponentUpdateFlag = EMeshComponentUpdateFlag::OnlyTickPoseWhenRendered;
+	Mesh->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::OnlyTickPoseWhenRendered;
 	Mesh->bReceivesDecals = true;
 	Mesh->CastShadow = true;
 	Mesh->SetCollisionObjectType(ECC_WorldDynamic);
@@ -381,7 +381,6 @@ void ANativeWeaponBase::OnRep_BurstCounter()
 FHitResult ANativeWeaponBase::WeaponTrace(const FVector& TraceFrom, const FVector& TraceTo, const FName& traceTag) const
 {
 	FCollisionQueryParams TraceParams(TEXT("WeaponTrace"), true, Instigator);
-	TraceParams.bTraceAsyncScene = true;
 	TraceParams.bReturnPhysicalMaterial = true;
 	TraceParams.TraceTag = traceTag;
 

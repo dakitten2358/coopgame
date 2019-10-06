@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "coopgame.h"
 #include "NativeBaseAIController.h"
+#include "coopgame.h"
 #include "NativeBaseAICharacter.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardComponent.h"
@@ -23,9 +23,9 @@ ANativeBaseAIController::ANativeBaseAIController(const FObjectInitializer& objec
 	CombatType = EAIClassBehavior::Assault;
 }
 
-void ANativeBaseAIController::Possess(APawn* pawnToPossess)
+void ANativeBaseAIController::OnPossess(APawn* pawnToPossess)
 {
-	Super::Possess(pawnToPossess);
+	Super::OnPossess(pawnToPossess);
 
 	auto asAICharacter = Cast<ANativeBaseAICharacter>(pawnToPossess);
 	if (asAICharacter != nullptr && asAICharacter->AIBehavior != nullptr)
@@ -54,10 +54,10 @@ void ANativeBaseAIController::Possess(APawn* pawnToPossess)
 	}
 }
 
-void ANativeBaseAIController::UnPossess()
+void ANativeBaseAIController::OnUnPossess()
 {
 	UE_LOG(LogCoopGame, Warning, TEXT("AIController unpossessing"));
-	Super::UnPossess();
+	Super::OnUnPossess();
 
 	m_behaviorTreeComponent->StopTree();
 }
@@ -107,7 +107,6 @@ bool ANativeBaseAIController::HasWeaponLOSToEnemy(AActor* enemyActor) const
 	bool hasLineOfSight = false;
 	// Perform trace to retrieve hit info
 	FCollisionQueryParams traceParams(SCENE_QUERY_STAT(AIWeaponLosTrace), true, GetPawn());
-	traceParams.bTraceAsyncScene = true;
 	traceParams.bReturnPhysicalMaterial = true;
 
 	FVector startLocation = selfPawn->GetActorLocation();

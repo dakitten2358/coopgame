@@ -10,7 +10,7 @@
  * 
  */
 UCLASS()
-class COOPGAME_API ANativeLobbyPlayerController : public APlayerController
+class ANativeLobbyPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 

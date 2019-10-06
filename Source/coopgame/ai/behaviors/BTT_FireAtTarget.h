@@ -10,7 +10,7 @@
  * 
  */
 UCLASS()
-class COOPGAME_API UBTT_FireAtTarget : public UBTTask_BlackboardBase
+class UBTT_FireAtTarget : public UBTTask_BlackboardBase
 {
 	GENERATED_BODY()
 

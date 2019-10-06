@@ -1,9 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "coopgame.h"
 #include "NativeBaseCharacter.h"
+#include "coopgame.h"
+#include "Components/CapsuleComponent.h"
 #include "NativeCoopGameMode.h"
 #include "NativeCoopCharacter.h"
+#include "NativeCoopPlayerController.h"
 #include "components/CoopCharacterMovementComponent.h"
 #include "ui/hud/NativeCoopHUD.h"
 
@@ -224,7 +226,7 @@ void ANativeBaseCharacter::OnDeath(float damageAmount, const FDamageEvent& damag
 
 	// no need to worry about replication anymore
 	bReplicateMovement = false;
-	bTearOff = true;
+	TearOff();
 
 	// keep track of dying
 	m_isDying = true;

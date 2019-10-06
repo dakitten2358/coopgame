@@ -1,8 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "coopgame.h"
 #include "NativeCoopCharacter.h"
+#include "coopgame.h"
 #include "items/NativeWeaponBase.h"
+#include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 
 ANativeCoopCharacter::ANativeCoopCharacter(const FObjectInitializer& ObjectInitializer)

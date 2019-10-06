@@ -1,8 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "coopgame.h"
 #include "NativeWeaponProjectile.h"
 #include "NativeCoopCharacter.h"
+#include "Kismet/GameplayStatics.h"
 
 void ANativeWeaponProjectile::FireWeapon()
 {

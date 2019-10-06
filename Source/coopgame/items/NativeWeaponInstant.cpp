@@ -1,8 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "coopgame.h"
 #include "NativeWeaponInstant.h"
 #include "NativeBaseCharacter.h"
+#include "NativeCoopCharacter.h"
+#include "Kismet/GameplayStatics.h"
 
 static const float WeaponRange = 15000.0f;
 static const float AllowedViewDotHitDir = -1.0f;
@@ -201,7 +202,7 @@ bool ANativeWeaponInstant::ShouldDealDamage(AActor* toActor) const
 	check(toActor);
 
 	// If we are an actor on the server, or the local client has authoritative control over actor, we should register damage.
-	if (GetNetMode() != NM_Client || toActor->Role == ROLE_Authority || toActor->bTearOff)
+	if (GetNetMode() != NM_Client || toActor->Role == ROLE_Authority || toActor->GetTearOff())
 		return true;
 
 	return false;

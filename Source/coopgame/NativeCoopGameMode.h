@@ -15,7 +15,7 @@ class ANativeCoopGameSession;
  * 
  */
 UCLASS()
-class COOPGAME_API ANativeCoopGameMode : public AGameMode
+class ANativeCoopGameMode : public AGameMode
 {
 	GENERATED_UCLASS_BODY()
 	

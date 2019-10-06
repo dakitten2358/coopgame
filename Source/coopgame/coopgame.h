@@ -1,9 +1,7 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
+#pragma once
 
-#ifndef __COOPGAME_H__
-#define __COOPGAME_H__
-
-#include "Engine.h"
+#include "CoreMinimal.h"
 
 // logging
 // --------------------------------------------------------------------------
@@ -21,5 +19,3 @@ DECLARE_LOG_CATEGORY_EXTERN(LogCoopGameTodo, Log, All);
 // also found under Project Settings > Engine > Collision > Trace Channels
 #define COLLISION_WEAPON				ECC_GameTraceChannel1
 #define COLLISION_PROJECTILE			ECC_GameTraceChannel2
-
-#endif

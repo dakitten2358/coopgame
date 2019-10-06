@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "coopgame.h"
 #include "BTS_AI_ShootEnemy.h"
 #include "ai/NativeBaseAIController.h"
 

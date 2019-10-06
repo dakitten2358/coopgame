@@ -6,27 +6,30 @@ public class coopgame : ModuleRules
 {
 	public coopgame(ReadOnlyTargetRules Target) : base(Target)
 	{
-		Definitions.Add("_CRT_SECURE_NO_WARNINGS");
-		PublicDependencyModuleNames.AddRange(
-			new string[] { 
-				"Core",
-				"CoreUObject",
-				"Engine",
-				"InputCore",
-				"HeadMountedDisplay",
-				"UMG",
-				"Slate",
-				"SlateCore",
-				"OnlineSubsystem",
-				"OnlineSubsystemUtils",
-				"AIModule",
-				"GameplayTasks",
-			}
-		);
-		DynamicallyLoadedModuleNames.AddRange(
-			new string[] {
-				"OnlineSubsystemSteam",
-			}
-		);
-	}
+        PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+
+
+        PublicDependencyModuleNames.AddRange(
+            new string[] {
+                "Core",
+                "CoreUObject",
+                "Engine",
+                "InputCore",
+                "HeadMountedDisplay",
+                "UMG",
+                "Slate",
+                "SlateCore",
+                "OnlineSubsystem",
+                "OnlineSubsystemUtils",
+                "NavigationSystem",
+                "AIModule",
+                "GameplayTasks",
+            }
+        );
+        DynamicallyLoadedModuleNames.AddRange(
+            new string[] {
+                "OnlineSubsystemSteam",
+            }
+        );
+    }
 }

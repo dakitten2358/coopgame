@@ -10,7 +10,7 @@
  * 
  */
 UCLASS()
-class COOPGAME_API UBTD_ShouldSpawnMoreEnemies : public UBTDecorator
+class UBTD_ShouldSpawnMoreEnemies : public UBTDecorator
 {
 	GENERATED_BODY()
 	

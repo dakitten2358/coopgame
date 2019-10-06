@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "GameFramework/SpringArmComponent.h"
+#include "Camera/CameraComponent.h"
 #include "NativeBaseCharacter.h"
 #include "NativeCoopCharacter.generated.h"
 
@@ -12,7 +14,7 @@ class ANativeWeaponBase;
 
 // native implementation of a player character
 UCLASS()
-class COOPGAME_API ANativeCoopCharacter : public ANativeBaseCharacter
+class ANativeCoopCharacter : public ANativeBaseCharacter
 {
 	GENERATED_BODY()
 public:

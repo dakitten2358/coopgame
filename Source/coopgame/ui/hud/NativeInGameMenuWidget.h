@@ -10,7 +10,7 @@
  * 
  */
 UCLASS()
-class COOPGAME_API UNativeInGameMenuWidget : public UUserWidget
+class UNativeInGameMenuWidget : public UUserWidget
 {
 	GENERATED_BODY()
 	

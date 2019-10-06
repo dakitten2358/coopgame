@@ -10,7 +10,7 @@
  * 
  */
 UCLASS()
-class COOPGAME_API UNativeInstructionsWidget : public UUserWidget
+class UNativeInstructionsWidget : public UUserWidget
 {
 	GENERATED_BODY()
 	

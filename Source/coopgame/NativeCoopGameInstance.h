@@ -17,7 +17,7 @@ class ACoopGameSession;
  * 
  */
 UCLASS(BluePrintable)
-class COOPGAME_API UNativeCoopGameInstance : public UGameInstance
+class UNativeCoopGameInstance : public UGameInstance
 {
 	GENERATED_UCLASS_BODY()
 

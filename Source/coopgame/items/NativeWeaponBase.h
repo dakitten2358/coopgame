@@ -17,7 +17,7 @@ enum class EWeaponState
 
 
 UCLASS()
-class COOPGAME_API ANativeWeaponBase : public AActor
+class ANativeWeaponBase : public AActor
 {
 	GENERATED_BODY()
 	

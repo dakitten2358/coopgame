@@ -1,4 +1,4 @@
-#include "CoopGame.h"
+#include "coopgame.h"
 #include "CoopTypes.h"
 
 FCharacterInfoRow::FCharacterInfoRow()

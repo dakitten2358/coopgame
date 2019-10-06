@@ -9,7 +9,7 @@
  * 
  */
 UCLASS()
-class COOPGAME_API UCoopCharacterMovementComponent : public UCharacterMovementComponent
+class UCoopCharacterMovementComponent : public UCharacterMovementComponent
 {
 	GENERATED_BODY()
 

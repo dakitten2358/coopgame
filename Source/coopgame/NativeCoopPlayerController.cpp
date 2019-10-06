@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "coopgame.h"
 #include "NativeCoopPlayerController.h"
+#include "coopgame.h"
 #include "CoopPlayerCameraManager.h"
 #include "online/CoopGamePlayerState.h"
 #include "OnlineSubsystem.h"

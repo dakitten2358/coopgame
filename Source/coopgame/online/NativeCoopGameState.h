@@ -10,7 +10,7 @@
  * 
  */
 UCLASS()
-class COOPGAME_API ANativeCoopGameState : public AGameState
+class ANativeCoopGameState : public AGameState
 {
 	GENERATED_UCLASS_BODY()
 	

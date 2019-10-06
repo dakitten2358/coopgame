@@ -2,13 +2,14 @@
 
 #pragma once
 
+#include "CoreMinimal.h"
 #include "GameFramework/GameSession.h"
 #include "CoopTypes.h"
 #include "Online.h"
 #include "CoopGameSession.generated.h"
 
 UCLASS()
-class COOPGAME_API ACoopGameSession : public AGameSession
+class ACoopGameSession : public AGameSession
 {
 	GENERATED_UCLASS_BODY()
 

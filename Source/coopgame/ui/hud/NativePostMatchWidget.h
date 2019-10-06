@@ -10,7 +10,7 @@
  * 
  */
 UCLASS()
-class COOPGAME_API UNativePostMatchWidget : public UUserWidget
+class UNativePostMatchWidget : public UUserWidget
 {
 	GENERATED_BODY()
 	

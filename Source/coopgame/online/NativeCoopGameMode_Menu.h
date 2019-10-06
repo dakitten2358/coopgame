@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "CoreMinimal.h"
 #include "GameFramework/GameMode.h"
 #include "NativeCoopGameMode_Menu.generated.h"
 
@@ -9,7 +10,7 @@
  * 
  */
 UCLASS()
-class COOPGAME_API ANativeCoopGameMode_Menu : public AGameModeBase
+class ANativeCoopGameMode_Menu : public AGameModeBase
 {
 	GENERATED_UCLASS_BODY()
 

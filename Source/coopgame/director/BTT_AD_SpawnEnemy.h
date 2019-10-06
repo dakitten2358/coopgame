@@ -12,7 +12,7 @@
  * 
  */
 UCLASS()
-class COOPGAME_API UBTT_AD_SpawnEnemy : public UBTTaskNode
+class UBTT_AD_SpawnEnemy : public UBTTaskNode
 {
 	GENERATED_BODY()
 	

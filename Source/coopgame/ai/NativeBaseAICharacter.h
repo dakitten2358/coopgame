@@ -7,7 +7,7 @@
 
 
 UCLASS()
-class COOPGAME_API ANativeBaseAICharacter : public ANativeBaseCharacter
+class ANativeBaseAICharacter : public ANativeBaseCharacter
 {
 	GENERATED_BODY()
 

@@ -79,10 +79,23 @@ void UCreateSessionCallbackProxyAdvanced::Activate()
 			}
 			
 			
-			if (!bDedicatedServer && PlayerControllerWeakPtr.IsValid() && Helper.UserID.IsValid())
-				Sessions->CreateSession(*Helper.UserID, GameSessionName, Settings);
+			if (!bDedicatedServer )
+			{
+				if (PlayerControllerWeakPtr.IsValid() && Helper.UserID.IsValid())
+				{
+					Sessions->CreateSession(*Helper.UserID, NAME_GameSession, Settings);
+				}
+				else
+				{
+					FFrame::KismetExecutionMessage(TEXT("Invalid Player controller when attempting to start a session"), ELogVerbosity::Warning);
+					Sessions->ClearOnCreateSessionCompleteDelegate_Handle(CreateCompleteDelegateHandle);
+					
+					// Fail immediately
+					OnFailure.Broadcast();
+				}
+			}
 			else
-				Sessions->CreateSession(0, GameSessionName, Settings);
+				Sessions->CreateSession(0, NAME_GameSession, Settings);
 
 			// OnCreateCompleted will get called, nothing more to do now
 			return;
@@ -112,7 +125,7 @@ void UCreateSessionCallbackProxyAdvanced::OnCreateCompleted(FName SessionName, b
 			if (bWasSuccessful)
 			{
 				StartCompleteDelegateHandle = Sessions->AddOnStartSessionCompleteDelegate_Handle(StartCompleteDelegate);
-				Sessions->StartSession(GameSessionName);
+				Sessions->StartSession(NAME_GameSession);
 
 				// OnStartCompleted will get called, nothing more to do now
 				return;
@@ -129,7 +142,7 @@ void UCreateSessionCallbackProxyAdvanced::OnCreateCompleted(FName SessionName, b
 void UCreateSessionCallbackProxyAdvanced::OnStartCompleted(FName SessionName, bool bWasSuccessful)
 {
 	FOnlineSubsystemBPCallHelperAdvanced Helper(TEXT("StartSessionCallback"), GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull));
-	Helper.QueryIDFromPlayerController(PlayerControllerWeakPtr.Get());
+	//Helper.QueryIDFromPlayerController(PlayerControllerWeakPtr.Get());
 
 	if (Helper.OnlineSub != nullptr)
 	{

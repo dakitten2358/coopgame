@@ -17,6 +17,8 @@
 
 #if PLATFORM_WINDOWS || PLATFORM_MAC || PLATFORM_LINUX
 
+#include "OnlineSubsystemSteam.h"
+
 #pragma push_macro("ARRAY_COUNT")
 #undef ARRAY_COUNT
 
@@ -75,7 +77,7 @@ class USteamRequestGroupOfficersCallbackProxy : public UOnlineBlueprintCallProxy
 	UPROPERTY(BlueprintAssignable)
 	FBlueprintGroupOfficerDetailsDelegate OnFailure;
 
-	// Retruns a list of steam group officers
+	// Returns a list of steam group officers
 	UFUNCTION(BlueprintCallable, meta=(BlueprintInternalUseOnly = "true", WorldContext="WorldContextObject"), Category = "Online|SteamAPI|SteamGroups")
 	static USteamRequestGroupOfficersCallbackProxy* GetSteamGroupOfficerList(UObject* WorldContextObject, FBPUniqueNetId GroupUniqueNetID);
 

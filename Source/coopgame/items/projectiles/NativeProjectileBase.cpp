@@ -39,14 +39,14 @@ ANativeProjectileBase::ANativeProjectileBase(const FObjectInitializer& objectIni
 	// network
 	SetRemoteRoleForBackwardsCompat(ROLE_SimulatedProxy);
 	bReplicates = true;
-	bReplicateMovement = true;
+	this->SetReplicateMovement(true);
 }
 
 void ANativeProjectileBase::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 	m_movementComponent->OnProjectileStop.AddDynamic(this, &ANativeProjectileBase::OnImpact);
-	m_collisionComponent->MoveIgnoreActors.Add(Instigator);
+	m_collisionComponent->MoveIgnoreActors.Add(GetInstigator());
 
 	//AShooterWeapon_Projectile* OwnerWeapon = Cast<AShooterWeapon_Projectile>(GetOwner());
 	//if (OwnerWeapon)
@@ -60,7 +60,7 @@ void ANativeProjectileBase::PostInitializeComponents()
 
 void ANativeProjectileBase::OnImpact(const FHitResult& hitResult)
 {
-	if (Role == ROLE_Authority/* && !bExploded*/)
+	if (GetLocalRole() == ROLE_Authority/* && !bExploded*/)
 	{
 		//Explode(HitResult);
 		if (hitResult.Actor != nullptr)
@@ -72,12 +72,12 @@ void ANativeProjectileBase::OnImpact(const FHitResult& hitResult)
 			{
 				UE_LOG(LogCoopGameWeapon, Log, TEXT("Hit a coop character"));
 
-				UGameplayStatics::ApplyDamage(asCoopCharacter, 8.0f, Instigator->Controller, this, TSubclassOf<UDamageType>(UDamageType::StaticClass()));
+				UGameplayStatics::ApplyDamage(asCoopCharacter, 8.0f, GetInstigatorController(), this, TSubclassOf<UDamageType>(UDamageType::StaticClass()));
 			}
 			else if (auto asCharacter = Cast<ANativeBaseCharacter>(actor))
 			{
 				UE_LOG(LogCoopGameWeapon, Log, TEXT("Hit a character"));
-				UGameplayStatics::ApplyDamage(asCharacter, 34.0f, Instigator->Controller, this, TSubclassOf<UDamageType>(UDamageType::StaticClass()));
+				UGameplayStatics::ApplyDamage(asCharacter, 34.0f, GetInstigatorController(), this, TSubclassOf<UDamageType>(UDamageType::StaticClass()));
 			}
 		}
 		else

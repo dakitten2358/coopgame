@@ -44,7 +44,7 @@ void ANativeBaseAICharacter::Destroyed()
 	Super::Destroyed();
 
 	// get rid of the current weapon if we have one (and we have authoritay)
-	if (Role >= ROLE_Authority && CurrentWeapon != nullptr)
+	if (GetLocalRole() >= ROLE_Authority && CurrentWeapon != nullptr)
 	{
 		CurrentWeapon->Destroy();
 		CurrentWeapon = nullptr;
@@ -72,7 +72,7 @@ void ANativeBaseAICharacter::PossessedBy(AController* newController)
 void ANativeBaseAICharacter::AddWeapon(ANativeWeaponBase* weapon)
 {
 	// only the server can tell us to add a weapon
-	if (weapon != nullptr && Role == ROLE_Authority)
+	if (weapon != nullptr && GetLocalRole() == ROLE_Authority)
 	{
 		UE_LOG(LogCoopGame, Log, TEXT("Equipping weapon"));
 		weapon->OnEnterInventory(this);
@@ -88,7 +88,7 @@ void ANativeBaseAICharacter::EquipWeapon(ANativeWeaponBase* weapon)
 		if (weapon == CurrentWeapon)
 			return;
 
-		if (Role == ROLE_Authority)
+		if (GetLocalRole() == ROLE_Authority)
 		{
 			SetCurrentWeapon(weapon);
 		}

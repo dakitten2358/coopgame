@@ -84,7 +84,7 @@ void ANativeLobbyPlayerController::RemoveAllWidgets()
 void ANativeLobbyPlayerController::SetPlayerCharacter(const FName& characterToUse)
 {
 	// if we're not authority, send a request to the server
-	if (Role < ROLE_Authority)
+	if (GetLocalRole() < ROLE_Authority)
 	{
 		ServerSetPlayerCharacter(characterToUse);
 		return;

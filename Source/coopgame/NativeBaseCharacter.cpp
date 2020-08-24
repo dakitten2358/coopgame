@@ -123,7 +123,7 @@ bool ANativeBaseCharacter::CanDie(float damageAmount, const FDamageEvent& damage
 		return false;
 
 	// only the authoritay can kill us
-	if (Role != ROLE_Authority)
+	if (GetLocalRole() != ROLE_Authority)
 		return false;
 
 	// level ending
@@ -169,7 +169,7 @@ void ANativeBaseCharacter::Hit(float damageAmount, const FDamageEvent& damageEve
 	UE_LOG(LogCoopGame, Log, TEXT("omg! hurt! %.2f / %.2f"), Health, GetMaxHealth());
 
 	// server stuff
-	if (Role == ROLE_Authority)
+	if (GetLocalRole() == ROLE_Authority)
 	{
 		// make sure this gets replicated to everyone
 		ReplicateHit(damageAmount, damageEvent, instigatorPawn, damageCauser, EHitResult::Wounded);
@@ -206,7 +206,7 @@ void ANativeBaseCharacter::Suicide()
 
 void ANativeBaseCharacter::KilledBy(const APawn* killer)
 {
-	if (Role == ROLE_Authority)
+	if (GetLocalRole() == ROLE_Authority)
 	{
 		AController* killingController = nullptr;
 		if (killer)
@@ -225,14 +225,14 @@ void ANativeBaseCharacter::OnDeath(float damageAmount, const FDamageEvent& damag
 		return;
 
 	// no need to worry about replication anymore
-	bReplicateMovement = false;
+	SetReplicateMovement(false);
 	TearOff();
 
 	// keep track of dying
 	m_isDying = true;
 
 	// server stuff
-	if (Role == ROLE_Authority)
+	if (GetLocalRole() == ROLE_Authority)
 	{
 		// make sure this gets replicated to everyone
 		ReplicateHit(damageAmount, damageEvent, instigatorPawn, damageCauser, EHitResult::Dead);
@@ -394,7 +394,7 @@ void ANativeBaseCharacter::SetSprinting(bool isSprinting)
 		UnCrouch();
 
 	// if we're not the authoritay, let the server know we'd like to start sprinting
-	if (Role < ROLE_Authority)
+	if (GetLocalRole() < ROLE_Authority)
 		ServerSetSprinting(isSprinting);
 }
 
@@ -419,7 +419,7 @@ void ANativeBaseCharacter::SetAimingDownSights(bool isAiming)
 {
 	bIsAimingDownSights = isAiming;
 
-	if (Role < ROLE_Authority)
+	if (GetLocalRole() < ROLE_Authority)
 	{
 		ServerSetAimingDownSights(isAiming);
 	}

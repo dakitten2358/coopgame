@@ -215,7 +215,7 @@ void ANativeCoopCharacter::CreateAndSetupCamera(const FObjectInitializer& object
 void ANativeCoopCharacter::AddWeapon(ANativeWeaponBase* weapon)
 {
 	// only the server can tell us to add a weapon
-	if (weapon != nullptr && Role == ROLE_Authority)
+	if (weapon != nullptr && GetLocalRole() == ROLE_Authority)
 	{
 		UE_LOG(LogCoopGame, Log, TEXT("Equipping weapon"));
 		weapon->OnEnterInventory(this);
@@ -231,7 +231,7 @@ void ANativeCoopCharacter::EquipWeapon(ANativeWeaponBase* weapon)
 		if (weapon == CurrentWeapon)
 			return;
 
-		if (Role == ROLE_Authority)
+		if (GetLocalRole() == ROLE_Authority)
 		{
 			SetCurrentWeapon(weapon);
 		}
@@ -330,7 +330,7 @@ bool ANativeCoopCharacter::IsFiring() const
 void ANativeCoopCharacter::DestroyInventory()
 {
 	// only if we're authority
-	if (Role < ROLE_Authority)
+	if (GetLocalRole() < ROLE_Authority)
 		return;
 
 	// if we have a wepaon, destroy it

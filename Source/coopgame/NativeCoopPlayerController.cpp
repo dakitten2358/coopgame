@@ -283,7 +283,7 @@ void ANativeCoopPlayerController::SetPlayerCharacter(const FName& characterToUse
 		HideCharacterSelect();
 	}
 
-	if (Role < ROLE_Authority)
+	if (GetLocalRole() < ROLE_Authority)
 	{
 		ServerSetPlayerCharacter(characterToUse);
 		return;

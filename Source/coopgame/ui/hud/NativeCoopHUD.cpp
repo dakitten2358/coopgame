@@ -194,7 +194,7 @@ const ANativeCoopCharacter* ANativeCoopHUD::FindCharacterFor(const APlayerState*
 	for (auto asActor : coopCharacterActors)
 	{
 		auto coopCharacter = Cast<ANativeCoopCharacter>(asActor);
-		if (coopCharacter->GetPlayerState() && coopCharacter->GetPlayerState()->UniqueId == playerState->UniqueId)
+		if (coopCharacter->GetPlayerState() && coopCharacter->GetPlayerState()->GetUniqueId() == playerState->GetUniqueId())
 			return coopCharacter;
 	}
 
@@ -207,7 +207,7 @@ bool ANativeCoopHUD::IsMe(const APlayerState* playerState) const
 	if (!Identity.IsValid())
 		return false;
 
-	return *Identity->GetUniquePlayerId(0).Get() == *playerState->UniqueId;
+	return *Identity->GetUniquePlayerId(0).Get() == *playerState->GetUniqueId();
 }
 
 void ANativeCoopHUD::DrawInstructionsTip()

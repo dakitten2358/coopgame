@@ -63,7 +63,7 @@ void ANativeWeaponBase::OnEnterInventory(ANativeBaseCharacter* ofCharacter)
 
 void ANativeWeaponBase::OnLeaveInventory()
 {
-	if (Role == ROLE_Authority)
+	if (GetLocalRole() == ROLE_Authority)
 		ResetOwningCharacter();
 
 	//if (IsEquippedByPawn())
@@ -76,7 +76,7 @@ void ANativeWeaponBase::SetOwningCharacter(ANativeBaseCharacter* newOwner)
 {
 	if (OwningCharacter != newOwner)
 	{
-		Instigator = newOwner;
+		SetInstigator(newOwner);
 		OwningCharacter = newOwner;
 
 		// Net owner for RPC calls.
@@ -139,7 +139,7 @@ FVector ANativeWeaponBase::GetMuzzleDirection() const
 
 FVector ANativeWeaponBase::GetAdjustedAim() const
 {
-	auto playerController = Instigator ? Cast<ANativeCoopPlayerController>(Instigator->Controller) : nullptr;
+	auto playerController = GetInstigatorController<ANativeCoopPlayerController>();
 	FVector finalAimDirection = FVector::ZeroVector;
 
 	if (playerController != nullptr)
@@ -150,9 +150,9 @@ FVector ANativeWeaponBase::GetAdjustedAim() const
 
 		finalAimDirection = cameraRotation.Vector();
 	}
-	else if (Instigator)
+	else if (GetInstigator())
 	{
-		finalAimDirection = Instigator->GetBaseAimRotation().Vector();
+		finalAimDirection = GetInstigator()->GetBaseAimRotation().Vector();
 	}
 
 	return finalAimDirection;
@@ -170,7 +170,7 @@ FVector ANativeWeaponBase::GetCameraDamageStartLocation(const FVector& aimDirect
 		playerController->GetPlayerViewPoint(outStartLocation, unusedRotation);
 
 		// Adjust trace so there is nothing blocking the ray between the camera and the pawn, and calculate distance from adjusted start
-		outStartLocation = outStartLocation + aimDirection * (FVector::DotProduct((Instigator->GetActorLocation() - outStartLocation), aimDirection));
+		outStartLocation = outStartLocation + aimDirection * (FVector::DotProduct((GetInstigator()->GetActorLocation() - outStartLocation), aimDirection));
 	}
 
 	return outStartLocation;
@@ -182,7 +182,7 @@ FVector ANativeWeaponBase::GetCameraDamageStartLocation(const FVector& aimDirect
 void ANativeWeaponBase::StartFire()
 {
 	UE_LOG(LogCoopGameWeapon, Verbose, TEXT("ANativeWeaponBase::StartFire()"));
-	if (Role < ROLE_Authority)
+	if (GetLocalRole() < ROLE_Authority)
 		ServerStartFire();
 
 	if (!bWantsToFire)
@@ -206,7 +206,7 @@ void ANativeWeaponBase::ServerStartFire_Implementation()
 void ANativeWeaponBase::StopFire()
 {
 	UE_LOG(LogCoopGameWeapon, Verbose, TEXT("ANativeWeaponBase::StopFire()"));
-	if (Role < ROLE_Authority)
+	if (GetLocalRole() < ROLE_Authority)
 		ServerStopFire();
 
 	if (bWantsToFire)
@@ -336,7 +336,7 @@ void ANativeWeaponBase::HandleFiring()
 	if (OwningCharacter && OwningCharacter->IsLocallyControlled())
 	{
 		// let the server know
-		if (Role < ROLE_Authority)
+		if (GetLocalRole() < ROLE_Authority)
 			ServerHandleFiring();
 
 		// shooting another shot?
@@ -380,7 +380,7 @@ void ANativeWeaponBase::OnRep_BurstCounter()
 
 FHitResult ANativeWeaponBase::WeaponTrace(const FVector& TraceFrom, const FVector& TraceTo, const FName& traceTag) const
 {
-	FCollisionQueryParams TraceParams(TEXT("WeaponTrace"), true, Instigator);
+	FCollisionQueryParams TraceParams(TEXT("WeaponTrace"), true, GetInstigator());
 	TraceParams.bReturnPhysicalMaterial = true;
 	TraceParams.TraceTag = traceTag;
 

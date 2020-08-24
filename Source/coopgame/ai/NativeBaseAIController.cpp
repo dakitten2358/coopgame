@@ -8,6 +8,7 @@
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Enum.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Object.h"
+#include "EngineUtils.h"
 #include "NativeCoopCharacter.h"
 #include "items/NativeWeaponBase.h"
 #include <limits>
@@ -71,10 +72,10 @@ bool ANativeBaseAIController::FindClosestEnemyWithLOS()
 	if (selfPawn != nullptr)
 	{
 		auto currentLocation = selfPawn->GetActorLocation();
-		for (FConstPawnIterator pawnIterator = GetWorld()->GetPawnIterator(); pawnIterator; ++pawnIterator)
+		for (TActorIterator<ANativeCoopCharacter> pawnIterator(GetWorld()); pawnIterator; ++pawnIterator)
 		{
-			auto testCharacter = Cast<ANativeCoopCharacter>(*pawnIterator);
-			if (testCharacter && testCharacter->IsAlive() /*&& testCharacter->IsEnemyFor(this)*/)
+			auto testCharacter = *pawnIterator;
+			if (testCharacter->IsAlive() /*&& testCharacter->IsEnemyFor(this)*/)
 			{
 				if (HasWeaponLOSToEnemy(testCharacter))
 				{

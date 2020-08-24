@@ -81,7 +81,7 @@ void ANativeWeaponProjectile::ServerFireProjectile_Implementation(FVector shootO
 		auto newProjectile = Cast<AActor>(UGameplayStatics::BeginDeferredActorSpawnFromClass(this, DefaultProjectile, spawnTransform));
 		if (newProjectile)
 		{
-			newProjectile->Instigator = Instigator;
+			newProjectile->SetInstigator(GetInstigator());
 			newProjectile->SetOwner(this);
 			//newProjectile->InitVelociy(shootDirection);
 

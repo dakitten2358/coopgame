@@ -106,12 +106,12 @@ bool ANativeWeaponInstant::ServerNotifyHit_Validate(const FHitResult hitResult, 
 void ANativeWeaponInstant::ServerNotifyHit_Implementation(const FHitResult hitResult, FVector_NetQuantizeNormal shootDirection)
 {
 	// If we have an instigator, calculate the dot between the view and the shot
-	if (Instigator && (hitResult.GetActor() || hitResult.bBlockingHit))
+	if (GetInstigator() && (hitResult.GetActor() || hitResult.bBlockingHit))
 	{
 		const FVector shootOrigin = GetMuzzleLocation();
 		const FVector viewDirection = (hitResult.Location - shootOrigin).GetSafeNormal();
 
-		const float viewDotHitDir = FVector::DotProduct(Instigator->GetViewRotation().Vector(), viewDirection);
+		const float viewDotHitDir = FVector::DotProduct(GetInstigator()->GetViewRotation().Vector(), viewDirection);
 		if (viewDotHitDir > AllowedViewDotHitDir)
 		{
 			// TODO: Check for weapon state
@@ -185,7 +185,7 @@ void ANativeWeaponInstant::ProcessInstantHitConfirmed(const FHitResult& hitResul
 	}
 
 	// Play FX on remote clients
-	if (Role == ROLE_Authority)
+	if (GetLocalRole() == ROLE_Authority)
 	{
 		HitImpactNotify = hitResult.ImpactPoint;
 	}
@@ -202,7 +202,7 @@ bool ANativeWeaponInstant::ShouldDealDamage(AActor* toActor) const
 	check(toActor);
 
 	// If we are an actor on the server, or the local client has authoritative control over actor, we should register damage.
-	if (GetNetMode() != NM_Client || toActor->Role == ROLE_Authority || toActor->GetTearOff())
+	if (GetNetMode() != NM_Client || toActor->GetLocalRole() == ROLE_Authority || toActor->GetTearOff())
 		return true;
 
 	return false;

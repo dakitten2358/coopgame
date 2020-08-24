@@ -3,6 +3,7 @@
 #include "NativeCoopGameMode.h"
 #include "CoopTypes.h"
 #include "coopgame.h"
+#include "EngineUtils.h"
 #include "NativeCoopCharacter.h"
 #include "NativeCoopPlayerController.h"
 #include "items/NativeWeaponBase.h"
@@ -496,7 +497,7 @@ void ANativeCoopGameMode::FinishMatch()
 		// lock all pawns
 		// pawns are not marked as keep for seamless travel, so we will create new pawns on the next match rather than
 		// turning these back on.
-		for (FConstPawnIterator It = GetWorld()->GetPawnIterator(); It; ++It)
+		for (TActorIterator<APawn> It(GetWorld()); It; ++It)
 		{
 			(*It)->TurnOff();
 		}

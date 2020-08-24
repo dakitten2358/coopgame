@@ -1,0 +1,3 @@
+[submodule "Plugins/AdvancedSessions"]
+	path = Plugins/AdvancedSessions
+	url = https://github.com/mordentral/AdvancedSessionsPlugin.git

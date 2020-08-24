@@ -7,6 +7,7 @@ public class coopgameEditorTarget : TargetRules
 {
 	public coopgameEditorTarget(TargetInfo Target) : base(Target)
 	{
+		DefaultBuildSettings = BuildSettingsVersion.V2;
 		Type = TargetType.Editor;
 		ExtraModuleNames.Add("coopgame");
 	}

@@ -7,6 +7,7 @@ public class coopgameTarget : TargetRules
 {
 	public coopgameTarget(TargetInfo Target) : base(Target)
 	{
+		DefaultBuildSettings = BuildSettingsVersion.V2;
 		Type = TargetType.Game;
 		ExtraModuleNames.Add("coopgame");
 	}

@@ -6,8 +6,8 @@
 #include "NativeCoopPlayerController.h"
 #include <Online.h>
 #include <OnlineSubsystem.h>
-#include <OnlineIdentityInterface.h>
-#include <OnlineSessionInterface.h>
+#include "Interfaces/OnlineIdentityInterface.h"
+#include "Interfaces/OnlineSessionInterface.h"
 #include <Runtime/Engine/Classes/Engine/Engine.h>
 #include <Runtime/UMG/Public/UMG.h>
 #include "online/CoopGameSession.h"

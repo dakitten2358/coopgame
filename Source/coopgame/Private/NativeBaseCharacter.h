@@ -3,7 +3,7 @@
 #pragma once
 
 #include "GameFramework/Character.h"
-#include "UnrealNetwork.h"
+#include "Net/UnrealNetwork.h"
 #include "CoopTypes.h"
 #include "NativeBaseCharacter.generated.h"
 

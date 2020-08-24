@@ -3,8 +3,8 @@
 #pragma once
 
 #include "Engine/GameInstance.h"
-#include <OnlineIdentityInterface.h>
-#include <OnlineSessionInterface.h>
+#include "Interfaces/OnlineIdentityInterface.h"
+#include "Interfaces/OnlineSessionInterface.h"
 #include "CoopTypes.h"
 
 #include "NativeCoopGameInstance.generated.h"

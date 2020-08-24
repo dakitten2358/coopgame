@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "NativeCoopGameState.h"
-#include "UnrealNetwork.h"
+#include "Net/UnrealNetwork.h"
 
 ANativeCoopGameState::ANativeCoopGameState(const FObjectInitializer& objectInitializer)
 	: Super(objectInitializer)

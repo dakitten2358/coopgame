@@ -5,7 +5,7 @@
 #include "NativeCoopPlayerController.h"
 #include "online/NativeCoopGameState.h"
 #include <Online.h>
-#include <OnlineIdentityInterface.h>
+#include "Interfaces/OnlineIdentityInterface.h"
 #include "online/CoopGamePlayerState.h"
 #include "CoopTypes.h"
 #include <limits>

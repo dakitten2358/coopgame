@@ -26,6 +26,7 @@ public class coopgame : ModuleRules
                 "GameplayTasks",
             }
         );
+
         DynamicallyLoadedModuleNames.AddRange(
             new string[] {
                 "OnlineSubsystemSteam",

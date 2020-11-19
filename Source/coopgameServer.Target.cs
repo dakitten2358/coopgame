@@ -10,6 +10,5 @@ public class coopgameServerTarget : TargetRules
 		DefaultBuildSettings = BuildSettingsVersion.V2;
 		Type = TargetType.Server;
 		ExtraModuleNames.Add("coopgame");
-		ExtraModuleNames.Add("CoopFramework");
 	}
 }

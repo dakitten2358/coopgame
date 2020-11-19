@@ -23,7 +23,7 @@ ANativeWeaponBase::ANativeWeaponBase(const FObjectInitializer& objectInitializer
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.TickGroup = TG_PrePhysics;
 
-	SetReplicates(true);
+	bReplicates = true;
 	bNetUseOwnerRelevancy = true;
 
 	MuzzleAttachPoint = TEXT("Muzzle");
@@ -36,6 +36,7 @@ void ANativeWeaponBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION(ANativeWeaponBase, BurstCounter, COND_SkipOwner);
+	DOREPLIFETIME(ANativeWeaponBase, OwningCharacter);
 }
 
 

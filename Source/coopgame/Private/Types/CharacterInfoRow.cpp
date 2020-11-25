@@ -2,5 +2,6 @@
 #include "CoopTypes.h"
 
 FCharacterInfoRow::FCharacterInfoRow()
+	: Icon(nullptr)
 {
 }
